@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:arise_application/auth_servers/auth_gate.dart';
 
-void main() {
-  runApp(const MainApp());
+const supabaseUrl = 'https://zpnykmhpzagnnmwhhjcp.supabase.co';
+const supabaseAnonKey = 'sb_publishable_yRdFl4KBJXqTqmTzawMISQ_TaIS5Npl';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: supabaseUrl, 
+    anonKey: supabaseAnonKey,
+  );
+
+  runApp(const MyApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+      title: 'ARISE',
+      home: AuthGate(),
     );
   }
 }
