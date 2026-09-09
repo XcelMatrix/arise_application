@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/auth_servers/auth_gate.dart';
 
 const supabaseUrl = 'https://zpnykmhpzagnnmwhhjcp.supabase.co';
-const supabaseAnonKey = 'sb_publishable_yRdFl4KBJXqTqmTzawMISQ_TaIS5Npl';
+const supabasePublishableKey = 'sb_publishable_yRdFl4KBJXqTqmTzawMISQ_TaIS5Npl';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,7 +11,7 @@ Future<void> main() async {
   // Initialize Supabase
   await Supabase.initialize(
     url: supabaseUrl, 
-    anonKey: supabaseAnonKey,
+    publishableKey: supabasePublishableKey,
   );
 
   runApp(const MyApp());

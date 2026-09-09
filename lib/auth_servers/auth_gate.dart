@@ -12,7 +12,7 @@ authenticated   -> Profile Page
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/pages/login_page.dart';
-import 'package:arise_application/pages/profile_page.dart';
+import 'package:arise_application/pages/home_page.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -36,7 +36,7 @@ class AuthGate extends StatelessWidget {
         final session = snapshot.hasData ? snapshot.data!.session : null;
 
         if (session != null) {
-          return const ProfilePage();
+          return const HomePage();
         } else {
           return const LoginPage();
         }
