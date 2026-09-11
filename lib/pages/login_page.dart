@@ -47,6 +47,11 @@ class _LoginPageState extends State<LoginPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 50),
         children: [
+          Center(child: Image.asset("assets/icons/icon.png", width: 200, height: 200)),
+          Center(child: Image.asset("assets/logo.png", width: 200, height: 50)),
+
+          const SizedBox(height: 12),
+
           //email
           TextField(
             controller: _emailController,

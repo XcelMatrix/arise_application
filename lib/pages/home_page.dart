@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           GestureDetector(
             onTap: () => Navigator.push(context, MaterialPageRoute(
-              builder: (context) => EvacuationMapPage()
+              builder: (context) => const EvacuationMapPage()
               )),
 
               child: const Center(child: Text("Evacuation Map Page")),
