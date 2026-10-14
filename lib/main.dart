@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:arise_application/auth_servers/splash_page.dart';
+import 'package:arise_application/auth_servers/auth_gate.dart';
 
 const supabaseUrl = 'https://zpnykmhpzagnnmwhhjcp.supabase.co';
 const supabasePublishableKey = 'sb_publishable_yRdFl4KBJXqTqmTzawMISQ_TaIS5Npl';
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ARISE',
-      home: SplashPage(),
+      home: AuthGate(),
     );
   }
 }
