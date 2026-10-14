@@ -39,6 +39,7 @@ class _ProfilePageState extends State<ProfilePage> {
           )),
         ),
         backgroundColor: Color(0xFF3C6E87),
+
         title: const Text("Profile"),
         titleTextStyle: const TextStyle(
           fontSize: 20,
@@ -47,6 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
           fontFamily: 'Geist'
         ),
         centerTitle: true,
+
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.person),
@@ -66,6 +68,7 @@ class _ProfilePageState extends State<ProfilePage> {
           )
         ]
       ),
+      
       body: Center(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),

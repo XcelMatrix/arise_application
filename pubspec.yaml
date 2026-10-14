@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   rename_app: ^1.6.6
   supabase_flutter: ^2.17.2
+  timeago: ^3.7.1
 
 dev_dependencies:
   flutter_test:

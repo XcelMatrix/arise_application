@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:arise_application/pages/profile_page.dart';
 import 'package:arise_application/pages/evacuation_map_page.dart';
 import 'package:arise_application/pages/attendance_page.dart';
-import 'package:arise_application/pages/messaging_page.dart';
+import 'package:arise_application/pages/chat_page.dart';
 import 'package:arise_application/pages/timed_console_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,6 +17,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+
+        // ARISE white logo
         leading: IconButton(
           icon: Image.asset(
             "assets/icons/icon_white.png",
@@ -29,6 +31,8 @@ class _HomePageState extends State<HomePage> {
           )),
         ),
         backgroundColor: Color(0xFF3C6E87),
+
+        // Page title
         title: const Text("Home"),
         titleTextStyle: const TextStyle(
           fontSize: 20,
@@ -37,6 +41,8 @@ class _HomePageState extends State<HomePage> {
           fontFamily: 'Geist'
         ),
         centerTitle: true,
+
+        // Profile button
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.person),
@@ -67,6 +73,8 @@ class _HomePageState extends State<HomePage> {
               onTap: () => Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const EvacuationMapPage()
               )),
+
+              // evacuation map  box/container
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 decoration: BoxDecoration(
@@ -75,6 +83,8 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: Row(
                   children: [
+                    
+                    // evacuation map icon
                     Container(
                       width: 90,
                       height: 90,
@@ -88,7 +98,10 @@ class _HomePageState extends State<HomePage> {
                         color: Color(0xFF3C6E87),
                       ),
                     ),
+
                     const SizedBox(width: 20),
+
+                    // evacuation map text
                     const Expanded(
                       child: Text(
                         "Evacuation Map",
@@ -152,10 +165,10 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 24),
 
-            // go to messaging
+            // go to chat
             GestureDetector(
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const MessagingPage()
+                builder: (context) => const ChatPage()
               )),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
