@@ -10,6 +10,7 @@ dependencies:
   augen: ^1.5.0
   flutter:
     sdk: flutter
+  flutter_bloc: ^9.1.1
   path_provider: ^2.1.6
   rename_app: ^1.6.6
   supabase_flutter: ^2.17.2

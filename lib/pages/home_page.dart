@@ -3,6 +3,7 @@ import 'package:arise_application/pages/profile_page.dart';
 import 'package:arise_application/pages/attendance_page.dart';
 import 'package:arise_application/pages/chat_page.dart';
 import 'package:arise_application/pages/timed_console_page.dart';
+import 'package:arise_application/pages/evacuation_map_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -70,7 +71,7 @@ class _HomePageState extends State<HomePage> {
             // go to evacuation maps
             GestureDetector(
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => EvacuationMapPage()
+                builder: (context) => const EvacuationMapPage()
               )),
 
               // evacuation map  box/container
