@@ -1,3 +1,3 @@
-# arise_application
+# ARISE
 
-A new Flutter project.
+Development of an Application for Real-time Information System on Evacuation.
