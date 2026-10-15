@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:arise_application/pages/profile_page.dart';
-import 'package:arise_application/pages/evacuation_map_page.dart';
 import 'package:arise_application/pages/attendance_page.dart';
 import 'package:arise_application/pages/chat_page.dart';
 import 'package:arise_application/pages/timed_console_page.dart';
