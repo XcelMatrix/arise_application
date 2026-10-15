@@ -7,6 +7,7 @@ environment:
   sdk: ^3.12.2
 
 dependencies:
+  augen: ^1.5.0
   flutter:
     sdk: flutter
   path_provider: ^2.1.6

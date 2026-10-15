@@ -49,6 +49,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.1"
+  augen:
+    dependency: "direct main"
+    description:
+      name: augen
+      sha256: "77164270fbb00dc39a53c5c4e0707ccd6d06836221e711fb1cb65e630cae40fd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
   boolean_selector:
     dependency: transitive
     description:
