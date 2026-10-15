@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
             // go to evacuation maps
             GestureDetector(
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const EvacuationMapPage()
+                builder: (context) => EvacuationMapPage()
               )),
 
               // evacuation map  box/container
