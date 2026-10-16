@@ -9,10 +9,10 @@ class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
   @override
-  SplashPageState createState() => SplashPageState();
+  State<SplashPage> createState() => _SplashPageState();
 }
 
-class SplashPageState extends State<SplashPage> {
+class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     getInitialSession();
@@ -23,8 +23,11 @@ class SplashPageState extends State<SplashPage> {
     // quick and dirty way to wait for the widget to mount
     await Future.delayed(Duration.zero);
 
+    if (!mounted) return;
+
     try {
       final session = Supabase.instance.client.auth.currentSession;
+      
       if (session == null) {
         Navigator.of(context)
             .pushAndRemoveUntil(RegisterPage.route(), (_) => false);
@@ -33,6 +36,8 @@ class SplashPageState extends State<SplashPage> {
             .pushAndRemoveUntil(RoomsPage.route(), (_) => false);
       }
     } catch (_) {
+      if (!mounted) return;
+
       context.showErrorSnackBar(
         message: 'Error occurred during session refresh',
       );

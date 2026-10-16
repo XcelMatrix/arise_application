@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:arise_application/auth_servers/auth_service.dart';
+import 'package:arise_application/utils/constants.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -35,16 +36,16 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       await authService.signUpWithEmailPassword(email, password);
 
+      if (!mounted) return;
+
       // pop this register page
       Navigator.pop(context);
     } 
 
     // catch any errors
-    catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error: $e")));
-      }
+    catch (e) { 
+      if (!mounted) return;
+      context.showErrorSnackBar(message: e.toString());
     }
   }
 

@@ -10,7 +10,7 @@ class LoginPage extends StatefulWidget {
   }
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -28,8 +28,12 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text,
       );
     } on AuthException catch (error) {
+      if (!mounted) return;
+
       context.showErrorSnackBar(message: error.message);
     } catch (_) {
+      if (!mounted) return;
+
       context.showErrorSnackBar(message: unexpectedErrorMessage);
     }
     if (mounted) {

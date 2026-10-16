@@ -41,6 +41,9 @@ class _RegisterPageState extends State<RegisterPage> {
       final session = data.session;
       if (session != null && !haveNavigated) {
         haveNavigated = true;
+
+        if (!mounted) return;
+
         Navigator.of(context).pushReplacement(RoomsPage.route());
       }
     });
@@ -69,11 +72,18 @@ class _RegisterPageState extends State<RegisterPage> {
         data: {'username': username},
         emailRedirectTo: 'io.supabase.chat://login',
       );
+
+      if (!mounted) return;
+      
       context.showSnackBar(
           message: 'Please check your inbox for confirmation email.');
     } on AuthException catch (error) {
+      if (!mounted) return;
+
       context.showErrorSnackBar(message: error.message);
     } catch (error) {
+      if (!mounted) return;
+
       debugPrint(error.toString());
       context.showErrorSnackBar(message: unexpectedErrorMessage);
     }

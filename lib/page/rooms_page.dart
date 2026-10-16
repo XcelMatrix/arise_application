@@ -30,6 +30,9 @@ class RoomsPage extends StatelessWidget {
           TextButton(
             onPressed: () async {
               await supabase.auth.signOut();
+
+              if (!context.mounted) return;
+
               Navigator.of(context).pushAndRemoveUntil(
                 RegisterPage.route(),
                 (route) => false,
@@ -131,10 +134,17 @@ class _NewUsers extends StatelessWidget {
             .map<Widget>((user) => InkWell(
                   onTap: () async {
                     try {
+                      if (!context.mounted) return;
+
                       final roomId = await BlocProvider.of<RoomCubit>(context)
                           .createRoom(user.id);
+
+                      if (!context.mounted) return;
+                      
                       Navigator.of(context).push(ChatPage.route(roomId));
                     } catch (_) {
+                      if (!context.mounted) return;
+
                       context.showErrorSnackBar(
                           message: 'Failed creating a new room');
                     }

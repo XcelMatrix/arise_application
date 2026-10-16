@@ -6,7 +6,7 @@ final supabase = Supabase.instance.client;
 
 /// Simple preloader inside a Center widget
 const preloader =
-    Center(child: CircularProgressIndicator(color: Colors.orange));
+    Center(child: CircularProgressIndicator(color: Color(0xFF3C6E87)));
 
 /// Simple sized box to space out form elements
 const spacer = SizedBox(width: 16, height: 16);
@@ -15,11 +15,11 @@ const spacer = SizedBox(width: 16, height: 16);
 const formPadding = EdgeInsets.symmetric(vertical: 20, horizontal: 16);
 
 /// Error message to display the user when unexpected error occurs.
-const unexpectedErrorMessage = 'Unexpected error occured.';
+const unexpectedErrorMessage = 'Unexpected error occurred.';
 
 /// Basic theme to change the look and feel of the app
 final appTheme = ThemeData.light().copyWith(
-  primaryColorDark: Colors.orange,
+  primaryColorDark: Color(0xFF3C6E87),
   appBarTheme: const AppBarTheme(
     elevation: 1,
     backgroundColor: Colors.white,
@@ -29,21 +29,21 @@ final appTheme = ThemeData.light().copyWith(
       fontSize: 18,
     ),
   ),
-  primaryColor: Colors.orange,
+  primaryColor: Color(0xFF3C6E87),
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: Colors.orange,
+      foregroundColor: Color(0xFF3C6E87),
     ),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       foregroundColor: Colors.white,
-      backgroundColor: Colors.orange,
+      backgroundColor: Color(0xFF3C6E87),
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(
     floatingLabelStyle: const TextStyle(
-      color: Colors.orange,
+      color: Color(0xFF3C6E87),
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
@@ -52,11 +52,11 @@ final appTheme = ThemeData.light().copyWith(
         width: 2,
       ),
     ),
-    focusColor: Colors.orange,
+    focusColor: Color(0xFF3C6E87),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(
-        color: Colors.orange,
+        color: Color(0xFF3C6E87),
         width: 2,
       ),
     ),
