@@ -75,9 +75,7 @@ class ChatPage extends StatelessWidget {
 
 /// Set of widget that contains TextField and Button to submit message
 class _MessageBar extends StatefulWidget {
-  const _MessageBar({
-    super.key,
-  });
+  const _MessageBar();
 
   @override
   State<_MessageBar> createState() => _MessageBarState();
@@ -147,7 +145,6 @@ class _MessageBarState extends State<_MessageBar> {
 
 class _ChatBubble extends StatelessWidget {
   const _ChatBubble({
-    super.key,
     required this.message,
   });
 

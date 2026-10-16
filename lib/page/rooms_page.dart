@@ -116,7 +116,6 @@ class RoomsPage extends StatelessWidget {
 
 class _NewUsers extends StatelessWidget {
   const _NewUsers({
-    super.key,
     required this.newUsers,
   });
 
