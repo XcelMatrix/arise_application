@@ -6,7 +6,7 @@ import 'package:arise_application/utils/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key, required this.isRegistering}) : super(key: key);
+  const RegisterPage({super.key, required this.isRegistering});
 
   static Route<void> route({bool isRegistering = false}) {
     return MaterialPageRoute(

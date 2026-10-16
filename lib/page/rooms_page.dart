@@ -10,7 +10,7 @@ import 'package:timeago/timeago.dart';
 
 /// Displays the list of chat threads
 class RoomsPage extends StatelessWidget {
-  const RoomsPage({Key? key}) : super(key: key);
+  const RoomsPage({super.key});
 
   static Route<void> route() {
     return MaterialPageRoute(
@@ -116,9 +116,9 @@ class RoomsPage extends StatelessWidget {
 
 class _NewUsers extends StatelessWidget {
   const _NewUsers({
-    Key? key,
+    super.key,
     required this.newUsers,
-  }) : super(key: key);
+  });
 
   final List<Profile> newUsers;
 

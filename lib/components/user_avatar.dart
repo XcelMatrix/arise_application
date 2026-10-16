@@ -6,9 +6,9 @@ import 'package:arise_application/utils/constants.dart';
 /// Widget that will display a user's avatar
 class UserAvatar extends StatelessWidget {
   const UserAvatar({
-    Key? key,
+    super.key,
     required this.userId,
-  }) : super(key: key);
+  });
 
   final String userId;
 

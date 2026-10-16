@@ -10,7 +10,7 @@ import 'package:timeago/timeago.dart';
 ///
 /// Displays chat bubbles as a ListView and TextField to enter new chat.
 class ChatPage extends StatelessWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  const ChatPage({super.key});
 
   static Route<void> route(String roomId) {
     return MaterialPageRoute(
@@ -76,8 +76,8 @@ class ChatPage extends StatelessWidget {
 /// Set of widget that contains TextField and Button to submit message
 class _MessageBar extends StatefulWidget {
   const _MessageBar({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<_MessageBar> createState() => _MessageBarState();
@@ -147,9 +147,9 @@ class _MessageBarState extends State<_MessageBar> {
 
 class _ChatBubble extends StatelessWidget {
   const _ChatBubble({
-    Key? key,
+    super.key,
     required this.message,
-  }) : super(key: key);
+  });
 
   final Message message;
 
