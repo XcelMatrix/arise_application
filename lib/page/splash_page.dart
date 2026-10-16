@@ -4,7 +4,7 @@ import 'package:arise_application/page/rooms_page.dart';
 import 'package:arise_application/utils/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Page to redirect users to the appropreate page depending on the initial auth state
+/// Page to redirect users to the appropriate page depending on the initial auth state
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
@@ -34,7 +34,7 @@ class SplashPageState extends State<SplashPage> {
       }
     } catch (_) {
       context.showErrorSnackBar(
-        message: 'Error occured during session refresh',
+        message: 'Error occurred during session refresh',
       );
       Navigator.of(context)
           .pushAndRemoveUntil(RegisterPage.route(), (_) => false);
