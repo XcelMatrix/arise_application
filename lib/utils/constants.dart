@@ -6,20 +6,20 @@ final supabase = Supabase.instance.client;
 
 /// Simple preloader inside a Center widget
 const preloader =
-    Center(child: CircularProgressIndicator(color: Color(0xFF3C6E87)));
+    Center(child: CircularProgressIndicator(color: Colors.orange));
 
 /// Simple sized box to space out form elements
-const formSpacer = SizedBox(width: 16, height: 16);
+const spacer = SizedBox(width: 16, height: 16);
 
 /// Some padding for all the forms to use
 const formPadding = EdgeInsets.symmetric(vertical: 20, horizontal: 16);
 
 /// Error message to display the user when unexpected error occurs.
-const unexpectedErrorMessage = 'Unexpected error occurred.';
+const unexpectedErrorMessage = 'Unexpected error occured.';
 
 /// Basic theme to change the look and feel of the app
 final appTheme = ThemeData.light().copyWith(
-  primaryColorDark: Color(0xFF3C6E87),
+  primaryColorDark: Colors.orange,
   appBarTheme: const AppBarTheme(
     elevation: 1,
     backgroundColor: Colors.white,
@@ -29,21 +29,21 @@ final appTheme = ThemeData.light().copyWith(
       fontSize: 18,
     ),
   ),
-  primaryColor: Color(0xFF3C6E87),
+  primaryColor: Colors.orange,
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
-      foregroundColor: Color(0xFF3C6E87),
+      foregroundColor: Colors.orange,
     ),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       foregroundColor: Colors.white,
-      backgroundColor: Color(0xFF3C6E87),
+      backgroundColor: Colors.orange,
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(
     floatingLabelStyle: const TextStyle(
-      color: Color(0xFF3C6E87),
+      color: Colors.orange,
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
@@ -52,11 +52,11 @@ final appTheme = ThemeData.light().copyWith(
         width: 2,
       ),
     ),
-    focusColor: Color(0xFF3C6E87),
+    focusColor: Colors.orange,
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(
-        color: Color(0xFF3C6E87),
+        color: Colors.orange,
         width: 2,
       ),
     ),
@@ -68,7 +68,7 @@ extension ShowSnackBar on BuildContext {
   /// Displays a basic snackbar
   void showSnackBar({
     required String message,
-    Color backgroundColor = Colors.white,
+    Color? backgroundColor,
   }) {
     ScaffoldMessenger.of(this).showSnackBar(SnackBar(
       content: Text(message),
