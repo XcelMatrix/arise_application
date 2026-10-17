@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
+  flutter_native_splash: ^2.4.8
   meta: ^1.19.0
   path_provider: ^2.1.6
   rename_app: ^1.6.6
@@ -34,3 +35,20 @@ flutter:
       fonts:
         - asset: assets/fonts/geist/Geist-Regular.ttf
           weight: 400
+
+flutter_native_splash:
+  android: true
+  ios: false
+  web: false
+
+  color: "#ffffff"
+  image: assets/icons/icon.png
+
+  color_dark: "#000000"
+  image_dark: assets/icons/icon_white.png
+
+  android_12:
+    color: "#ffffff"
+    image: assets/icons/icon.png
+    color_dark: "#000000"
+    image_dark: assets/icons/icon_white.png
