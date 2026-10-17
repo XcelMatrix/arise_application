@@ -162,18 +162,20 @@ class _NewUsers extends StatelessWidget {
         children: newUsers
             .map<Widget>((user) => InkWell(
                   onTap: () async {
+                    final roomCubit = context.read<RoomCubit>();
+
                     try {
-                      final roomId = await BlocProvider.of<RoomCubit>(context)
-                          .createRoom(user.id);
-                          
+
+                      final roomId = await roomCubit.createRoom(user.id);
+
                       if (!context.mounted) return;
 
                       Navigator.of(context).push(ChatPage.route(roomId));
-                    } catch (_) {
+                    } catch (error) {
                       if (!context.mounted) return;
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Error: Failed creating a new room")));
+                        SnackBar(content: Text("Error: Failed creating a new room ($error)")));
                     }
                   },
                   child: Padding(
