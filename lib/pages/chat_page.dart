@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/components/user_avatar.dart';
 import 'package:arise_application/cubits/chat/chat_cubit.dart';
 import 'package:arise_application/models/message.dart';
-import 'package:arise_application/utils/constants.dart';
+import 'package:arise_application/pages/home_page.dart';
+import 'package:arise_application/pages/profile_page.dart';
 import 'package:timeago/timeago.dart';
 
 /// Page to chat with someone.
-///
 /// Displays chat bubbles as a ListView and TextField to enter new chat.
 class ChatPage extends StatelessWidget {
   const ChatPage({super.key});
@@ -24,16 +24,63 @@ class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+
+        // ARISE white logo
+        leading: IconButton(
+          icon: Image.asset(
+            "assets/icons/icon_white.png",
+            width: 48,
+            height: 48,
+          ),
+          color: Colors.white,
+          onPressed: () => Navigator.push(context, MaterialPageRoute(
+              builder: (context) => const HomePage()
+          )),
+        ),
+        backgroundColor: Color(0xFF3C6E87),
+
+        // Page title
+        title: const Text("Messages"),
+        titleTextStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontFamily: 'Geist'
+        ),
+        centerTitle: true,
+
+        // Profile button
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.person),
+            iconSize: 36,
+            color: const Color(0xFFACACAC),
+            style: IconButton.styleFrom(
+              backgroundColor: Color(0xFFD9D9D9),
+              fixedSize: const Size(48, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            tooltip: 'Profile',
+            onPressed: () => Navigator.push(context, MaterialPageRoute(
+              builder: (context) => const ProfilePage()
+            )),
+          )
+        ]
+      ),
       body: BlocConsumer<ChatCubit, ChatState>(
         listener: (context, state) {
           if (state is ChatError) {
-            context.showErrorSnackBar(message: state.message);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Error: ${state.message} ")));
           }
         },
         builder: (context, state) {
           if (state is ChatInitial) {
-            return preloader;
+            return Center(child: CircularProgressIndicator(color: Color(0xFF3C6E87)));
           } else if (state is ChatLoaded) {
             final messages = state.messages;
             return Column(
@@ -57,7 +104,14 @@ class ChatPage extends StatelessWidget {
               children: const [
                 Expanded(
                   child: Center(
-                    child: Text('Start your conversation now :)'),
+                    child: Text(
+                      'Start your conversation now :',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF3C6E87),
+                        fontFamily: 'Geist'
+                      )
+                      ),
                   ),
                 ),
                 MessageBar(),
@@ -75,7 +129,7 @@ class ChatPage extends StatelessWidget {
 
 /// Set of widget that contains TextField and Button to submit message
 class MessageBar extends StatefulWidget {
-  const MessageBar();
+  const MessageBar({super.key});
 
   @override
   State<MessageBar> createState() => _MessageBarState();
@@ -87,7 +141,7 @@ class _MessageBarState extends State<MessageBar> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).cardColor,
+      color: Colors.white,
       child: Padding(
         padding: EdgeInsets.only(
           top: 8,
@@ -105,15 +159,40 @@ class _MessageBarState extends State<MessageBar> {
                 controller: _textController,
                 decoration: const InputDecoration(
                   hintText: 'Type a message',
-                  border: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.all(8),
+                  hintStyle: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                    fontFamily: 'Geist'
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide(color: Color(0xFFD3D3D3)),
+                  ),
+
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide(color: Color(0xFFD3D3D3)),
+                  ),
+
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide(color: Color(0xFFD3D3D3)),
+                  ),
                 ),
               ),
             ),
-            TextButton(
-              onPressed: () => _submitMessage(),
-              child: const Text('Send'),
+            const SizedBox(width: 8),
+            IconButton(
+              onPressed: _submitMessage,
+              icon: const Icon(
+                Icons.send_rounded,
+                color: Colors.white,
+                size: 26,
+              ),
             ),
           ],
         ),
@@ -163,11 +242,17 @@ class _ChatBubble extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: message.isMine
-                ? Colors.grey[300]
-                : Theme.of(context).primaryColor,
+                ? Color(0xFF3C6E87)
+                : Color(0xFFD3D3D3),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(message.content),
+          child: Text(
+            message.content,
+            style: TextStyle(
+              color: message.isMine ? Colors.white : Colors.grey,
+              fontFamily: 'Geist'
+            ),
+          ),
         ),
       ),
       const SizedBox(width: 12),

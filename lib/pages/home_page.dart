@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:arise_application/pages/profile_page.dart';
 import 'package:arise_application/pages/attendance_page.dart';
-import 'package:arise_application/pages/chat_page.dart';
+import 'package:arise_application/pages/rooms_page.dart';
 import 'package:arise_application/pages/timed_console_page.dart';
 import 'package:arise_application/pages/evacuation_map_page.dart';
 
@@ -168,7 +168,7 @@ class _HomePageState extends State<HomePage> {
             // go to chat
             GestureDetector(
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const ChatPage()
+                builder: (context) => const RoomsPage()
               )),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),

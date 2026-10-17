@@ -3,8 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/auth_servers/auth_gate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/cubits/profiles/profiles_cubit.dart';
-import 'package:arise_application/utils/constants.dart';
-
 const supabaseUrl = 'https://zpnykmhpzagnnmwhhjcp.supabase.co';
 const supabasePublishableKey = 'sb_publishable_yRdFl4KBJXqTqmTzawMISQ_TaIS5Npl';
 
@@ -30,7 +28,6 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'ARISE',
-        theme: appTheme,
         home: AuthGate(),
       )
     );

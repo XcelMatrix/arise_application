@@ -169,6 +169,14 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide.none,
                 ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
 
                 // password visibility toggle
                 suffixIcon: IconButton(
@@ -221,9 +229,12 @@ class _LoginPageState extends State<LoginPage> {
 
             // go to register page to sign up
             GestureDetector(
-              onTap: () => _isLoading
-              ? null : () => Navigator.push(
-                context, MaterialPageRoute(builder: (context) => const RegisterPage())),
+              onTap: _isLoading
+                ? null
+                : () { Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => const RegisterPage())
+                  );
+                },
               child: const Center(child: Text(
                 "Don't have an account? Sign up",
                 style: TextStyle(
