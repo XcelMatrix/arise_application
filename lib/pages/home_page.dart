@@ -167,9 +167,7 @@ class _HomePageState extends State<HomePage> {
 
             // go to chat
             GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const RoomsPage()
-              )),
+              onTap: () => Navigator.push(context, RoomsPage.route()),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 decoration: BoxDecoration(
