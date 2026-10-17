@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:arise_application/auth_servers/auth_service.dart';
 import 'package:arise_application/pages/register_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  // Route for navigation
+  static Route<void> route() {
+    return MaterialPageRoute(builder: (context) => const LoginPage());
+  }
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -17,24 +23,61 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  // loading state
+  bool _isLoading = false;
+
+  // password visibility state
+  bool _isPasswordVisible = false;
+
   // login button pressed
   void login() async {
+    // set loading state
+    setState(() {
+      _isLoading = true;
+    });
+
     // prepare data
     final email = _emailController.text;
     final password = _passwordController.text;
 
     // attempt login..
     try {
-        await authService.signInWithEmailPassword(email, password); 
-    } 
+        await authService.signInWithEmailPassword(email, password);
+    }
 
-    // catch any errors
-    catch (e) {
+    // catch auth exception
+    on AuthException catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Auth Error: ${error.message} ")));
       }
     }
+
+    // catch any errors
+    catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $error ")));
+      }
+    }
+
+    // finally reset loading state
+    finally {
+      // reset loading state
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // dispose controllers
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   // Build User Interface
@@ -87,6 +130,7 @@ class _LoginPageState extends State<LoginPage> {
             // email
             TextField(
               controller: _emailController,
+              enabled: !_isLoading,
               decoration: const InputDecoration(
                 hintText: "Email Address",
                 hintStyle: TextStyle(
@@ -109,7 +153,9 @@ class _LoginPageState extends State<LoginPage> {
             // password
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(
+              enabled: !_isLoading,
+              obscureText: !_isPasswordVisible,
+              decoration: InputDecoration(
                 hintText: "Password",
                 hintStyle: TextStyle(
                   fontSize: 16,
@@ -122,6 +168,20 @@ class _LoginPageState extends State<LoginPage> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   borderSide: BorderSide.none,
+                ),
+
+                // password visibility toggle
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    // toggle icon based on visibility state
+                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.grey,
+                  ),
+                  onPressed: _isLoading ? null : () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
                 ),
               )
             ),
@@ -137,8 +197,17 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              onPressed: login,
-              child: const Text(
+              onPressed: _isLoading ? null : login,
+              child: _isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+              : const Text(
                 "Login",
                 style: TextStyle(
                   fontSize: 16,
@@ -152,16 +221,17 @@ class _LoginPageState extends State<LoginPage> {
 
             // go to register page to sign up
             GestureDetector(
-              onTap: () => Navigator.push(
+              onTap: () => _isLoading
+              ? null : () => Navigator.push(
                 context, MaterialPageRoute(builder: (context) => const RegisterPage())),
-                child: const Center(child: Text(
-                  "Don't have an account? Sign up",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF3C6E87),
-                    fontFamily: 'Geist'
-                  )
+              child: const Center(child: Text(
+                "Don't have an account? Sign up",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF3C6E87),
+                  fontFamily: 'Geist'
                 )
+              )
               ),
             ),
           ],
