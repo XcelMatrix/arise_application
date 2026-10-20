@@ -18,7 +18,6 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-
         // ARISE white logo
         leading: IconButton(
           icon: Image.asset(
@@ -41,6 +40,7 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
           color: Colors.white,
           fontFamily: 'Geist'
         ),
+
         centerTitle: true,
 
         // Profile button

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/auth_servers/auth_gate.dart';
@@ -7,8 +8,17 @@ import 'package:arise_application/cubits/profiles/profiles_cubit.dart';
 const supabaseUrl = 'https://zpnykmhpzagnnmwhhjcp.supabase.co';
 const supabasePublishableKey = 'sb_publishable_yRdFl4KBJXqTqmTzawMISQ_TaIS5Npl';
 
+List<CameraDescription> allCameras = [];
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    allCameras = await availableCameras();
+  } on CameraException catch (errorMessage) {
+    // Provide more context in error handling
+    debugPrint('Camera error: ${errorMessage.description}');
+  }
 
   // Initialize Supabase
   await Supabase.initialize(
@@ -20,7 +30,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-   const MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
