@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:arise_application/auth_servers/auth_service.dart';
 import 'package:arise_application/pages/register_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:arise_application/pages/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,7 +43,14 @@ class _LoginPageState extends State<LoginPage> {
 
     // attempt login..
     try {
-        await authService.signInWithEmailPassword(email, password);
+      await authService.signInWithEmailPassword(email, password);
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
     }
 
     // catch auth exception

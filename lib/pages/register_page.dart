@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:arise_application/auth_servers/auth_service.dart';
+import 'package:arise_application/pages/login_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -23,6 +24,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isPasswordVisible = false;
 
   // text controllers
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -30,6 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
   //sign up button pressed
   void signUp() async {
     // prepare data
+    final username = _usernameController.text;
     final email = _emailController.text;
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
@@ -50,7 +53,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // attempt sign up..
     try {
-      await authService.signUpWithEmailPassword(email, password);
+      await authService.signUpWithEmailPassword(email, password, username);
 
       if (!mounted) return;
 
@@ -80,6 +83,7 @@ class _RegisterPageState extends State<RegisterPage> {
   // dispose controllers
   @override
   void dispose() {
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -131,6 +135,37 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
 
             const SizedBox(height: 32),
+
+            //username
+            TextField(
+              controller: _usernameController,
+              enabled: !_isLoading,
+              decoration: const InputDecoration(
+                hintText: "Username",
+                hintStyle: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                  fontFamily: 'Geist'
+                ),
+                filled: true,
+                fillColor: Color(0xFFD3D3D3),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
 
             //email
             TextField(
@@ -282,7 +317,28 @@ class _RegisterPageState extends State<RegisterPage> {
                     fontFamily: 'Geist'
                   )
                 ),
-            )
+            ),
+
+            const SizedBox(height: 24),
+
+            // go to login page to login
+            GestureDetector(
+              onTap: _isLoading
+                ? null
+                : () { Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => const LoginPage())
+                  );
+                },
+              child: const Center(child: Text(
+                "Already have an account?",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF3C6E87),
+                  fontFamily: 'Geist'
+                )
+              )
+              ),
+            ),
           ],
         )
       ),

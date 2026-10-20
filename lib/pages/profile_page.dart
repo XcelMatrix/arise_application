@@ -23,7 +23,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     // get user email
-    final currentEmail = authService.getCurrentUserEmail();
+    final currentUsername = authService.getCurrentUsername();
 
     return Scaffold(
       appBar: AppBar(
@@ -95,7 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      currentEmail.toString(),
+                      currentUsername.toString(),
                       style: TextStyle(
                         fontSize: 14,
                         color: Color(0xFF3C6E87),
