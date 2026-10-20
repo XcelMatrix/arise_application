@@ -137,7 +137,7 @@ class _RegisterPageState extends State<RegisterPage> {
             const SizedBox(height: 32),
 
             //username
-            TextField(
+            TextFormField(
               controller: _usernameController,
               enabled: !_isLoading,
               decoration: const InputDecoration(
@@ -163,12 +163,23 @@ class _RegisterPageState extends State<RegisterPage> {
                   borderSide: BorderSide.none,
                 ),
               ),
+
+              validator: (val) {
+                if (val == null || val.isEmpty) {
+                  return 'Required';
+                }
+                final isValid = RegExp(r'^[A-Za-z0-9_]{3,24}$').hasMatch(val);
+                if (!isValid) {
+                  return '3-24 long with alphanumeric or underscore';
+                }
+                return null;
+              },
             ),
 
             const SizedBox(height: 8),
 
             //email
-            TextField(
+            TextFormField(
               controller: _emailController,
               enabled: !_isLoading,
               decoration: const InputDecoration(
@@ -194,12 +205,19 @@ class _RegisterPageState extends State<RegisterPage> {
                   borderSide: BorderSide.none,
                 ),
               ),
+              
+              validator: (val) {
+                if (val == null || val.isEmpty) {
+                  return 'Required';
+                }
+                return null;
+              },
             ),
 
             const SizedBox(height: 8),
 
             //password
-            TextField(
+            TextFormField(
               controller: _passwordController,
               enabled: !_isLoading,
               obscureText: !_isPasswordVisible,
@@ -240,12 +258,22 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
               ),
+
+              validator: (val) {
+                if (val == null || val.isEmpty) {
+                  return 'Required';
+                }
+                if (val.length < 6) {
+                  return '6 characters minimum';
+                }
+                return null;
+              },
             ),
 
             const SizedBox(height: 8),
 
             //confirm password
-            TextField(
+            TextFormField(
               controller: _confirmPasswordController,
               enabled: !_isLoading,
               obscureText: !_isPasswordVisible,

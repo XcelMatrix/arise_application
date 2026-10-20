@@ -136,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 32),
 
             // email
-            TextField(
+            TextFormField(
               controller: _emailController,
               enabled: !_isLoading,
               decoration: const InputDecoration(
@@ -159,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 8),
 
             // password
-            TextField(
+            TextFormField(
               controller: _passwordController,
               enabled: !_isLoading,
               obscureText: !_isPasswordVisible,
