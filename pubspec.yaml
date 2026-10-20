@@ -31,7 +31,6 @@ flutter:
     - assets/icons/icon.png
     - assets/icons/icon_white.png
     - assets/logo.png
-    - assets/ACAD2101.glb
     - assets/Duck.glb
     - assets/images/triangle.png
     - assets/models/Chicken_01.gltf
