@@ -1,14 +1,15 @@
 import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:arise_application/models/message.dart';
-import 'package:arise_application/utils/constants.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'chat_state.dart';
 
 class ChatCubit extends Cubit<ChatState> {
   ChatCubit() : super(ChatInitial());
+
+  final supabase = Supabase.instance.client;
 
   StreamSubscription<List<Message>>? _messagesSubscription;
   List<Message> _messages = [];

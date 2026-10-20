@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/cubits/profiles/profiles_cubit.dart';
 import 'package:arise_application/models/profile.dart';
 import 'package:arise_application/models/message.dart';
 import 'package:arise_application/models/room.dart';
-import 'package:arise_application/utils/constants.dart';
 
 part 'rooms_state.dart';
 
 class RoomCubit extends Cubit<RoomState> {
   RoomCubit() : super(RoomsLoading());
+
+  final supabase = Supabase.instance.client;
 
   final Map<String, StreamSubscription<Message?>> _messageSubscriptions = {};
 

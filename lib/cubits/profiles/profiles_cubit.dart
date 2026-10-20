@@ -1,14 +1,15 @@
 import 'dart:async';
-
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:arise_application/models/profile.dart';
-import 'package:arise_application/utils/constants.dart';
 
 part 'profiles_state.dart';
 
 class ProfilesCubit extends Cubit<ProfilesState> {
   ProfilesCubit() : super(ProfilesInitial());
+
+  final supabase = Supabase.instance.client;
 
   /// Map of app users cache in memory with profile_id as the key
   final Map<String, Profile?> _profiles = {};
