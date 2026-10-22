@@ -17,11 +17,50 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _currentIndex = 0;
+
+  void _onItemTapped(int index) {
+    if (index == _currentIndex) return;
+
+    setState(() {
+      _currentIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        // Already on Home
+        break;
+      case 1:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AttendancePage()),
+        );
+        break;
+      case 2:
+        Navigator.pushReplacement(
+          context,
+          RoomsPage.route(),
+        );
+        break;
+      case 3:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const TimedConsolePage()),
+        );
+        break;
+      case 4:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const EvacuationMapPage()),
+        );
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-
         // ARISE white logo
         leading: IconButton(
           icon: Image.asset(
@@ -30,11 +69,12 @@ class _HomePageState extends State<HomePage> {
             height: 48,
           ),
           color: Colors.white,
-          onPressed: () => Navigator.push(context, MaterialPageRoute(
-              builder: (context) => const HomePage()
-          )),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          ),
         ),
-        backgroundColor: Color(0xFF3C6E87),
+        backgroundColor: const Color(0xFF3C6E87),
 
         // Page title
         title: const Text("Home"),
@@ -42,7 +82,7 @@ class _HomePageState extends State<HomePage> {
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Colors.white,
-          fontFamily: 'Geist'
+          fontFamily: 'Geist',
         ),
         centerTitle: true,
 
@@ -53,209 +93,196 @@ class _HomePageState extends State<HomePage> {
             iconSize: 36,
             color: const Color(0xFFACACAC),
             style: IconButton.styleFrom(
-              backgroundColor: Color(0xFFD9D9D9),
+              backgroundColor: const Color(0xFFD9D9D9),
               fixedSize: const Size(48, 48),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
             tooltip: 'Profile',
-            onPressed: () => Navigator.push(context, MaterialPageRoute(
-              builder: (context) => const ProfilePage()
-            )),
-          )
-        ]
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfilePage()),
+            ),
+          ),
+        ],
       ),
       body: Center(
-        child: ListView( 
+        child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
           children: [
             const SizedBox(height: 36),
 
             // go to evacuation maps
-            GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const EvacuationMapPage()
-              )),
-
-              // evacuation map  box/container
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE4F2F9),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    
-                    // evacuation map icon
-                    Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF8BAEC1),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.location_on,
-                        size: 55,
-                        color: Color(0xFF3C6E87),
-                      ),
-                    ),
-
-                    const SizedBox(width: 20),
-
-                    // evacuation map text
-                    const Expanded(
-                      child: Text(
-                        "Evacuation Map",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF3C6E87),
-                          fontFamily: 'Geist'
-                        )
-                      )
-                    )
-                  ]
-                ),
-              )
+            _buildClassCard(
+              context,
+              title: "Evacuation Map",
+              description: "View evacuation plans.",
+              imagePath: "assets/images/evacuation_banner.png",
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const EvacuationMapPage()),
+              ),
             ),
 
             const SizedBox(height: 24),
 
             // go to attendance report
-            GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const AttendancePage()
-              )),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE4F2F9),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF8BAEC1),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.assignment_turned_in,
-                        size: 55,
-                        color: Color(0xFF3C6E87),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    const Expanded(
-                      child: Text(
-                        "Attendance Report",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF3C6E87),
-                          fontFamily: 'Geist'
-                        )
-                      )
-                    )
-                  ]
-                ),
-              )
+            _buildClassCard(
+              context,
+              title: "Attendance Report",
+              description: "Check student attendance.",
+              imagePath: "assets/images/attendance_banner.png",
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AttendancePage()),
+              ),
             ),
 
             const SizedBox(height: 24),
 
             // go to chat
-            GestureDetector(
+            _buildClassCard(
+              context,
+              title: "Chat Messages",
+              description: "Chat with individuals.",
+              imagePath: "assets/images/chat_banner.png",
               onTap: () => Navigator.push(context, RoomsPage.route()),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE4F2F9),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF8BAEC1),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.chat_bubble,
-                        size: 55,
-                        color: Color(0xFF3C6E87),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    const Expanded(
-                      child: Text(
-                        "Chat Messages",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF3C6E87),
-                          fontFamily: 'Geist'
-                        )
-                      )
-                    )
-                  ]
-                ),
-              )
             ),
 
             const SizedBox(height: 24),
 
             // go to timed console
-            GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const TimedConsolePage()
-              )),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE4F2F9),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF8BAEC1),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.terminal,
-                        size: 55,
-                        color: Color(0xFF3C6E87),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    const Expanded(
-                      child: Text(
-                        "Timed Console",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF3C6E87),
-                          fontFamily: 'Geist'
-                        )
-                      )
-                    )
-                  ]
-                ),
-              )
+            _buildClassCard(
+              context,
+              title: "Timed Console",
+              description: "Access console that displays timed events.",
+              imagePath: "assets/images/console_banner.png",
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const TimedConsolePage()),
+              ),
             ),
           ],
-        )
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: const Color(0xFF3C6E87),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: const Color(0xFFACACAC),
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Geist',
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontFamily: 'Geist',
+          fontSize: 11,
+        ),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment_turned_in),
+            label: 'Attendance',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.terminal),
+            label: 'Console',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.location_on),
+            label: 'Map',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClassCard(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required String imagePath,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 150,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x1A000000),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(color: const Color(0xFF8BAEC1));
+              },
+            ),
+          
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.transparent, Color(0xAA000000)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+
+            // Text content positioned at the bottom of the card like Google Classroom
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontFamily: 'Geist',
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFFE0E0E0),
+                      fontFamily: 'Geist',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

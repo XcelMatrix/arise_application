@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
+  geolocator: ^14.1.2
   meta: ^1.19.0
   path_provider: ^2.1.6
   rename_app: ^1.6.6
