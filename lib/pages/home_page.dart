@@ -28,7 +28,6 @@ class _HomePageState extends State<HomePage> {
 
     switch (index) {
       case 0:
-        // Already on Home
         break;
       case 1:
         Navigator.pushReplacement(
@@ -61,6 +60,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+
         // ARISE white logo
         leading: IconButton(
           icon: Image.asset(
@@ -69,12 +69,11 @@ class _HomePageState extends State<HomePage> {
             height: 48,
           ),
           color: Colors.white,
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          ),
+          onPressed: () => Navigator.push(context, MaterialPageRoute(
+              builder: (context) => const HomePage()
+          )),
         ),
-        backgroundColor: const Color(0xFF3C6E87),
+        backgroundColor: Color(0xFF3C6E87),
 
         // Page title
         title: const Text("Home"),
@@ -82,7 +81,7 @@ class _HomePageState extends State<HomePage> {
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Colors.white,
-          fontFamily: 'Geist',
+          fontFamily: 'Geist'
         ),
         centerTitle: true,
 
@@ -93,80 +92,75 @@ class _HomePageState extends State<HomePage> {
             iconSize: 36,
             color: const Color(0xFFACACAC),
             style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFFD9D9D9),
+              backgroundColor: Color(0xFFD9D9D9),
               fixedSize: const Size(48, 48),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
             tooltip: 'Profile',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
-            ),
-          ),
-        ],
+            onPressed: () => Navigator.push(context, MaterialPageRoute(
+              builder: (context) => const ProfilePage()
+            )),
+          )
+        ]
       ),
       body: Center(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
+        child: ListView( 
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           children: [
-            const SizedBox(height: 36),
+            const SizedBox(height: 8),
 
             // go to evacuation maps
-            _buildClassCard(
+            _buildGoogleClassroomCard(
               context,
               title: "Evacuation Map",
               description: "View evacuation plans.",
               imagePath: "assets/images/evacuation_banner.png",
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const EvacuationMapPage()),
-              ),
+              onTap: () => Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const EvacuationMapPage()
+              )),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // go to attendance report
-            _buildClassCard(
+            _buildGoogleClassroomCard(
               context,
               title: "Attendance Report",
               description: "Check student attendance.",
               imagePath: "assets/images/attendance_banner.png",
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AttendancePage()),
-              ),
+              onTap: () => Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const AttendancePage()
+              )),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // go to chat
-            _buildClassCard(
+            _buildGoogleClassroomCard(
               context,
               title: "Chat Messages",
-              description: "Chat with individuals.",
+              description: "Communicate with other individuals.",
               imagePath: "assets/images/chat_banner.png",
               onTap: () => Navigator.push(context, RoomsPage.route()),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // go to timed console
-            _buildClassCard(
+            _buildGoogleClassroomCard(
               context,
               title: "Timed Console",
-              description: "Access console that displays timed events.",
+              description: "Access console that display timed events.",
               imagePath: "assets/images/console_banner.png",
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const TimedConsolePage()),
-              ),
+              onTap: () => Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const TimedConsolePage()
+              )),
             ),
+            const SizedBox(height: 20),
           ],
-        ),
+        )
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -210,7 +204,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildClassCard(
+  Widget _buildGoogleClassroomCard(
     BuildContext context, {
     required String title,
     required String description,
@@ -220,13 +214,13 @@ class _HomePageState extends State<HomePage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 150,
+        height: 140,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x1A000000),
-              blurRadius: 10,
+              color: Color(0x26000000),
+              blurRadius: 8,
               offset: Offset(0, 4),
             ),
           ],
@@ -239,21 +233,21 @@ class _HomePageState extends State<HomePage> {
               imagePath,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
-                return Container(color: const Color(0xFF8BAEC1));
+                return Container(color: const Color(0xFF3C6E87));
               },
             ),
-          
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.transparent, Color(0xAA000000)],
+                  colors: [
+                    Colors.transparent,
+                    Color(0xAA000000)
+                  ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
               ),
             ),
-
-            // Text content positioned at the bottom of the card like Google Classroom
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -268,6 +262,8 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white,
                       fontFamily: 'Geist',
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -277,6 +273,8 @@ class _HomePageState extends State<HomePage> {
                       color: Color(0xFFE0E0E0),
                       fontFamily: 'Geist',
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
