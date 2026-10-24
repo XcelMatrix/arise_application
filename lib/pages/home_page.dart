@@ -38,16 +38,10 @@ class _HomePageState extends State<HomePage> {
       case 2:
         Navigator.pushReplacement(
           context,
-          RoomsPage.route(),
-        );
-        break;
-      case 3:
-        Navigator.pushReplacement(
-          context,
           MaterialPageRoute(builder: (context) => const TimedConsolePage()),
         );
         break;
-      case 4:
+      case 3:
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const EvacuationMapPage()),
@@ -62,16 +56,13 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
 
         // ARISE white logo
-        leading: IconButton(
-          icon: Image.asset(
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(
             "assets/icons/icon_white.png",
             width: 48,
             height: 48,
           ),
-          color: Colors.white,
-          onPressed: () => Navigator.push(context, MaterialPageRoute(
-              builder: (context) => const HomePage()
-          )),
         ),
         backgroundColor: Color(0xFF3C6E87),
 
@@ -115,7 +106,7 @@ class _HomePageState extends State<HomePage> {
             _buildGoogleClassroomCard(
               context,
               title: "Evacuation Map",
-              description: "View evacuation plans.",
+              description: "View emergency routes and safe zones.",
               imagePath: "assets/images/evacuation_banner.png",
               onTap: () => Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const EvacuationMapPage()
@@ -128,7 +119,7 @@ class _HomePageState extends State<HomePage> {
             _buildGoogleClassroomCard(
               context,
               title: "Attendance Report",
-              description: "Check student attendance.",
+              description: "Check your daily and historical attendance records.",
               imagePath: "assets/images/attendance_banner.png",
               onTap: () => Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const AttendancePage()
@@ -137,22 +128,11 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 16),
 
-            // go to chat
-            _buildGoogleClassroomCard(
-              context,
-              title: "Chat Messages",
-              description: "Communicate with other individuals.",
-              imagePath: "assets/images/chat_banner.png",
-              onTap: () => Navigator.push(context, RoomsPage.route()),
-            ),
-
-            const SizedBox(height: 16),
-
             // go to timed console
             _buildGoogleClassroomCard(
               context,
               title: "Timed Console",
-              description: "Access console that display timed events.",
+              description: "Access programmed terminal sessions and tools.",
               imagePath: "assets/images/console_banner.png",
               onTap: () => Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const TimedConsolePage()
@@ -161,6 +141,14 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
           ],
         )
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF3C6E87),
+        child: const Icon(
+          Icons.forum,
+          color: Colors.white,
+        ),
+        onPressed: () => Navigator.push(context, RoomsPage.route()),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -186,10 +174,6 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment_turned_in),
             label: 'Attendance',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble),
-            label: 'Chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.terminal),
