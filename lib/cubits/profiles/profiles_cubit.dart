@@ -19,8 +19,10 @@ class ProfilesCubit extends Cubit<ProfilesState> {
       return;
     }
 
-    final data =
-        await supabase.from('profiles').select().match({'id': userId}).single();
+    final data = await supabase
+        .from('profiles')
+        .select('*, profile_details(display_name, avatar_url)')
+        .match({'id': userId}).single();
     _profiles[userId] = Profile.fromMap(data);
 
     emit(ProfilesLoaded(profiles: _profiles));

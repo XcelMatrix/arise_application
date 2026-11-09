@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:arise_application/components/access_gate.dart';
+import 'package:arise_application/cubits/account/account_cubit.dart';
 import 'package:arise_application/components/user_avatar.dart';
 import 'package:arise_application/cubits/chat/chat_cubit.dart';
 import 'package:arise_application/models/message.dart';
@@ -22,7 +24,12 @@ class ChatPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => AccessGate(
+        feature: Feature.chat,
+        child: Builder(builder: _page),
+      );
+
+  Widget _page(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

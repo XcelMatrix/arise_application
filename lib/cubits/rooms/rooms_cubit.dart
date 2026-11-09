@@ -39,12 +39,13 @@ class RoomCubit extends Cubit<RoomState> {
     try {
       data = await supabase
           .from('profiles')
-          .select()
+          .select('*, profile_details(display_name, avatar_url)')
           .not('id', 'eq', _myUserId)
           .order('created_at')
           .limit(12);
     } catch (_) {
       emit(RoomsError('Error loading new users'));
+      return; // `data` was never set
     }
 
     final rows = List<Map<String, dynamic>>.from(data);

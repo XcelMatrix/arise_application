@@ -13,12 +13,19 @@ class AuthService {
   }
 
   // Sign up with email and password
-  Future<AuthResponse> signUpWithEmailPassword (String email, String password, String username) async {
+  Future<AuthResponse> signUpWithEmailPassword (
+    String email,
+    String password,
+    String username, {
+    String? requestedRole,
+  }) async {
     return await _supabaseClient.auth.signUp(
       email: email,
       password: password,
       data: {
         'username': username,
+        // only creates a PENDING request; the database never trusts this for access
+        if (requestedRole != null) 'requested_role': requestedRole,
       },
     );
   }

@@ -3,10 +3,14 @@ import 'package:arise_application/auth_servers/auth_service.dart';
 import 'package:arise_application/pages/login_page.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  const RegisterPage({super.key, this.isTeacher = false});
 
-  static Route<void> route() {
-    return MaterialPageRoute(builder: (context) => const RegisterPage());
+  /// true = teacher request (needs approval), false = normal student account
+  final bool isTeacher;
+
+  static Route<void> route({bool isTeacher = false}) {
+    return MaterialPageRoute(
+        builder: (context) => RegisterPage(isTeacher: isTeacher));
   }
 
   @override
@@ -53,12 +57,38 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // attempt sign up..
     try {
-      await authService.signUpWithEmailPassword(email, password, username);
+      await authService.signUpWithEmailPassword(
+        email,
+        password,
+        username,
+        requestedRole: widget.isTeacher ? 'teacher' : null,
+      );
 
       if (!mounted) return;
 
-      // pop this register page
-      Navigator.pop(context);
+      if (widget.isTeacher) {
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Request sent'),
+            content: const Text(
+              'Your teacher account has to be approved before you can use it. '
+              'Sign in again once you have been approved.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        if (!mounted) return;
+      }
+
+      // back to the root (AuthGate decides login vs home)
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } 
 
     // catch any errors
@@ -124,7 +154,7 @@ class _RegisterPageState extends State<RegisterPage> {
             // ARISE sign up text
             Center(
               child: Text(
-                "Sign Up", 
+                widget.isTeacher ? "Teacher Sign Up" : "Sign Up", 
                 style: TextStyle(
                   fontSize: 32, 
                   fontWeight: FontWeight.bold, 
@@ -135,6 +165,26 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
 
             const SizedBox(height: 32),
+
+            if (widget.isTeacher) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE4F2F9),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'Teacher accounts need approval before they can be used. '
+                  'You can sign in once you have been approved.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF3C6E87),
+                    fontFamily: 'Geist',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
 
             //username
             TextFormField(

@@ -3,6 +3,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/auth_servers/auth_gate.dart';
+import 'package:arise_application/cubits/account/account_cubit.dart';
+import 'package:arise_application/cubits/drill/drill_cubit.dart';
 import 'package:arise_application/cubits/profiles/profiles_cubit.dart';
 
 const supabaseUrl = 'https://zpnykmhpzagnnmwhhjcp.supabase.co';
@@ -22,7 +24,7 @@ Future<void> main() async {
 
   // Initialize Supabase
   await Supabase.initialize(
-    url: supabaseUrl, 
+    url: supabaseUrl,
     publishableKey: supabasePublishableKey,
   );
 
@@ -34,13 +36,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfilesCubit>(
-      create: (context) => ProfilesCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ProfilesCubit>(create: (context) => ProfilesCubit()),
+        // role, display name, avatar, feature access (reloads on login/logout)
+        BlocProvider<AccountCubit>(create: (context) => AccountCubit()),
+        // shared by Attendance pages + Timed Console
+        BlocProvider<DrillCubit>(create: (context) => DrillCubit()..load()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'ARISE',
         home: AuthGate(),
-      )
+      ),
     );
   }
 }

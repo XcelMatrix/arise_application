@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:arise_application/cubits/account/account_cubit.dart';
 import 'package:arise_application/pages/home_page.dart';
 import 'package:arise_application/pages/profile_page.dart';
 import 'package:arise_application/pages/attendance_page.dart';
@@ -21,6 +23,16 @@ class DisasterResourcesPage extends StatefulWidget {
 class _DisasterResourcesPageState extends State<DisasterResourcesPage> {
   final int _currentIndex = 3;
 
+  /// True if the signed-in account's role allows this feature.
+  bool _allowed(String feature) =>
+      context.read<AccountCubit>().state.canAccess(feature);
+
+  void _denied() {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("Your account level doesn't have access to this."),
+    ));
+  }
+
   void _onItemTapped(int index) {
     if (index == _currentIndex) return;
 
@@ -32,12 +44,14 @@ class _DisasterResourcesPageState extends State<DisasterResourcesPage> {
         );
         break;
       case 1:
+        if (!_allowed(Feature.attendance)) return _denied();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const AttendancePage()),
         );
         break;
       case 2:
+        if (!_allowed(Feature.timedConsole)) return _denied();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const TimedConsolePage()),

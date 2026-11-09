@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:arise_application/components/access_gate.dart';
+import 'package:arise_application/cubits/account/account_cubit.dart';
+import 'package:arise_application/components/profile_avatar.dart';
 import 'package:arise_application/cubits/profiles/profiles_cubit.dart';
 import 'package:arise_application/cubits/rooms/rooms_cubit.dart';
 import 'package:arise_application/models/profile.dart';
@@ -22,7 +25,12 @@ class RoomsPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => AccessGate(
+        feature: Feature.chat,
+        child: Builder(builder: _page),
+      );
+
+  Widget _page(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -95,14 +103,10 @@ class RoomsPage extends StatelessWidget {
                             return ListTile(
                               onTap: () => Navigator.of(context)
                                   .push(ChatPage.route(room.id)),
-                              leading: CircleAvatar(
-                                child: otherUser == null
-                                    ? Center(child: CircularProgressIndicator(color: Color(0xFF3C6E87)))
-                                    : Text(otherUser.username.substring(0, 2)),
-                              ),
+                              leading: ProfileAvatar(profile: otherUser),
                               title: Text(otherUser == null
                                   ? 'Loading...'
-                                  : otherUser.username),
+                                  : otherUser.shownName),
                               subtitle: room.lastMessage != null
                                   ? Text(
                                       room.lastMessage!.content,
@@ -184,12 +188,10 @@ class _NewUsers extends StatelessWidget {
                       width: 60,
                       child: Column(
                         children: [
-                          CircleAvatar(
-                            child: Text(user.username.substring(0, 2)),
-                          ),
+                          ProfileAvatar(profile: user),
                           const SizedBox(height: 8),
                           Text(
-                            user.username,
+                            user.shownName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
