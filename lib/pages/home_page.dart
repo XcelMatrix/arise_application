@@ -3,7 +3,7 @@ import 'package:arise_application/pages/profile_page.dart';
 import 'package:arise_application/pages/attendance_page.dart';
 import 'package:arise_application/pages/rooms_page.dart';
 import 'package:arise_application/pages/timed_console_page.dart';
-import 'package:arise_application/pages/evacuation_map_page.dart';
+import 'package:arise_application/pages/disaster_resources_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
       case 3:
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const EvacuationMapPage()),
+          MaterialPageRoute(builder: (context) => const DisasterResourcesPage()),
         );
         break;
     }
@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
               description: "View emergency routes and safe zones.",
               imagePath: "assets/images/evacuation_banner.png",
               onTap: () => Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const EvacuationMapPage()
+                builder: (context) => const DisasterResourcesPage()
               )),
             ),
 
