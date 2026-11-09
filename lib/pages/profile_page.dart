@@ -145,17 +145,10 @@ class _ProfilePageState extends State<ProfilePage> {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            leading: IconButton(
-              icon: Image.asset(
-                "assets/icons/icon_white.png",
-                width: 48,
-                height: 48,
-              ),
-              color: Colors.white,
-              onPressed: () => Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const HomePage()
-              )),
-            ),
+            leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset("assets/icons/icon_white.png", width: 48, height: 48),
+        ),
             backgroundColor: _blue,
             title: const Text("Profile"),
             titleTextStyle: const TextStyle(

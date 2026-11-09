@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:arise_application/auth_servers/auth_service.dart';
 import 'package:arise_application/pages/role_select_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:arise_application/pages/home_page.dart';
+import 'package:arise_application/pages/guide_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(builder: (context) => const GuidePage(firstRun: true)),
       );
     }
 

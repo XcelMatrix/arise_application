@@ -1,6 +1,13 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:arise_application/components/app_drawer.dart';
+import 'package:arise_application/components/profile_menu_button.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:arise_application/cubits/account/account_cubit.dart';
+import 'package:arise_application/pages/attendance_page.dart';
+import 'package:arise_application/pages/timed_console_page.dart';
+import 'package:arise_application/pages/disaster_resources_page.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 import 'package:ar_flutter_plugin_plus/ar_flutter_plugin.dart';
 import 'package:ar_flutter_plugin_plus/managers/ar_location_manager.dart';
@@ -11,7 +18,6 @@ import 'package:ar_flutter_plugin_plus/datatypes/config_planedetection.dart';
 import 'package:ar_flutter_plugin_plus/datatypes/node_types.dart';
 import 'package:ar_flutter_plugin_plus/models/ar_node.dart';
 import 'package:arise_application/pages/home_page.dart';
-import 'package:arise_application/pages/profile_page.dart';
 
 class EvacuationMapPage extends StatefulWidget {
   const EvacuationMapPage({super.key});
@@ -138,23 +144,61 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
 
   // ---------------- UI ----------------
 
+  int _currentIndex = 3;
+
+  /// True if the signed-in account's role allows this feature.
+  bool _allowed(String feature) =>
+      context.read<AccountCubit>().state.canAccess(feature);
+
+  void _denied() {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("Your account level doesn't have access to this."),
+    ));
+  }
+
+  void _onItemTapped(int index) {
+
+    switch (index) {
+      case 0:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+        break;
+      case 1:
+        if (!_allowed(Feature.attendance)) return _denied();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AttendancePage()),
+        );
+        break;
+      case 2:
+        if (!_allowed(Feature.timedConsole)) return _denied();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const TimedConsolePage()),
+        );
+        break;
+      case 3:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DisasterResourcesPage()),
+        );
+        break;
+    }
+    setState(() => _currentIndex = index);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      endDrawer: const AppDrawer(),
       appBar: AppBar(
         // ARISE white logo
-        leading: IconButton(
-          icon: Image.asset(
-            "assets/icons/icon_white.png",
-            width: 48,
-            height: 48,
-          ),
-          color: Colors.white,
-          onPressed: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          ),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset("assets/icons/icon_white.png", width: 48, height: 48),
         ),
         backgroundColor: _blue,
 
@@ -170,22 +214,41 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
 
         // Profile button
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.person),
-            iconSize: 36,
-            color: const Color(0xFFACACAC),
-            style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFFD9D9D9),
-              fixedSize: const Size(48, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            tooltip: 'Profile',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
-            ),
+const ProfileMenuButton(),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: const Color(0xFF3C6E87),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: const Color(0xFFACACAC),
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Geist',
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontFamily: 'Geist',
+          fontSize: 11,
+        ),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment_turned_in),
+            label: 'Attendance',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.terminal),
+            label: 'Console',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.health_and_safety),
+            label: 'Resources',
           ),
         ],
       ),
@@ -278,61 +341,11 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
           ),
         ),
 
-        Positioned(
-          top: 12,
-          left: 0,
-          right: 0,
-          child: IgnorePointer(
-            child: Column(
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.55),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    "Evacuation map"
-                    "${modelNode == null ? "  •  hidden" : ""}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Geist',
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text(
-                    "Drag to move  •  Pinch to zoom  •  Twist to rotate",
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
         Align(
           alignment: FractionalOffset.bottomCenter,
           child: Container(
             width: double.infinity,
-            // Extra bottom padding keeps the buttons clear of the phone's
-            // navigation bar / gesture area.
-            padding: EdgeInsets.fromLTRB(
-              8,
-              12,
-              8,
-              12 + MediaQuery.of(context).viewPadding.bottom,
-            ),
+            padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.4),
               borderRadius:

@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/auth_servers/auth_gate.dart';
 import 'package:arise_application/cubits/account/account_cubit.dart';
 import 'package:arise_application/cubits/drill/drill_cubit.dart';
+import 'package:arise_application/cubits/inbox/inbox_cubit.dart';
 import 'package:arise_application/cubits/profiles/profiles_cubit.dart';
 
 const supabaseUrl = 'https://zpnykmhpzagnnmwhhjcp.supabase.co';
@@ -43,6 +44,13 @@ class MyApp extends StatelessWidget {
         BlocProvider<AccountCubit>(create: (context) => AccountCubit()),
         // shared by Attendance pages + Timed Console
         BlocProvider<DrillCubit>(create: (context) => DrillCubit()..load()),
+        // notifications: chat messages + Timed Console reports
+        BlocProvider<InboxCubit>(
+          create: (context) => InboxCubit(
+            context.read<AccountCubit>(),
+            context.read<DrillCubit>(),
+          ),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

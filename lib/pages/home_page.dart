@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:arise_application/components/app_drawer.dart';
+import 'package:arise_application/components/profile_menu_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/cubits/account/account_cubit.dart';
 import 'package:arise_application/pages/pending_approval_page.dart';
-import 'package:arise_application/pages/profile_page.dart';
 import 'package:arise_application/pages/attendance_page.dart';
 import 'package:arise_application/pages/rooms_page.dart';
 import 'package:arise_application/pages/timed_console_page.dart';
@@ -96,6 +97,7 @@ class _HomePageState extends State<HomePage> {
         final canChat = account.canAccess(Feature.chat);
 
         return Scaffold(
+          endDrawer: const AppDrawer(),
           appBar: AppBar(
 
             // ARISE white logo
@@ -121,35 +123,7 @@ class _HomePageState extends State<HomePage> {
 
             // Profile button (shows your picture if you have one)
             actions: <Widget>[
-              IconButton(
-                icon: account.avatarUrl != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.network(
-                          account.avatarUrl!,
-                          width: 48,
-                          height: 48,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              const Icon(Icons.person, size: 36),
-                        ),
-                      )
-                    : const Icon(Icons.person),
-                iconSize: 36,
-                color: const Color(0xFFACACAC),
-                style: IconButton.styleFrom(
-                  backgroundColor: Color(0xFFD9D9D9),
-                  fixedSize: const Size(48, 48),
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                tooltip: 'Profile',
-                onPressed: () => Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const ProfilePage()
-                )),
-              )
+const ProfileMenuButton()
             ]
           ),
           body: Center(
@@ -248,8 +222,8 @@ class _HomePageState extends State<HomePage> {
                 label: 'Console',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.location_on),
-                label: 'Map',
+                icon: Icon(Icons.health_and_safety),
+                label: 'Resources',
               ),
             ],
           ),

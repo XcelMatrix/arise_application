@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:arise_application/components/app_drawer.dart';
+import 'package:arise_application/components/profile_menu_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/cubits/account/account_cubit.dart';
 import 'package:arise_application/pages/home_page.dart';
-import 'package:arise_application/pages/profile_page.dart';
 import 'package:arise_application/pages/attendance_page.dart';
 import 'package:arise_application/pages/timed_console_page.dart';
 import 'package:arise_application/pages/resources/evacuation_map_page.dart';
@@ -65,19 +66,12 @@ class _DisasterResourcesPageState extends State<DisasterResourcesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      endDrawer: const AppDrawer(),
       appBar: AppBar(
         // ARISE white logo linking back to Home
-        leading: IconButton(
-          icon: Image.asset(
-            "assets/icons/icon_white.png",
-            width: 48,
-            height: 48,
-          ),
-          color: Colors.white,
-          onPressed: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          ),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset("assets/icons/icon_white.png", width: 48, height: 48),
         ),
         backgroundColor: const Color(0xFF3C6E87),
 
@@ -93,23 +87,7 @@ class _DisasterResourcesPageState extends State<DisasterResourcesPage> {
 
         // Profile button
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.person),
-            iconSize: 36,
-            color: const Color(0xFFACACAC),
-            style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFFD9D9D9),
-              fixedSize: const Size(48, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            tooltip: 'Profile',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfilePage()),
-            ),
-          )
+const ProfileMenuButton()
         ],
       ),
       body: Center(
@@ -186,8 +164,8 @@ class _DisasterResourcesPageState extends State<DisasterResourcesPage> {
             label: 'Console',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.location_on),
-            label: 'Map',
+            icon: Icon(Icons.health_and_safety),
+            label: 'Resources',
           ),
         ],
       ),

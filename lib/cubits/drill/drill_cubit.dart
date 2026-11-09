@@ -219,13 +219,17 @@ class DrillCubit extends Cubit<DrillState> {
 
   // ---------- console ----------
 
+  // every new console line is also announced here (the Inbox listens)
+  final _entries = StreamController<ConsoleEntry>.broadcast();
+  Stream<ConsoleEntry> get entries => _entries.stream;
+
   void _print(String message,
       [ConsoleLevel level = ConsoleLevel.info, DateTime? at]) {
     if (isClosed) return;
-    emit(state.copyWith(log: [
-      ...state.log,
-      ConsoleEntry(time: at ?? DateTime.now(), message: message, level: level),
-    ]));
+    final entry =
+        ConsoleEntry(time: at ?? DateTime.now(), message: message, level: level);
+    emit(state.copyWith(log: [...state.log, entry]));
+    if (!_entries.isClosed) _entries.add(entry);
   }
 
   void clearConsole() => emit(state.copyWith(log: const []));
@@ -651,6 +655,7 @@ class DrillCubit extends Cubit<DrillState> {
     _ticker?.cancel();
     _drillSub?.cancel();
     _feedSub?.cancel();
+    _entries.close();
     return super.close();
   }
 }

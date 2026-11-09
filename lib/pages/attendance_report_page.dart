@@ -169,7 +169,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                 fontFamily: 'Geist'),
             centerTitle: true,
             actions: [
-              PopupMenuButton<String>(
+PopupMenuButton<String>(
                 iconColor: Colors.white,
                 onSelected: (v) {
                   if (v == 'present') _markAllPresent();
