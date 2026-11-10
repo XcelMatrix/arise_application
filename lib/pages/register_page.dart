@@ -1,4 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/l10n/translations.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:arise_application/auth_servers/auth_service.dart';
 import 'package:arise_application/pages/login_page.dart';
 
@@ -123,7 +126,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.bg(context),
       body: Center(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
@@ -170,7 +173,7 @@ class _RegisterPageState extends State<RegisterPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE4F2F9),
+                  color: AppColors.soft(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Text(
@@ -190,15 +193,15 @@ class _RegisterPageState extends State<RegisterPage> {
             TextFormField(
               controller: _usernameController,
               enabled: !_isLoading,
-              decoration: const InputDecoration(
-                hintText: "Username",
+              decoration: InputDecoration(
+                hintText: tr(context, "Username"),
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
                   fontFamily: 'Geist'
                 ),
                 filled: true,
-                fillColor: Color(0xFFD3D3D3),
+                fillColor: AppColors.field(context),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -216,11 +219,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
               validator: (val) {
                 if (val == null || val.isEmpty) {
-                  return 'Required';
+                  return Tr.t('Required');
                 }
                 final isValid = RegExp(r'^[A-Za-z0-9_]{3,24}$').hasMatch(val);
                 if (!isValid) {
-                  return '3-24 long with alphanumeric or underscore';
+                  return Tr.t('3-24 long with alphanumeric or underscore');
                 }
                 return null;
               },
@@ -232,15 +235,15 @@ class _RegisterPageState extends State<RegisterPage> {
             TextFormField(
               controller: _emailController,
               enabled: !_isLoading,
-              decoration: const InputDecoration(
-                hintText: "Email Address",
+              decoration: InputDecoration(
+                hintText: tr(context, "Email Address"),
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
                   fontFamily: 'Geist'
                 ),
                 filled: true,
-                fillColor: Color(0xFFD3D3D3),
+                fillColor: AppColors.field(context),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -258,7 +261,7 @@ class _RegisterPageState extends State<RegisterPage> {
               
               validator: (val) {
                 if (val == null || val.isEmpty) {
-                  return 'Required';
+                  return Tr.t('Required');
                 }
                 return null;
               },
@@ -272,14 +275,14 @@ class _RegisterPageState extends State<RegisterPage> {
               enabled: !_isLoading,
               obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
-                hintText: "Password",
+                hintText: tr(context, "Password"),
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
                   fontFamily: 'Geist'
                 ),
                 filled: true,
-                fillColor: Color(0xFFD3D3D3),
+                fillColor: AppColors.field(context),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -311,10 +314,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
               validator: (val) {
                 if (val == null || val.isEmpty) {
-                  return 'Required';
+                  return Tr.t('Required');
                 }
                 if (val.length < 6) {
-                  return '6 characters minimum';
+                  return Tr.t('6 characters minimum');
                 }
                 return null;
               },
@@ -328,14 +331,14 @@ class _RegisterPageState extends State<RegisterPage> {
               enabled: !_isLoading,
               obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
-                hintText: "Confirm Password",
+                hintText: tr(context, "Confirm Password"),
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
                   fontFamily: 'Geist'
                 ),
                 filled: true,
-                fillColor: Color(0xFFD3D3D3),
+                fillColor: AppColors.field(context),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),

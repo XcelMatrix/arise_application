@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/cubits/account/account_cubit.dart';
 
@@ -24,7 +26,7 @@ class AccessGate extends StatelessWidget {
         }
         if (account.isTeacherPending || !account.canAccess(feature)) {
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.bg(context),
             body: SafeArea(
               child: Center(
                 child: Padding(

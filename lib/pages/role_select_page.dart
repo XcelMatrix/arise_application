@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:arise_application/pages/register_page.dart';
 
 /// Shown before registration: teacher (needs approval) or student.
@@ -10,9 +12,9 @@ class RoleSelectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.bg(context),
         elevation: 0,
         iconTheme: const IconThemeData(color: _blue),
       ),
@@ -98,7 +100,7 @@ class _RoleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFFE4F2F9),
+      color: AppColors.soft(context),
       borderRadius: BorderRadius.circular(20),
       elevation: 2,
       shadowColor: const Color(0x33000000),
@@ -114,15 +116,15 @@ class _RoleCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: AppColors.body(context),
                         fontFamily: 'Geist',
                       ),
                     ),
                   ),
-                  const Icon(Icons.chevron_right, color: Colors.black87),
+                  Icon(Icons.chevron_right, color: AppColors.body(context)),
                 ],
               ),
               const SizedBox(height: 16),

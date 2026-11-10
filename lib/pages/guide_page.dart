@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:arise_application/pages/home_page.dart';
 
 /// "How to use ARISE" – shown after logging in, and from About in the side menu.
@@ -72,9 +74,9 @@ class GuidePage extends StatelessWidget {
                     icon: Icons.navigation,
                     title: "Getting around",
                     lines: [
-                      "Use the bar at the bottom to switch between Home, Attendance, Console and Map.",
-                      "Tap the ARISE logo at the top of a page to go back Home.",
-                      "Tap the person icon to open your profile, change your display name or picture, or log out.",
+                      "Use the bar at the bottom to switch between Home, Attendance, Console and Resources.",
+                      "Tap your picture at the top to open the menu: Inbox, Settings, About, Help and Log out.",
+                      "Tap your picture in the menu to open your profile, change your display name or picture.",
                     ],
                   ),
                   _Section(
@@ -164,7 +166,7 @@ class _Intro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
+      children: [
         Text(
           "ARISE",
           style: TextStyle(
@@ -178,7 +180,7 @@ class _Intro extends StatelessWidget {
           "Your guide to disaster preparedness: evacuation map, emergency contacts, guidelines, and drill attendance.",
           textAlign: TextAlign.center,
           style: TextStyle(
-              fontSize: 14, color: Color(0xFF2C4C5E), fontFamily: 'Geist'),
+              fontSize: 14, color: AppColors.text(context), fontFamily: 'Geist'),
         ),
       ],
     );
@@ -199,7 +201,7 @@ class _Section extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F5F8),
+        color: AppColors.card(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
@@ -224,10 +226,10 @@ class _Section extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C4C5E),
+                      color: AppColors.text(context),
                       fontFamily: 'Geist'),
                 ),
               ),
@@ -245,9 +247,9 @@ class _Section extends StatelessWidget {
                   Expanded(
                     child: Text(
                       line,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF2C4C5E),
+                          color: AppColors.text(context),
                           fontFamily: 'Geist'),
                     ),
                   ),

@@ -25,7 +25,7 @@ class AuthService {
       data: {
         'username': username,
         // only creates a PENDING request; the database never trusts this for access
-        if (requestedRole != null) 'requested_role': requestedRole,
+        'requested_role': ?requestedRole,
       },
     );
   }

@@ -29,7 +29,7 @@ class ProfileAvatar extends StatelessWidget {
       foregroundImage:
           (url != null && url.isNotEmpty) ? NetworkImage(url) : null,
       onForegroundImageError: (url != null && url.isNotEmpty)
-          ? (_, __) {}
+          ? (_, _) {}
           : null,
       child: Text(p.initials),
     );

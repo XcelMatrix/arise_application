@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:arise_application/components/app_drawer.dart';
 import 'package:arise_application/components/profile_menu_button.dart';
 import 'package:arise_application/pages/attendance_page.dart';
@@ -78,7 +80,7 @@ class ChatPage extends StatelessWidget {
 
   Widget _page(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.bg(context),
       endDrawer: const AppDrawer(),
       appBar: AppBar(
 
@@ -120,22 +122,22 @@ const ProfileMenuButton()
           fontFamily: 'Geist',
           fontSize: 11,
         ),
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: tr(context, 'Home'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment_turned_in),
-            label: 'Attendance',
+            label: tr(context, 'Attendance'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.terminal),
-            label: 'Console',
+            label: tr(context, 'Console'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.health_and_safety),
-            label: 'Resources',
+            label: tr(context, 'Resources'),
           ),
         ],
       ),
@@ -209,7 +211,7 @@ class _MessageBarState extends State<MessageBar> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: AppColors.bg(context),
       child: Padding(
         padding: EdgeInsets.only(
           top: 8,
@@ -225,30 +227,30 @@ class _MessageBarState extends State<MessageBar> {
                 maxLines: null,
                 autofocus: true,
                 controller: _textController,
-                decoration: const InputDecoration(
-                  hintText: 'Type a message',
+                decoration: InputDecoration(
+                  hintText: tr(context, 'Type a message'),
                   hintStyle: TextStyle(
                     fontSize: 16,
                     color: Colors.grey,
                     fontFamily: 'Geist'
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: AppColors.bg(context),
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
 
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: Color(0xFFD3D3D3)),
+                    borderSide: BorderSide(color: AppColors.field(context)),
                   ),
 
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: Color(0xFFD3D3D3)),
+                    borderSide: BorderSide(color: AppColors.field(context)),
                   ),
 
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: Color(0xFFD3D3D3)),
+                    borderSide: BorderSide(color: AppColors.field(context)),
                   ),
                 ),
               ),
@@ -311,10 +313,10 @@ class _ChatBubble extends StatelessWidget {
           decoration: BoxDecoration(
             color: message.isMine
                 ? Color(0xFF3C6E87)
-                : Color(0xFFD3D3D3),
+                : AppColors.field(context),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(
+          child: Text.verbatim(
             message.content,
             style: TextStyle(
               color: message.isMine ? Colors.white : Colors.grey,

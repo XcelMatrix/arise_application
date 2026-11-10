@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:arise_application/auth_servers/auth_service.dart';
 import 'package:arise_application/pages/role_select_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -92,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.bg(context),
       body: Center(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
@@ -139,15 +141,15 @@ class _LoginPageState extends State<LoginPage> {
             TextFormField(
               controller: _emailController,
               enabled: !_isLoading,
-              decoration: const InputDecoration(
-                hintText: "Email Address",
+              decoration: InputDecoration(
+                hintText: tr(context, "Email Address"),
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
                   fontFamily: 'Geist'
                 ),
                 filled: true,
-                fillColor: Color(0xFFD3D3D3),
+                fillColor: AppColors.field(context),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -164,14 +166,14 @@ class _LoginPageState extends State<LoginPage> {
               enabled: !_isLoading,
               obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
-                hintText: "Password",
+                hintText: tr(context, "Password"),
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
                   fontFamily: 'Geist'
                 ),
                 filled: true,
-                fillColor: Color(0xFFD3D3D3),
+                fillColor: AppColors.field(context),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),

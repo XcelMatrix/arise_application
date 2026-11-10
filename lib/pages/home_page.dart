@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
 import 'package:arise_application/components/app_drawer.dart';
 import 'package:arise_application/components/profile_menu_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -143,7 +144,7 @@ const ProfileMenuButton()
                   )),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 26),
 
                 // go to attendance report
                 _buildGoogleClassroomCard(
@@ -160,7 +161,7 @@ const ProfileMenuButton()
                   },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 26),
 
                 // go to timed console
                 _buildGoogleClassroomCard(
@@ -208,22 +209,22 @@ const ProfileMenuButton()
               fontFamily: 'Geist',
               fontSize: 11,
             ),
-            items: const [
+            items: [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),
-                label: 'Home',
+                label: tr(context, 'Home'),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.assignment_turned_in),
-                label: 'Attendance',
+                label: tr(context, 'Attendance'),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.terminal),
-                label: 'Console',
+                label: tr(context, 'Console'),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.health_and_safety),
-                label: 'Resources',
+                label: tr(context, 'Resources'),
               ),
             ],
           ),
@@ -243,7 +244,7 @@ const ProfileMenuButton()
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 140,
+        height: 190,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [
@@ -285,7 +286,7 @@ const ProfileMenuButton()
                 child: const Icon(Icons.lock, color: Colors.white, size: 24),
               ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,7 +294,7 @@ const ProfileMenuButton()
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       fontFamily: 'Geist',
@@ -301,11 +302,11 @@ const ProfileMenuButton()
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
                     description,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 15,
                       color: Color(0xFFE0E0E0),
                       fontFamily: 'Geist',
                     ),

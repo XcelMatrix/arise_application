@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/cubits/account/account_cubit.dart';
 import 'package:arise_application/cubits/inbox/inbox_cubit.dart';
@@ -17,7 +18,7 @@ class ProfileMenuButton extends StatelessWidget {
             return Builder(
               builder: (context) => Badge(
                 isLabelVisible: inbox.unread > 0,
-                label: Text('${inbox.unread}'),
+                label: Text.verbatim('${inbox.unread}'),
                 offset: const Offset(-4, 4),
                 child: IconButton(
                   icon: account.avatarUrl != null
@@ -28,7 +29,7 @@ class ProfileMenuButton extends StatelessWidget {
                             width: 48,
                             height: 48,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
+                            errorBuilder: (_, _, _) =>
                                 const Icon(Icons.person, size: 36),
                           ),
                         )
@@ -43,7 +44,7 @@ class ProfileMenuButton extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  tooltip: 'Menu',
+                  tooltip: tr(context, 'Menu'),
                   onPressed: () => Scaffold.of(context).openEndDrawer(),
                 ),
               ),

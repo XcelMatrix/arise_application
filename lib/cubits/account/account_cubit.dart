@@ -8,6 +8,8 @@ class Feature {
   static const attendance = 'attendance';
   static const timedConsole = 'timed_console';
   static const chat = 'chat';
+  // teachers + admins may add / edit calendar events (everyone can view)
+  static const calendarEdit = 'calendar_edit';
 }
 
 class AccountState {

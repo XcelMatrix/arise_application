@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:arise_application/components/app_drawer.dart';
 import 'package:arise_application/components/profile_menu_button.dart';
 import 'package:arise_application/pages/attendance_page.dart';
@@ -79,7 +81,7 @@ class RoomsPage extends StatelessWidget {
 
   Widget _page(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.bg(context),
       endDrawer: const AppDrawer(),
       appBar: AppBar(
 
@@ -121,22 +123,22 @@ const ProfileMenuButton()
           fontFamily: 'Geist',
           fontSize: 11,
         ),
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: tr(context, 'Home'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment_turned_in),
-            label: 'Attendance',
+            label: tr(context, 'Attendance'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.terminal),
-            label: 'Console',
+            label: tr(context, 'Console'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.health_and_safety),
-            label: 'Resources',
+            label: tr(context, 'Resources'),
           ),
         ],
       ),
@@ -165,11 +167,11 @@ const ProfileMenuButton()
                               onTap: () => Navigator.of(context)
                                   .push(ChatPage.route(room.id)),
                               leading: ProfileAvatar(profile: otherUser),
-                              title: Text(otherUser == null
-                                  ? 'Loading...'
-                                  : otherUser.shownName),
+                              title: otherUser == null
+                                  ? const Text('Loading...')
+                                  : Text.verbatim(otherUser.shownName),
                               subtitle: room.lastMessage != null
-                                  ? Text(
+                                  ? Text.verbatim(
                                       room.lastMessage!.content,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -251,7 +253,7 @@ class _NewUsers extends StatelessWidget {
                         children: [
                           ProfileAvatar(profile: user),
                           const SizedBox(height: 8),
-                          Text(
+                          Text.verbatim(
                             user.shownName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

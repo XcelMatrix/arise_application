@@ -18,6 +18,7 @@ dependencies:
   meta: ^1.19.0
   path_provider: ^2.1.6
   rename_app: ^1.6.6
+  shared_preferences: ^2.5.6
   sidebarx: ^0.17.2
   supabase_flutter: ^2.17.2
   timeago: ^3.7.1

@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart';
 import 'package:arise_application/cubits/inbox/inbox_cubit.dart';
@@ -27,6 +29,15 @@ class InboxPage extends StatelessWidget {
       default:
         return _blue;
     }
+  }
+
+  // chat names and messages are shown exactly as written
+  Widget _t(bool verbatim, String text,
+      {TextStyle? style, int? maxLines, TextOverflow? overflow}) {
+    return verbatim
+        ? Text.verbatim(text,
+            style: style, maxLines: maxLines, overflow: overflow)
+        : Text(text, style: style, maxLines: maxLines, overflow: overflow);
   }
 
   @override
@@ -74,12 +85,12 @@ class InboxPage extends StatelessWidget {
           }
           return ListView.separated(
             itemCount: state.items.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
+            separatorBuilder: (_, _) => const Divider(height: 1),
             itemBuilder: (context, i) {
               final item = state.items[i];
               final isChat = item.kind == InboxKind.chat;
               return ListTile(
-                tileColor: item.read ? null : const Color(0xFFE4F2F9),
+                tileColor: item.read ? null : AppColors.soft(context),
                 leading: Container(
                   width: 40,
                   height: 40,
@@ -93,14 +104,14 @@ class InboxPage extends StatelessWidget {
                     size: 22,
                   ),
                 ),
-                title: Text(
+                title: _t(isChat,
                   item.title,
                   style: TextStyle(
                     fontWeight: item.read ? FontWeight.normal : FontWeight.bold,
                     fontFamily: 'Geist',
                   ),
                 ),
-                subtitle: Text(
+                subtitle: _t(isChat,
                   item.body,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,

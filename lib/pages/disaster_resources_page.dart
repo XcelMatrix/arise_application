@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:arise_application/components/app_drawer.dart';
 import 'package:arise_application/components/profile_menu_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -106,7 +108,7 @@ const ProfileMenuButton()
               },
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 26),
 
             // Emergency Contacts Button
             _buildResourceCard(
@@ -118,7 +120,7 @@ const ProfileMenuButton()
               },
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 26),
 
             // Disaster Guidelines Button
             _buildResourceCard(
@@ -150,22 +152,22 @@ const ProfileMenuButton()
           fontFamily: 'Geist',
           fontSize: 11,
         ),
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: tr(context, 'Home'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment_turned_in),
-            label: 'Attendance',
+            label: tr(context, 'Attendance'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.terminal),
-            label: 'Console',
+            label: tr(context, 'Console'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.health_and_safety),
-            label: 'Resources',
+            label: tr(context, 'Resources'),
           ),
         ],
       ),
@@ -182,10 +184,10 @@ const ProfileMenuButton()
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 90,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        height: 140,
+        padding: const EdgeInsets.symmetric(horizontal: 22),
         decoration: BoxDecoration(
-          color: const Color(0xFFF2F5F8), // Light card background color
+          color: AppColors.card(context), // Light card background color
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [
             BoxShadow(
@@ -199,8 +201,8 @@ const ProfileMenuButton()
           children: [
             // Darker rounded container for the icon
             Container(
-              width: 60,
-              height: 60,
+              width: 88,
+              height: 88,
               decoration: BoxDecoration(
                 color: const Color(0xFF3C6E87),
                 borderRadius: BorderRadius.circular(12),
@@ -208,18 +210,18 @@ const ProfileMenuButton()
               child: Icon(
                 icon,
                 color: Colors.white,
-                size: 30,
+                size: 46,
               ),
             ),
-            const SizedBox(width: 20),
+            const SizedBox(width: 24),
             // Title text
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 16,
+                style: TextStyle(
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C4C5E),
+                  color: AppColors.text(context),
                   fontFamily: 'Geist',
                 ),
                 maxLines: 1,

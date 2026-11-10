@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:arise_application/models/attendance_models.dart';
 
 /// What the "Add Attendance" dialog returns.
@@ -144,10 +146,10 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
   }
 
   InputDecoration _dec(String label) => InputDecoration(
-        labelText: label,
+        labelText: tr(context, label),
         labelStyle: const TextStyle(fontFamily: 'Geist'),
         filled: true,
-        fillColor: const Color(0xFFEFEFEF),
+        fillColor: AppColors.field(context),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         border: const OutlineInputBorder(
@@ -186,7 +188,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
 
             // grade
             DropdownButtonFormField<String>(
-              value: _grade,
+              initialValue: _grade,
               decoration: _dec('Grade'),
               items: [
                 for (final g in gradeOptions)
@@ -215,7 +217,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
 
             // type of emergency
             DropdownButtonFormField<String>(
-              value: _emergency,
+              initialValue: _emergency,
               decoration: _dec('Type of emergency'),
               items: [
                 for (final e in emergencyTypes)
@@ -236,7 +238,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
             if (source != null)
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                activeColor: _blue,
+                activeThumbColor: _blue,
                 value: _copy,
                 onChanged: (v) => setState(() => _copy = v),
                 title: Text(

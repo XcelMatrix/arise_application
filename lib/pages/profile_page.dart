@@ -1,9 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:arise_application/l10n/translations.dart';
 import 'package:arise_application/auth_servers/auth_service.dart';
 import 'package:arise_application/cubits/account/account_cubit.dart';
-import 'package:arise_application/pages/home_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -35,6 +38,26 @@ class _ProfilePageState extends State<ProfilePage> {
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  static const _monthsEn = [
+    'January', 'February', 'March', 'April', 'May', 'June', 'July',
+    'August', 'September', 'October', 'November', 'December',
+  ];
+  static const _monthsFil = [
+    'Enero', 'Pebrero', 'Marso', 'Abril', 'Mayo', 'Hunyo', 'Hulyo',
+    'Agosto', 'Setyembre', 'Oktubre', 'Nobyembre', 'Disyembre',
+  ];
+
+  /// "Joined November 9, 2026" (from the sign-up date), or null if unknown.
+  String? _joinedText(BuildContext context) {
+    final raw = Supabase.instance.client.auth.currentUser?.createdAt;
+    if (raw == null) return null;
+    final d = DateTime.tryParse(raw)?.toLocal();
+    if (d == null) return null;
+    final months =
+        Tr.current == AppLanguage.filipino ? _monthsFil : _monthsEn;
+    return '${tr(context, 'Registered since')} ${months[d.month - 1]} ${d.day}, ${d.year}';
   }
 
   void _toast(String msg) {
@@ -143,7 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
       },
       builder: (context, account) {
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.bg(context),
           appBar: AppBar(
             leading: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -186,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ? Image.network(
                                       account.avatarUrl!,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => const Icon(
+                                      errorBuilder: (_, _, _) => const Icon(
                                         Icons.person,
                                         size: 96,
                                         color: Color(0xFFACACAC),
@@ -246,7 +269,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE4F2F9),
+                          color: AppColors.soft(context),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -259,6 +282,28 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                       ),
+                    ),
+                  ),
+
+                // when the account was created
+                if (_joinedText(context) != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.calendar_today,
+                            size: 14, color: Colors.grey),
+                        const SizedBox(width: 6),
+                        Text.verbatim(
+                          _joinedText(context)!,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey,
+                            fontFamily: 'Geist',
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
@@ -277,13 +322,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   maxLength: 40,
                   textCapitalization: TextCapitalization.words,
                   onChanged: (_) => _nameTouched = true,
-                  decoration: const InputDecoration(
-                    hintText: "How your name appears",
+                  decoration: InputDecoration(
+                    hintText: tr(context, "How your name appears"),
                     hintStyle: TextStyle(
                         fontSize: 16, color: Colors.grey, fontFamily: 'Geist'),
                     counterText: '',
                     filled: true,
-                    fillColor: Color(0xFFD3D3D3),
+                    fillColor: AppColors.field(context),
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     border: OutlineInputBorder(
@@ -326,7 +371,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 // logout button
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE4F2F9),
+                    backgroundColor: AppColors.soft(context),
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     shape: RoundedRectangleBorder(

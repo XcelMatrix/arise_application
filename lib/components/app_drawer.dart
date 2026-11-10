@@ -1,12 +1,19 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:arise_application/auth_servers/auth_service.dart';
 import 'package:arise_application/cubits/account/account_cubit.dart';
 import 'package:arise_application/cubits/inbox/inbox_cubit.dart';
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/pages/about_page.dart';
+import 'package:arise_application/pages/calendar_page.dart';
 import 'package:arise_application/pages/guide_page.dart';
 import 'package:arise_application/pages/inbox_page.dart';
 import 'package:arise_application/pages/profile_page.dart';
+import 'package:arise_application/pages/settings_page.dart';
+import 'package:arise_application/theme/app_colors.dart';
 
-/// Side menu opened from the profile-picture button: Inbox, Profile, About.
+/// Side menu opened from the profile-picture button.
+/// Tap your picture to open your profile.
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
@@ -18,93 +25,162 @@ class AppDrawer extends StatelessWidget {
     nav.push(route);
   }
 
+  Future<void> _logout(BuildContext context) async {
+    final nav = Navigator.of(context);
+    nav.pop(); // close the menu
+    await AuthService().signOut();
+    nav.popUntil((route) => route.isFirst);
+  }
+
+  Widget _item(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Widget? trailing,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: _blue),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 16,
+          color: AppColors.text(context),
+          fontFamily: 'Geist',
+        ),
+      ),
+      trailing: trailing,
+      onTap: onTap,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    const itemStyle = TextStyle(
-      fontSize: 16,
-      color: Color(0xFF2C4C5E),
-      fontFamily: 'Geist',
-    );
-
     return Drawer(
       child: Column(
         children: [
+          // header: tap the picture / name to open your profile
           BlocBuilder<AccountCubit, AccountState>(
             builder: (context, account) {
-              return Container(
-                width: double.infinity,
+              return Material(
                 color: _blue,
-                padding: EdgeInsets.fromLTRB(
-                    20, 24 + MediaQuery.of(context).padding.top, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 72,
-                      height: 72,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9D9D9),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: account.avatarUrl != null
-                          ? Image.network(
-                              account.avatarUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(
-                                  Icons.person,
-                                  size: 56,
-                                  color: Color(0xFFACACAC)),
-                            )
-                          : const Icon(Icons.person,
-                              size: 56, color: Color(0xFFACACAC)),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      account.shownName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontFamily: 'Geist',
-                      ),
-                    ),
-                    if (account.username != null)
-                      Text(
-                        '@${account.username}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFFE4F2F9),
-                          fontFamily: 'Geist',
+                child: InkWell(
+                  onTap: () => _open(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfilePage()),
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.fromLTRB(
+                        20, 24 + MediaQuery.of(context).padding.top, 20, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 72,
+                          height: 72,
+                          clipBehavior: Clip.antiAlias,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD9D9D9),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: account.avatarUrl != null
+                              ? Image.network(
+                                  account.avatarUrl!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) => const Icon(
+                                      Icons.person,
+                                      size: 56,
+                                      color: Color(0xFFACACAC)),
+                                )
+                              : const Icon(Icons.person,
+                                  size: 56, color: Color(0xFFACACAC)),
                         ),
-                      ),
-                  ],
+                        const SizedBox(height: 12),
+                        Text.verbatim(
+                          account.shownName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontFamily: 'Geist',
+                          ),
+                        ),
+                        if (account.username != null)
+                          Text.verbatim(
+                            '@${account.username}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFFE4F2F9),
+                              fontFamily: 'Geist',
+                            ),
+                          ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'View profile',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFFE4F2F9),
+                            fontFamily: 'Geist',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               );
             },
           ),
           const SizedBox(height: 8),
 
-          // inbox (with unread count)
+          // inbox (mail icon, unread count)
           BlocBuilder<InboxCubit, InboxState>(
-            builder: (context, inbox) => ListTile(
-              title: const Text('Inbox', style: itemStyle),
-              trailing: inbox.unread > 0
-                  ? Badge(label: Text('${inbox.unread}'))
-                  : null,
+            builder: (context, inbox) => _item(
+              context,
+              icon: Icons.mail_outline,
+              label: 'Inbox',
+              trailing:
+                  inbox.unread > 0 ? Badge(label: Text.verbatim('${inbox.unread}')) : null,
               onTap: () => _open(context, InboxPage.route()),
             ),
           ),
-          ListTile(
-            title: const Text('Profile', style: itemStyle),
-            onTap: () =>
-                _open(context, MaterialPageRoute(builder: (_) => const ProfilePage())),
+          _item(
+            context,
+            icon: Icons.calendar_month,
+            label: 'Calendar',
+            onTap: () => _open(context, CalendarPage.route()),
           ),
-          ListTile(
-            title: const Text('About', style: itemStyle),
+          _item(
+            context,
+            icon: Icons.settings,
+            label: 'Settings',
+            onTap: () => _open(context, SettingsPage.route()),
+          ),
+          _item(
+            context,
+            icon: Icons.info_outline,
+            label: 'About',
+            onTap: () => _open(context, AboutPage.route()),
+          ),
+          _item(
+            context,
+            icon: Icons.help_outline,
+            label: 'Help',
             onTap: () => _open(context, GuidePage.route()),
+          ),
+
+          const Spacer(),
+          const Divider(height: 1),
+          SafeArea(
+            top: false,
+            child: _item(
+              context,
+              icon: Icons.logout,
+              label: 'Log out',
+              onTap: () => _logout(context),
+            ),
           ),
         ],
       ),

@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/l10n/translated_text.dart';
+import 'package:arise_application/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/components/access_gate.dart';
 import 'package:arise_application/cubits/account/account_cubit.dart';
@@ -157,7 +159,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                     : 'Ready to send';
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.bg(context),
           appBar: AppBar(
             iconTheme: const IconThemeData(color: Colors.white),
             backgroundColor: _blue,
@@ -218,7 +220,7 @@ PopupMenuButton<String>(
                 margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE4F2F9),
+                  color: AppColors.soft(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -244,14 +246,14 @@ PopupMenuButton<String>(
                         focusNode: _nameFocus,
                         textCapitalization: TextCapitalization.words,
                         onSubmitted: (_) => _addStudent(),
-                        decoration: const InputDecoration(
-                          hintText: 'Student name',
+                        decoration: InputDecoration(
+                          hintText: tr(context, 'Student name'),
                           hintStyle: TextStyle(
                               fontSize: 16,
                               color: Colors.grey,
                               fontFamily: 'Geist'),
                           filled: true,
-                          fillColor: Color(0xFFD3D3D3),
+                          fillColor: AppColors.field(context),
                           contentPadding: EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                           border: OutlineInputBorder(
@@ -305,7 +307,7 @@ PopupMenuButton<String>(
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFD3D3D3)),
+                    border: Border.all(color: AppColors.field(context)),
                     borderRadius: const BorderRadius.vertical(
                         bottom: Radius.circular(10)),
                   ),
@@ -316,8 +318,8 @@ PopupMenuButton<String>(
                                   color: _blue, fontFamily: 'Geist')))
                       : ListView.separated(
                           itemCount: report.students.length,
-                          separatorBuilder: (_, __) => const Divider(
-                              height: 1, color: Color(0xFFD3D3D3)),
+                          separatorBuilder: (_, _) => Divider(
+                              height: 1, color: AppColors.field(context)),
                           itemBuilder: (context, i) {
                             final st = report.students[i];
                             return Dismissible(
@@ -495,7 +497,7 @@ class _StudentRow extends StatelessWidget {
     final color = status?.color ?? Colors.grey;
 
     return Container(
-      color: Colors.white,
+      color: AppColors.bg(context),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: [
@@ -515,7 +517,7 @@ class _StudentRow extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Flexible(
-                        child: Text(student.name,
+                        child: Text.verbatim(student.name,
                             style: const TextStyle(
                                 fontFamily: 'Geist', fontSize: 15)),
                       ),
@@ -611,7 +613,7 @@ class _RenameDialogState extends State<_RenameDialog> {
         controller: _controller,
         autofocus: true,
         textCapitalization: TextCapitalization.words,
-        decoration: const InputDecoration(hintText: 'Student name'),
+        decoration: InputDecoration(hintText: tr(context, 'Student name')),
         onSubmitted: (v) => Navigator.pop(context, v),
       ),
       actions: [
