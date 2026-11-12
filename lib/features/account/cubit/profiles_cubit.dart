@@ -1,0 +1,30 @@
+import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:bloc/bloc.dart';
+import 'package:meta/meta.dart';
+import 'package:arise_application/features/account/models/profile.dart';
+
+part 'profiles_state.dart';
+
+class ProfilesCubit extends Cubit<ProfilesState> {
+  ProfilesCubit() : super(ProfilesInitial());
+
+  final supabase = Supabase.instance.client;
+
+  /// Map of app users cache in memory with profile_id as the key
+  final Map<String, Profile?> _profiles = {};
+
+  Future<void> getProfile(String userId) async {
+    if (_profiles[userId] != null) {
+      return;
+    }
+
+    final data = await supabase
+        .from('profiles')
+        .select('*, profile_details(display_name, avatar_url)')
+        .match({'id': userId}).single();
+    _profiles[userId] = Profile.fromMap(data);
+
+    emit(ProfilesLoaded(profiles: _profiles));
+  }
+}
