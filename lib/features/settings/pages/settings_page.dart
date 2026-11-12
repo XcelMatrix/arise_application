@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:arise_application/core/theme/app_colors.dart';
+import 'package:arise_application/core/utils/time_format.dart';
 import 'package:arise_application/features/settings/cubit/settings_cubit.dart';
 import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/translations/translation.dart';
-import 'package:arise_application/core/theme/app_colors.dart';
 
-/// Theme (light / dark) and language (English / Filipino).
+/// Settings, in three groups: Appearance, Accessibility, Language and time.
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -17,12 +18,8 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final segmentStyle = SegmentedButton.styleFrom(
-      selectedBackgroundColor: _blue,
-      selectedForegroundColor: Colors.white,
-    );
-
     return Scaffold(
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: _blue,
@@ -37,79 +34,220 @@ class SettingsPage extends StatelessWidget {
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settings) {
           final cubit = context.read<SettingsCubit>();
+          final now = DateTime.now();
           return ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             children: [
-              _Section(
-                icon: Icons.brightness_6,
-                title: "Theme",
-                subtitle: "Choose how the app looks.",
-                child: _Dropdown<ThemeMode>(
-                  value: settings.themeMode == ThemeMode.dark
-                      ? ThemeMode.dark
-                      : ThemeMode.light,
-                  items: const [
-                    DropdownMenuItem(
-                      value: ThemeMode.light,
-                      child: _Option(Icons.light_mode, "Light"),
-                    ),
-                    DropdownMenuItem(
-                      value: ThemeMode.dark,
-                      child: _Option(Icons.dark_mode, "Dark"),
-                    ),
-                  ],
-                  onChanged: cubit.setTheme,
-                ),
-              ),
-              _Section(
-                icon: Icons.text_fields,
-                title: "Text size",
-                subtitle: "Make text larger and easier to read.",
-                child: SegmentedButton<double>(
-                  style: segmentStyle,
-                  showSelectedIcon: false,
-                  segments: const [
-                    ButtonSegment(value: 1.0, label: Text("Normal")),
-                    ButtonSegment(value: 1.25, label: Text("Large")),
-                    ButtonSegment(value: 1.5, label: Text("Extra large")),
-                  ],
-                  selected: {settings.textScale},
-                  onSelectionChanged: (v) => cubit.setTextScale(v.first),
-                ),
-              ),
-              _Section(
-                icon: Icons.contrast,
-                title: "High contrast",
-                subtitle: "Stronger colors, bold text and clear borders.",
-                child: SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  activeColor: _blue,
-                  title: const Text("High contrast"),
-                  value: settings.highContrast,
-                  onChanged: cubit.setHighContrast,
-                ),
-              ),
-              _Section(
-                icon: Icons.language,
-                title: "Language",
-                subtitle: "Choose the language of the app.",
-                child: _Dropdown<String>(
-                  value: Tr.byCode(settings.language).code,
-                  items: [
-                    for (final l in Tr.languages)
+              // ------------------------------------------------ Appearance
+              _Group(
+                icon: Icons.palette_outlined,
+                title: "Appearance",
+                children: [
+                  _Setting(children: [
+                  _Label("Theme", "Choose how the app looks."),
+                  _Dropdown<ThemeMode>(
+                    value: settings.themeMode == ThemeMode.dark
+                        ? ThemeMode.dark
+                        : ThemeMode.light,
+                    items: const [
                       DropdownMenuItem(
-                        value: l.code,
-                        child: Text.verbatim(l.label),
+                        value: ThemeMode.light,
+                        child: _Option(Icons.light_mode, "Light"),
                       ),
-                  ],
-                  onChanged: cubit.setLanguage,
-                ),
+                      DropdownMenuItem(
+                        value: ThemeMode.dark,
+                        child: _Option(Icons.dark_mode, "Dark"),
+                      ),
+                    ],
+                    onChanged: cubit.setTheme,
+                  ),
+                  ]),
+                ],
+              ),
+
+              // ---------------------------------------------- Accessibility
+              _Group(
+                icon: Icons.accessibility_new,
+                title: "Accessibility",
+                children: [
+                  _Setting(children: [
+                  _Label("Text size",
+                      "Make text larger or smaller, one pixel at a time."),
+                  Row(
+                    children: [
+                      const Text.verbatim("A",
+                          style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      Expanded(
+                        child: Slider(
+                          value: settings.fontSize,
+                          min: SettingsState.minFontSize,
+                          max: SettingsState.maxFontSize,
+                          divisions: (SettingsState.maxFontSize -
+                                  SettingsState.minFontSize)
+                              .round(),
+                          label: '${settings.fontSize.round()} px',
+                          activeColor: _blue,
+                          onChanged: cubit.previewFontSize,
+                          onChangeEnd: cubit.setFontSize,
+                        ),
+                      ),
+                      const Text.verbatim("A",
+                          style: TextStyle(fontSize: 24, color: Colors.grey)),
+                      SizedBox(
+                        width: 52,
+                        child: Text.verbatim(
+                          '${settings.fontSize.round()} px',
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.text(context)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.field(context).withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text("The quick brown fox jumps over the lazy dog.",
+                        style: TextStyle(color: AppColors.body(context))),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed:
+                          settings.fontSize == SettingsState.defaultFontSize
+                              ? null
+                              : () => cubit
+                                  .setFontSize(SettingsState.defaultFontSize),
+                      child: const Text("Reset"),
+                    ),
+                  ),
+                  ]),
+                  _Setting(children: [
+                  _Label("Saturation",
+                      "Lower it to make colors less intense, down to grey."),
+                  Row(
+                    children: [
+                      const Icon(Icons.invert_colors_off,
+                          size: 20, color: Colors.grey),
+                      Expanded(
+                        child: Slider(
+                          value: settings.saturation,
+                          min: 0,
+                          max: 1,
+                          divisions: 20,
+                          label: '${(settings.saturation * 100).round()}%',
+                          activeColor: _blue,
+                          onChanged: cubit.previewSaturation,
+                          onChangeEnd: cubit.setSaturation,
+                        ),
+                      ),
+                      const Icon(Icons.invert_colors,
+                          size: 20, color: Colors.grey),
+                      SizedBox(
+                        width: 48,
+                        child: Text.verbatim(
+                          '${(settings.saturation * 100).round()}%',
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.text(context)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: settings.saturation == 1.0
+                          ? null
+                          : () => cubit.setSaturation(1.0),
+                      child: const Text("Reset"),
+                    ),
+                  ),
+                  ]),
+                ],
+              ),
+
+              // ------------------------------------------- Language and time
+              _Group(
+                icon: Icons.language,
+                title: "Language and time",
+                children: [
+                  _Setting(children: [
+                  _Label("Language", "Choose the language of the app."),
+                  _Dropdown<String>(
+                    value: Tr.byCode(settings.language).code,
+                    items: [
+                      for (final l in Tr.languages)
+                        DropdownMenuItem(
+                          value: l.code,
+                          child: Row(children: [
+                            Text.verbatim(l.flag,
+                                style: const TextStyle(fontSize: 22)),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text.verbatim(l.label,
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                          ]),
+                        ),
+                    ],
+                    onChanged: cubit.setLanguage,
+                  ),
+                  ]),
+                  _Setting(children: [
+                  _Label("Time format",
+                      "Show times with AM / PM or as a 24-hour clock."),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<bool>(
+                      showSelectedIcon: false,
+                      style: SegmentedButton.styleFrom(
+                        selectedBackgroundColor: _blue,
+                        selectedForegroundColor: Colors.white,
+                      ),
+                      segments: [
+                        ButtonSegment(
+                          value: false,
+                          icon: const Icon(Icons.schedule),
+                          label: Text.verbatim(
+                              '12-hour  ·  ${_sample(now, false)}'),
+                        ),
+                        ButtonSegment(
+                          value: true,
+                          icon: const Icon(Icons.schedule),
+                          label: Text.verbatim(
+                              '24-hour  ·  ${_sample(now, true)}'),
+                        ),
+                      ],
+                      selected: {settings.use24h},
+                      onSelectionChanged: (v) async {
+                        await cubit.setUse24h(v.first);
+                        if (context.mounted) rebuildAllScreens(context);
+                      },
+                    ),
+                  ),
+                  ]),
+                ],
               ),
             ],
           );
         },
       ),
     );
+  }
+
+  static String _sample(DateTime t, bool use24) {
+    final old = TimeFormat.use24h;
+    TimeFormat.use24h = use24;
+    final s = TimeFormat.short(t);
+    TimeFormat.use24h = old;
+    return s;
   }
 }
 
@@ -140,7 +278,7 @@ class _Dropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       isExpanded: true,
       items: items,
       onChanged: (v) {
@@ -161,27 +299,90 @@ class _Dropdown<T> extends StatelessWidget {
   }
 }
 
-class _Section extends StatelessWidget {
-  const _Section({
+/// Small title + explanation above a control.
+class _Label extends StatelessWidget {
+  const _Label(this.title, this.subtitle);
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text(context),
+                  fontFamily: 'Geist')),
+          Text(subtitle,
+              style: const TextStyle(
+                  fontSize: 12, color: Colors.grey, fontFamily: 'Geist')),
+        ],
+      ),
+    );
+  }
+}
+
+/// A group: its name, then the settings that belong to it underneath.
+class _Group extends StatelessWidget {
+  const _Group({
     required this.icon,
     required this.title,
-    required this.subtitle,
-    required this.child,
+    required this.children,
   });
 
   final IconData icon;
   final String title;
-  final String subtitle;
-  final Widget child;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 8, 4, 10),
+            child: Row(
+              children: [
+                Icon(icon, size: 22, color: const Color(0xFF3C6E87)),
+                const SizedBox(width: 10),
+                Text(title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF3C6E87),
+                      fontFamily: 'Geist',
+                    )),
+              ],
+            ),
+          ),
+          ...children,
+        ],
+      ),
+    );
+  }
+}
+
+/// One setting (its name, explanation and control) under a group.
+class _Setting extends StatelessWidget {
+  const _Setting({required this.children});
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.card(context),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: const [
           BoxShadow(
               color: Color(0x1A000000), blurRadius: 6, offset: Offset(0, 3)),
@@ -189,48 +390,7 @@ class _Section extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF3C6E87),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: Colors.white, size: 22),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.text(context),
-                        fontFamily: 'Geist',
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                        fontFamily: 'Geist',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          SizedBox(width: double.infinity, child: child),
-        ],
+        children: children,
       ),
     );
   }

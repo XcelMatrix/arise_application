@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:arise_application/core/utils/time_format.dart';
 
 /// Order here is the order of the dropdown.
 enum AttendanceStatus {
@@ -38,7 +39,7 @@ String _two(int n) => n.toString().padLeft(2, '0');
 
 /// 2026-11-07 20:28
 String formatStamp(DateTime t) =>
-    '${t.year}-${_two(t.month)}-${_two(t.day)} ${_two(t.hour)}:${_two(t.minute)}';
+    '${t.year}-${_two(t.month)}-${_two(t.day)} ${TimeFormat.short(t)}';
 
 class Student {
   final String id;

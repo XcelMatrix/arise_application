@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/core/widgets/flashing_logo.dart';
 import 'package:arise_application/features/account/cubit/account_cubit.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
+import 'package:arise_application/features/attendance/models/attendance_models.dart' show formatStamp;
 import 'package:arise_application/translations/translated_text.dart';
 
 /// Admin tools: people and roles, who can use which feature, and the
@@ -238,7 +239,7 @@ class _AccessTabState extends State<_AccessTab> {
 
   static const _labels = {
     Feature.attendance: 'Attendance',
-    Feature.timedConsole: 'Timed console',
+    Feature.timedConsole: 'Console',
     Feature.chat: 'Chat',
     Feature.calendarEdit: 'Edit calendar',
     Feature.announce: 'Post announcements',
@@ -433,7 +434,7 @@ class _DataTabState extends State<_DataTab> {
                         'Automatic clean-up is NOT set up (enable pg_cron in Supabase). Use the button below.')),
               if (last != null)
                 Text.verbatim(
-                    '${tr(context, 'Last run')}: ${DateTime.parse(last).toLocal().toString().substring(0, 16)}'),
+                    '${tr(context, 'Last run')}: ${formatStamp(DateTime.parse(last).toLocal())}'),
               if (_result != null) ...[
                 const SizedBox(height: 8),
                 Text.verbatim(_result!,

@@ -1,46 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:arise_application/core/utils/time_format.dart';
 import 'package:arise_application/translations/translation.dart';
 
 class SettingsState {
   final ThemeMode themeMode;
+
   /// language code, e.g. 'en' or 'fil' (see translations/languages)
   final String language;
 
-  /// 1.0 normal, 1.25 large, 1.5 extra large
-  final double textScale;
-  final bool highContrast;
+  /// Base text size in pixels (like Discord's chat font scaling).
+  final double fontSize;
+
+  /// 0.0 = grey, 1.0 = normal colours
+  final double saturation;
+
+  /// true = 24-hour clock, false = 12-hour clock with AM / PM
+  final bool use24h;
+
   const SettingsState({
     this.themeMode = ThemeMode.light,
     this.language = 'en',
-    this.textScale = 1.0,
-    this.highContrast = false,
+    this.fontSize = defaultFontSize,
+    this.saturation = 1.0,
+    this.use24h = false,
   });
+
+  static const double defaultFontSize = 16;
+  static const double minFontSize = 12;
+  static const double maxFontSize = 24;
+
+  /// The app's text is drawn at this multiple of its normal size.
+  double get textScale => fontSize / defaultFontSize;
 
   SettingsState copyWith({
     ThemeMode? themeMode,
     String? language,
-    double? textScale,
-    bool? highContrast,
+    double? fontSize,
+    double? saturation,
+    bool? use24h,
   }) =>
       SettingsState(
         themeMode: themeMode ?? this.themeMode,
         language: language ?? this.language,
-        textScale: textScale ?? this.textScale,
-        highContrast: highContrast ?? this.highContrast,
+        fontSize: fontSize ?? this.fontSize,
+        saturation: saturation ?? this.saturation,
+        use24h: use24h ?? this.use24h,
       );
 }
 
-/// Theme, language and accessibility choices, remembered
+/// Appearance, accessibility, language and time choices, remembered
 /// on the device.
 class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit() : super(const SettingsState());
 
   static const _themeKey = 'arise_theme_dark';
   static const _langKey = 'arise_lang_code';
-  static const _scaleKey = 'arise_text_scale';
-  static const _contrastKey = 'arise_high_contrast';
+  static const _fontKey = 'arise_font_px';
+  static const _satKey = 'arise_saturation';
+  static const _clockKey = 'arise_24h';
 
   Future<void> load() async {
     try {
@@ -49,12 +68,21 @@ class SettingsCubit extends Cubit<SettingsState> {
       // older versions saved a yes/no for Filipino
       final lang = prefs.getString(_langKey) ??
           ((prefs.getBool('arise_lang_fil') ?? false) ? 'fil' : 'en');
+      // older versions saved a text scale (1.0 / 1.25 / 1.5)
+      final font = prefs.getDouble(_fontKey) ??
+          (prefs.getDouble('arise_text_scale') ?? 1.0) *
+              SettingsState.defaultFontSize;
+      final use24 = prefs.getBool(_clockKey) ?? false;
       Tr.current = Tr.byCode(lang);
+      TimeFormat.use24h = use24;
       emit(SettingsState(
         themeMode: dark ? ThemeMode.dark : ThemeMode.light,
         language: lang,
-        textScale: prefs.getDouble(_scaleKey) ?? 1.0,
-        highContrast: prefs.getBool(_contrastKey) ?? false,
+        fontSize: font
+            .clamp(SettingsState.minFontSize, SettingsState.maxFontSize)
+            .toDouble(),
+        saturation: (prefs.getDouble(_satKey) ?? 1.0).clamp(0.0, 1.0),
+        use24h: use24,
       ));
     } catch (_) {
       // can't read saved settings: keep the defaults
@@ -78,19 +106,33 @@ class SettingsCubit extends Cubit<SettingsState> {
     } catch (_) {}
   }
 
-  Future<void> setTextScale(double scale) async {
-    emit(state.copyWith(textScale: scale));
+  /// Live while the slider moves (nothing is saved yet).
+  void previewFontSize(double px) => emit(state.copyWith(fontSize: px));
+
+  Future<void> setFontSize(double px) async {
+    emit(state.copyWith(fontSize: px));
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setDouble(_scaleKey, scale);
+      await prefs.setDouble(_fontKey, px);
     } catch (_) {}
   }
 
-  Future<void> setHighContrast(bool on) async {
-    emit(state.copyWith(highContrast: on));
+  void previewSaturation(double v) => emit(state.copyWith(saturation: v));
+
+  Future<void> setSaturation(double v) async {
+    emit(state.copyWith(saturation: v));
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_contrastKey, on);
+      await prefs.setDouble(_satKey, v);
+    } catch (_) {}
+  }
+
+  Future<void> setUse24h(bool on) async {
+    TimeFormat.use24h = on;
+    emit(state.copyWith(use24h: on));
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_clockKey, on);
     } catch (_) {}
   }
 }

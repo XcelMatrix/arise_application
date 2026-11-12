@@ -16,6 +16,7 @@ class AppTranslation {
     required this.code,
     required this.englishName,
     required this.nativeName,
+    this.flag = '🌐',
     required this.months,
     required this.weekdays,
     this.words = const {},
@@ -28,6 +29,9 @@ class AppTranslation {
   /// Name in English and in the language itself (shown in Settings).
   final String englishName;
   final String nativeName;
+
+  /// Flag emoji shown next to the language in Settings, e.g. '🇵🇭'.
+  final String flag;
 
   /// 12 month names and 7 weekday letters (Sunday first).
   final List<String> months;

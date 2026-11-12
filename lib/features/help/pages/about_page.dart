@@ -86,9 +86,9 @@ class AboutPage extends StatelessWidget {
           ),
           const _Block(
             icon: Icons.assignment_turned_in,
-            title: "Attendance and Timed Console",
+            title: "Attendance and Console",
             body:
-                "Teachers record who is present, absent, missing or injured. Reports appear live in the Timed Console, which times the whole evacuation.",
+                "Teachers record who is present, absent, missing or injured. Reports appear live in the Console, which times the whole evacuation.",
           ),
           const _Block(
             icon: Icons.forum,

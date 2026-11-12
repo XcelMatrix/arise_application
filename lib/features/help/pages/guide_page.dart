@@ -83,13 +83,13 @@ class GuidePage extends StatelessWidget {
                       "Tap Add Attendance and fill in the date and time, grade, section, evacuation site and type of emergency.",
                       "Open the report and add your students. Their grade and section are filled in for you.",
                       "Set each student to Present, Absent, Missing or Injured.",
-                      "When everyone is marked, tap Send to deliver the report to the Timed Console.",
+                      "When everyone is marked, tap Send to deliver the report to the Console.",
                       "Use the menu in the corner to mark everyone present, edit the details or delete the report.",
                     ],
                   ),
                   _Section(
                     icon: Icons.terminal,
-                    title: "Timed Console (teachers)",
+                    title: "Console (teachers)",
                     lines: [
                       "Reports from every section appear here as they are sent.",
                       "Tap Start to begin a drill. The clock runs until every report has been sent.",
@@ -109,7 +109,7 @@ class GuidePage extends StatelessWidget {
                     title: "Accounts",
                     lines: [
                       "Students can use the disaster resources and the evacuation map.",
-                      "Attendance, Timed Console and Chat are for teachers and admins.",
+                      "Attendance, Console and Chat are for teachers and admins.",
                       "Teacher accounts must be approved before they unlock. You'll see a waiting screen until then.",
                       "Teachers and admins approve new teachers from the Inbox.",
                     ],

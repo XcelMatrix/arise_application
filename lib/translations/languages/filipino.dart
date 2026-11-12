@@ -10,6 +10,7 @@ final filipino = AppTranslation(
   code: 'fil',
   englishName: 'Filipino',
   nativeName: 'Filipino',
+  flag: '🇵🇭',
   months: [
     'Enero', 'Pebrero', 'Marso', 'Abril', 'Mayo', 'Hunyo', 'Hulyo',
     'Agosto', 'Setyembre', 'Oktubre', 'Nobyembre', 'Disyembre',
@@ -201,7 +202,6 @@ const Map<String, String> _words = {
       'Mga guro at admin lamang ang maaaring magdagdag o mag-edit ng mga event.',
   'Registered since': 'Nakarehistro mula noong',
   'Messages': 'Mga Mensahe',
-  'Timed Console': 'Timed Console',
   'Evacuation Map': 'Mapa ng Paglikas',
   'Emergency Contacts': 'Mga Contact sa Emergency',
   'Disaster Guidelines': 'Mga Alituntunin sa Sakuna',
@@ -279,8 +279,8 @@ const Map<String, String> _words = {
   // inbox
   'Mark all as read': 'Markahan lahat bilang nabasa',
   'Clear inbox': 'Linisin ang inbox',
-  'No notifications yet.\nNew chat messages and Timed Console reports will show up here.':
-      'Wala pang abiso.\nDito lalabas ang mga bagong mensahe sa chat at ulat ng Timed Console.',
+  'No notifications yet.\nNew chat messages and Console reports will show up here.':
+      'Wala pang abiso.\nDito lalabas ang mga bagong mensahe sa chat at ulat ng Console.',
   'Someone': 'May nagpadala',
 
   // chat / rooms
@@ -320,10 +320,10 @@ const Map<String, String> _words = {
   'Describe the emergency': 'Ilarawan ang emergency',
   'Attendance not found': 'Hindi nahanap ang attendance',
   'Add students first': 'Magdagdag muna ng mga estudyante',
-  'All set. Report sent to the Timed Console.':
-      'Handa na. Naipadala ang ulat sa Timed Console.',
-  'Report sent to the Timed Console': 'Naipadala ang ulat sa Timed Console',
-  'Sent to the Timed Console': 'Naipadala sa Timed Console',
+  'All set. Report sent to the Console.':
+      'Handa na. Naipadala ang ulat sa Console.',
+  'Report sent to the Console': 'Naipadala ang ulat sa Console',
+  'Sent to the Console': 'Naipadala sa Console',
   'Ready to send': 'Handa nang ipadala',
   'Send report': 'Ipadala ang ulat',
   'Resend report': 'Ipadala muli ang ulat',
@@ -399,9 +399,9 @@ const Map<String, String> _words = {
   'Disaster Resources and Guidelines': 'Mga Resource at Alituntunin sa Sakuna',
   'Emergency contacts and what to do before, during and after a disaster.':
       'Mga emergency contact at kung ano ang gagawin bago, habang at pagkatapos ng sakuna.',
-  'Attendance and Timed Console': 'Attendance at Timed Console',
-  'Teachers record who is present, absent, missing or injured. Reports appear live in the Timed Console, which times the whole evacuation.':
-      'Itinatala ng mga guro kung sino ang naririto, wala, nawawala o sugatan. Live na lumalabas ang mga ulat sa Timed Console, na nagtatala ng oras ng buong ebakuwasyon.',
+  'Attendance and Console': 'Attendance at Console',
+  'Teachers record who is present, absent, missing or injured. Reports appear live in the Console, which times the whole evacuation.':
+      'Itinatala ng mga guro kung sino ang naririto, wala, nawawala o sugatan. Live na lumalabas ang mga ulat sa Console, na nagtatala ng oras ng buong ebakuwasyon.',
   'Chat': 'Chat',
   'Teachers and admins can message each other inside the app.':
       'Maaaring magpadala ng mensahe sa isa\'t isa ang mga guro at admin sa loob ng app.',
@@ -442,11 +442,11 @@ const Map<String, String> _words = {
       'Buksan ang ulat at idagdag ang iyong mga estudyante. Awtomatikong nakalagay ang kanilang baitang at seksyon.',
   'Set each student to Present, Absent, Missing or Injured.':
       'Itakda ang bawat estudyante bilang Naririto, Wala, Nawawala o Sugatan.',
-  'When everyone is marked, tap Send to deliver the report to the Timed Console.':
-      'Kapag may marka na ang lahat, i-tap ang Send para ipadala ang ulat sa Timed Console.',
+  'When everyone is marked, tap Send to deliver the report to the Console.':
+      'Kapag may marka na ang lahat, i-tap ang Send para ipadala ang ulat sa Console.',
   'Use the menu in the corner to mark everyone present, edit the details or delete the report.':
       'Gamitin ang menu sa sulok para markahan ang lahat na naririto, i-edit ang detalye o burahin ang ulat.',
-  'Timed Console (teachers)': 'Timed Console (mga guro)',
+  'Console (teachers)': 'Console (mga guro)',
   'Reports from every section appear here as they are sent.':
       'Dito lumalabas ang mga ulat ng bawat seksyon habang ipinapadala.',
   'Tap Start to begin a drill. The clock runs until every report has been sent.':
@@ -461,8 +461,8 @@ const Map<String, String> _words = {
   'Accounts': 'Mga account',
   'Students can use the disaster resources and the evacuation map.':
       'Magagamit ng mga estudyante ang mga resource sa sakuna at ang mapa ng paglikas.',
-  'Attendance, Timed Console and Chat are for teachers and admins.':
-      'Ang Attendance, Timed Console at Chat ay para sa mga guro at admin.',
+  'Attendance, Console and Chat are for teachers and admins.':
+      'Ang Attendance, Console at Chat ay para sa mga guro at admin.',
   "Teacher accounts must be approved before they unlock. You'll see a waiting screen until then.":
       'Kailangang aprubahan ang mga account ng guro bago ma-unlock. Makakakita ka ng waiting screen hanggang doon.',
   'Search the app': 'Maghanap sa app',
@@ -559,7 +559,6 @@ const Map<String, String> _words = {
   'Everyone': 'Lahat',
   'Teachers and admins': 'Mga guro at admin',
   'Admins only': 'Admin lang',
-  'Timed console': 'Timed console',
   'Edit calendar': 'I-edit ang kalendaryo',
   'Post announcements': 'Mag-post ng anunsyo',
   'Approve teachers': 'Aprubahan ang mga guro',
@@ -577,6 +576,13 @@ const Map<String, String> _words = {
   'Drills, attendance reports, emergency alerts and audit entries older than 30 days are deleted. This cannot be undone.': 'Buburahin ang mga drill, ulat ng attendance, emergency alert at audit entry na mahigit 30 araw na. Hindi na ito maibabalik.',
   'change(s) saved on this phone. They are sent when you are back online.': 'pagbabagong naka-save sa teleponong ito. Ipapadala ang mga ito kapag online ka na.',
   'No connection: the report is saved on this phone and will be sent automatically.': 'Walang koneksyon: naka-save ang ulat sa teleponong ito at awtomatikong ipapadala.',
+  'Accessibility': 'Accessibility',
+  'Language and time': 'Wika at oras',
+  'Make text larger or smaller, one pixel at a time.': 'Palakihin o paliitin ang teksto, isang pixel bawat hakbang.',
+  'Saturation': 'Saturation',
+  'Lower it to make colors less intense, down to grey.': 'Ibaba para maging mas mahina ang kulay, hanggang maging kulay-abo.',
+  'Time format': 'Format ng oras',
+  'Show times with AM / PM or as a 24-hour clock.': 'Ipakita ang oras na may AM / PM o bilang 24-oras na orasan.',
 };
 
 String _statusOf(String s) => _words[s] ?? s;
@@ -649,9 +655,9 @@ final List<TranslationRule> _rulesList = [
   TranslationRule(RegExp(r'^(.*?) Showing the evacuation map image instead\.$'),
       (m) => '${Tr.t(m[1]!)} Ipinapakita na lang ang larawan ng mapa ng paglikas.'),
 
-  // ---- Timed Console lines ----
-  TranslationRule(RegExp(r'^Timed Console ready\. School year (.+)\.$'),
-      (m) => 'Handa na ang Timed Console. Taong Panuruan ${m[1]}.'),
+  // ---- Console lines ----
+  TranslationRule(RegExp(r'^Console ready\. School year (.+)\.$'),
+      (m) => 'Handa na ang Console. Taong Panuruan ${m[1]}.'),
   TranslationRule(RegExp(r'^Evacuation drill started\. Awaiting (\d+) attendance reports?\.$'),
       (m) => 'Nagsimula ang evacuation drill. Naghihintay ng ${m[1]} ulat ng attendance.'),
   TranslationRule(RegExp(r'^\[(.+?)\] Attendance completed at (.+?) \((.+)\)\. (.*)$'),

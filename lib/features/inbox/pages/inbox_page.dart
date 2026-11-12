@@ -10,7 +10,7 @@ import 'package:arise_application/features/inbox/widgets/pending_teacher_request
 import 'package:arise_application/features/chat/pages/rooms_page.dart';
 import 'package:arise_application/features/console/pages/timed_console_page.dart';
 
-/// Notifications: chat messages and Timed Console reports.
+/// Notifications: chat messages and Console reports.
 class InboxPage extends StatelessWidget {
   const InboxPage({super.key});
 
@@ -84,7 +84,7 @@ class InboxPage extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.all(32),
                 child: Text(
-                  "No notifications yet.\nNew chat messages, announcements and Timed Console reports will show up here.",
+                  "No notifications yet.\nNew chat messages, announcements and Console reports will show up here.",
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey, fontFamily: 'Geist'),
                 ),

@@ -50,7 +50,7 @@ class InboxState {
 }
 
 /// Collects notifications while the app is open: new chat messages from
-/// other people, and lines the Timed Console prints (attendance reports,
+/// other people, and lines the Console prints (attendance reports,
 /// drill started / cancelled / complete).
 class InboxCubit extends Cubit<InboxState> {
   InboxCubit(this._account, this._drill) : super(const InboxState()) {
@@ -219,7 +219,7 @@ class InboxCubit extends Cubit<InboxState> {
   // ---------- timed console ----------
 
   void _onConsole(ConsoleEntry e) {
-    // housekeeping lines ("Timed Console ready", offline sync) are not news
+    // housekeeping lines ("Console ready", offline sync) are not news
     if (e.level == ConsoleLevel.system) return;
     // our own failed actions are not news
     if (e.message.startsWith('Could not') ||

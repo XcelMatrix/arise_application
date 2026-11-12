@@ -161,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 26),
                 _buildGoogleClassroomCard(
                   context,
-                  title: "Timed Console",
+                  title: "Console",
                   description: "Access programmed terminal sessions and tools.",
                   imagePath: "assets/images/console_banner.png",
                   onTap: () {

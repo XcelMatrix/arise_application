@@ -154,7 +154,7 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
       appBar: AppBar(
         leading: const BackOrLogo(),
         backgroundColor: _blue,
-        title: const Text("Timed Console"),
+        title: const Text("Console"),
         titleTextStyle: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

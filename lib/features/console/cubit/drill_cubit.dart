@@ -3,6 +3,7 @@ import 'package:bloc/bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/features/attendance/models/attendance_models.dart';
 import 'package:arise_application/core/services/local_cache.dart';
+import 'package:arise_application/core/utils/time_format.dart';
 
 class DrillState {
   /// The signed-in user's own reports, with their students.
@@ -91,7 +92,7 @@ class SocketLikeOffline implements Exception {
   const SocketLikeOffline();
 }
 
-/// Shared by the Attendance pages and the Timed Console.
+/// Shared by the Attendance pages and the Console.
 class DrillCubit extends Cubit<DrillState> {
   DrillCubit() : super(const DrillState());
 
@@ -124,12 +125,7 @@ class DrillCubit extends Cubit<DrillState> {
   }
 
   /// Clock time for console lines, e.g. "02:45:12 PM".
-  static String formatClock(DateTime t) {
-    String two(int n) => n.toString().padLeft(2, '0');
-    final h = t.hour % 12 == 0 ? 12 : t.hour % 12;
-    final suffix = t.hour < 12 ? 'AM' : 'PM';
-    return '${two(h)}:${two(t.minute)}:${two(t.second)} $suffix';
-  }
+  static String formatClock(DateTime t) => TimeFormat.clock(t);
 
   /// A length of time in words, e.g. "1 min 12 sec".
   static String formatDurationWords(Duration d) {
@@ -175,7 +171,7 @@ class DrillCubit extends Cubit<DrillState> {
 
     if (!firstLoad) return;
     emit(state.copyWith(loaded: true));
-    _print('Timed Console ready. School year $schoolYear.', ConsoleLevel.system);
+    _print('Console ready. School year $schoolYear.', ConsoleLevel.system);
     _subscribe();
   }
 

@@ -70,7 +70,7 @@ class _TourPageState extends State<TourPage> {
       Icons.assignment_turned_in,
     ),
     _Slide(
-      'Timed Console',
+      'Console',
       'Reports appear live. Start a drill and watch the clock until every section has reported.',
       'assets/images/console_banner.png',
       Icons.terminal,

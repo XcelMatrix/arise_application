@@ -133,7 +133,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
     final cubit = context.read<DrillCubit>();
     await _guard(() async {
       final sent = await cubit.setStatus(widget.reportId, studentId, status);
-      if (sent) _toast('All set. Report sent to the Timed Console.');
+      if (sent) _toast('All set. Report sent to the Console.');
     });
   }
 
@@ -142,7 +142,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
     await _guard(() async {
       final sent =
           await cubit.setAllStatus(widget.reportId, AttendanceStatus.present);
-      if (sent) _toast('All set. Report sent to the Timed Console.');
+      if (sent) _toast('All set. Report sent to the Console.');
     });
   }
 
@@ -226,7 +226,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
             : report.unmarked > 0
                 ? '${report.unmarked} student${report.unmarked == 1 ? '' : 's'} not set'
                 : report.submitted
-                    ? 'Sent to the Timed Console'
+                    ? 'Sent to the Console'
                     : 'Ready to send';
 
         return Scaffold(
@@ -479,7 +479,7 @@ PopupMenuButton<String>(
                             onPressed: canSend
                                 ? () => _guard(() async {
                                       await cubit.submitReport(report.id);
-                                      _toast('Report sent to the Timed Console');
+                                      _toast('Report sent to the Console');
                                     })
                                 : null,
                             icon: const Icon(Icons.send),

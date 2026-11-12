@@ -67,7 +67,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<ProfilesCubit>(create: (context) => ProfilesCubit()),
         // role, display name, avatar, feature access (reloads on login/logout)
         BlocProvider<AccountCubit>(create: (context) => AccountCubit()),
-        // shared by Attendance pages + Timed Console
+        // shared by Attendance pages + Console
         BlocProvider<DrillCubit>(create: (context) => DrillCubit()..load()),
         // shared school calendar
         BlocProvider<CalendarCubit>(create: (context) => CalendarCubit()..load()),
@@ -96,7 +96,7 @@ class MyApp extends StatelessWidget {
             create: (context) => ConnectivityCubit(), lazy: false),
         // theme + language
         BlocProvider<SettingsCubit>(create: (context) => SettingsCubit()..load()),
-        // notifications: chat messages + Timed Console reports
+        // notifications: chat messages + Console reports
         BlocProvider<InboxCubit>(
           create: (context) => InboxCubit(
             context.read<AccountCubit>(),
@@ -112,10 +112,8 @@ class MyApp extends StatelessWidget {
             navigatorKey: navigatorKey,
             scaffoldMessengerKey: scaffoldMessengerKey,
             // light mode = the original look (Flutter's default theme)
-            theme: settings.highContrast ? AppTheme.contrast(dark: false) : null,
-            darkTheme: settings.highContrast
-                ? AppTheme.contrast(dark: true)
-                : AppTheme.dark(),
+            theme: null,
+            darkTheme: AppTheme.dark(),
             themeMode: settings.themeMode,
             builder: (context, child) => _appShell(
               context,
@@ -174,15 +172,16 @@ class MyApp extends StatelessWidget {
 /// banner and the full-screen emergency alert, around the whole app.
 Widget _appShell(BuildContext context, SettingsState settings,
     {required Widget child}) {
-  AppColors.highContrast = settings.highContrast;
   final mq = MediaQuery.of(context);
   final system = mq.textScaler.scale(14) / 14;
   return MediaQuery(
     data: mq.copyWith(
       textScaler: TextScaler.linear(system * settings.textScale),
-      boldText: mq.boldText || settings.highContrast,
+      alwaysUse24HourFormat: settings.use24h,
     ),
-    child: LangScope(
+    child: _Saturation(
+      value: settings.saturation,
+      child: LangScope(
       language: settings.language,
       child: BlocListener<ConnectivityCubit, bool>(
         listener: (context, online) {
@@ -214,5 +213,31 @@ Widget _appShell(BuildContext context, SettingsState settings,
         child: AlertOverlay(child: child),
       ),
     ),
+    ),
   );
+}
+
+/// Colour saturation for the whole app (Settings > Accessibility).
+/// 1.0 leaves the app untouched (no extra drawing cost).
+class _Saturation extends StatelessWidget {
+  const _Saturation({required this.value, required this.child});
+  final double value;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (value >= 0.999) return child;
+    const r = 0.2126, g = 0.7152, b = 0.0722; // how bright each colour looks
+    final s = value;
+    final sr = (1 - s) * r, sg = (1 - s) * g, sb = (1 - s) * b;
+    return ColorFiltered(
+      colorFilter: ColorFilter.matrix(<double>[
+        sr + s, sg, sb, 0, 0, //
+        sr, sg + s, sb, 0, 0, //
+        sr, sg, sb + s, 0, 0, //
+        0, 0, 0, 1, 0, //
+      ]),
+      child: child,
+    );
+  }
 }
