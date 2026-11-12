@@ -16,7 +16,6 @@ Future<Map<String, String>?> _form(
   required String title,
   required List<(String key, String label, int lines, int max)> fields,
   Map<String, String> initial = const {},
-  TextInputType? firstKeyboard,
 }) async {
   final controllers = {
     for (final f in fields) f.$1: TextEditingController(text: initial[f.$1] ?? ''),
@@ -195,7 +194,9 @@ class GuidelinesBody extends StatelessWidget {
                                 TextButton.icon(
                                   onPressed: () async {
                                     if (!await _confirmDelete(
-                                        context, 'this guideline')) return;
+                                        context, 'this guideline')) {
+                                      return;
+                                    }
                                     try {
                                       await cubit.remove(r['id'] as String);
                                     } catch (e) {

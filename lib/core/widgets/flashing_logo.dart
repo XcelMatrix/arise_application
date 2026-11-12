@@ -36,7 +36,7 @@ class _FlashingLogoState extends State<FlashingLogo>
             'assets/icons/icon_white.png',
             width: widget.size,
             height: widget.size,
-            errorBuilder: (_, __, ___) =>
+            errorBuilder: (_, _, _) =>
                 Icon(Icons.shield_outlined, size: widget.size, color: widget.color),
           ),
         ),

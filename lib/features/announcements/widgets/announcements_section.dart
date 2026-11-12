@@ -46,7 +46,7 @@ class AnnouncementsSection extends StatelessWidget {
         if (!ann.loaded)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
-            child: const FlashingLogo(),
+            child: FlashingLogo(),
           )
         else if (shown.isEmpty)
           const Padding(

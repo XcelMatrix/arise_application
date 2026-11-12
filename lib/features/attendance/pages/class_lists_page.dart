@@ -38,7 +38,7 @@ class ClassListsPage extends StatelessWidget {
                   decoration: InputDecoration(labelText: tr(ctx, 'List name')),
                 ),
                 DropdownButtonFormField<String>(
-                  value: grade,
+                  initialValue: grade,
                   decoration: InputDecoration(labelText: tr(ctx, 'Grade')),
                   items: [
                     for (final g in gradeOptions)

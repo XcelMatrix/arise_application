@@ -207,7 +207,7 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
       ),
       body: BlocConsumer<DrillCubit, DrillState>(
         listenWhen: (a, b) => a.log.length != b.log.length,
-        listener: (_, __) => _scrollToBottom(),
+        listener: (_, _) => _scrollToBottom(),
         builder: (context, state) {
           final cubit = context.read<DrillCubit>();
           final hasDrill = state.drillId != null &&

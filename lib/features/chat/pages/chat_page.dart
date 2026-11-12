@@ -583,7 +583,7 @@ class _ChatBubble extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 10,
                           fontStyle: FontStyle.italic,
-                          color: textColor.withOpacity(0.7)),
+                          color: textColor.withValues(alpha: 0.7)),
                     ),
                   ),
               ],

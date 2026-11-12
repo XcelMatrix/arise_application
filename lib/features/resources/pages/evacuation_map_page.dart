@@ -386,10 +386,10 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
       ),
       body: MultiBlocListener(
         listeners: [
-          BlocListener<MapsCubit, RowsState>(listener: (_, __) => _loadSelected()),
+          BlocListener<MapsCubit, RowsState>(listener: (_, _) => _loadSelected()),
           BlocListener<BuildingsCubit, RowsState>(
-              listener: (_, __) => _loadSelected()),
-          BlocListener<MarkersCubit, RowsState>(listener: (_, __) {
+              listener: (_, _) => _loadSelected()),
+          BlocListener<MarkersCubit, RowsState>(listener: (_, _) {
             if (modelNode != null) _syncMarkers();
           }),
         ],
@@ -426,7 +426,7 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
         children: [
           Expanded(
             child: DropdownButtonFormField<String>(
-              value: _buildingId,
+              initialValue: _buildingId,
               isExpanded: true,
               decoration: deco('Building'),
               dropdownColor: AppColors.card(context),
@@ -452,7 +452,7 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
             const SizedBox(width: 10),
             Expanded(
               child: DropdownButtonFormField<String>(
-                value: selected?['id'] as String?,
+                initialValue: selected?['id'] as String?,
                 isExpanded: true,
                 decoration: deco('Floor'),
                 dropdownColor: AppColors.card(context),

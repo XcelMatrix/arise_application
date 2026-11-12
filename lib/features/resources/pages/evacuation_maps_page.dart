@@ -81,7 +81,7 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String?>(
-                  value: buildingId,
+                  initialValue: buildingId,
                   isExpanded: true,
                   decoration: InputDecoration(
                     labelText: tr(ctx, 'Part of building'),

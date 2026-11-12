@@ -22,7 +22,7 @@ class AccessGate extends StatelessWidget {
       builder: (context, account) {
         if (!account.loaded) {
           return const Scaffold(
-            body: const FlashingLogo(),
+            body: FlashingLogo(),
           );
         }
         if (account.isTeacherPending || !account.canAccess(feature)) {

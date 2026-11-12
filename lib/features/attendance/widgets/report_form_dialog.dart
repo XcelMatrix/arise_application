@@ -188,7 +188,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
 
             // grade
             DropdownButtonFormField<String>(
-              value: _grade,
+              initialValue: _grade,
               decoration: _dec('Grade'),
               items: [
                 for (final g in gradeOptions)
@@ -217,7 +217,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
 
             // type of emergency
             DropdownButtonFormField<String>(
-              value: _emergency,
+              initialValue: _emergency,
               decoration: _dec('Type of emergency'),
               items: [
                 for (final e in emergencyTypes)
@@ -238,7 +238,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
             if (source != null)
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                activeColor: _blue,
+                activeThumbColor: _blue,
                 value: _copy,
                 onChanged: (v) => setState(() => _copy = v),
                 title: Text(

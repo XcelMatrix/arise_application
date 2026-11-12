@@ -68,7 +68,7 @@ class _ChatImageState extends State<ChatImage> {
               child: Image.network(
                 url,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox(
+                errorBuilder: (_, _, _) => const SizedBox(
                     width: 200,
                     height: 120,
                     child: Icon(Icons.broken_image, color: Colors.grey)),

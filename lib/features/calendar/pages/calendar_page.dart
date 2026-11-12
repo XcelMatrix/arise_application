@@ -566,14 +566,14 @@ class _EventDialogState extends State<_EventDialog> {
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              activeColor: const Color(0xFFEF6C00),
+              activeThumbColor: const Color(0xFFEF6C00),
               title: const Text('Scheduled drill'),
               value: _drillType != null,
               onChanged: (v) => setState(() => _drillType = v ? 'Fire' : null),
             ),
             if (_drillType != null)
               DropdownButtonFormField<String>(
-                value: _drillType,
+                initialValue: _drillType,
                 decoration: _dec(context, 'Type of emergency'),
                 items: [
                   for (final t in emergencyTypes)

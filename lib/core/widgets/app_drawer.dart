@@ -88,7 +88,7 @@ class AppDrawer extends StatelessWidget {
                               ? Image.network(
                                   account.avatarUrl!,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const Icon(
+                                  errorBuilder: (_, _, _) => const Icon(
                                       Icons.person,
                                       size: 56,
                                       color: Color(0xFFACACAC)),

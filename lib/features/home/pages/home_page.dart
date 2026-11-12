@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
         // wait until we know the account's role / approval status
         if (!account.loaded) {
           return const Scaffold(
-            body: const FlashingLogo(),
+            body: FlashingLogo(),
           );
         }
         // teacher accounts stay locked until approved

@@ -56,7 +56,7 @@ class ChatCubit extends Cubit<ChatState> {
         'profile_id': _myUserId,
         'room_id': _roomId,
         'content': content,
-        if (path != null) 'image_path': path,
+        'image_path': ?path,
       });
     } catch (e) {
       if (path != null) {

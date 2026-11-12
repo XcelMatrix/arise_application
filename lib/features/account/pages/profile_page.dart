@@ -320,7 +320,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ? Image.network(
                                       account.avatarUrl!,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => const Icon(
+                                      errorBuilder: (_, _, _) => const Icon(
                                         Icons.person,
                                         size: 96,
                                         color: Color(0xFFACACAC),

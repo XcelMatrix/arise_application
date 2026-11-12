@@ -128,7 +128,7 @@ class _TourPageState extends State<TourPage> {
         s.image!,
         fit: BoxFit.cover,
         width: double.infinity,
-        errorBuilder: (_, __, ___) => fallback,
+        errorBuilder: (_, _, _) => fallback,
       ),
     );
   }
