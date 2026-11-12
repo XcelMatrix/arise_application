@@ -176,7 +176,7 @@ class SettingsPage extends StatelessWidget {
               // ------------------------------------------- Language and time
               _Group(
                 icon: Icons.language,
-                title: "Language and time",
+                title: "Language and Time",
                 children: [
                   _Setting(children: [
                   _Label("Language", "Choose the language of the app."),
