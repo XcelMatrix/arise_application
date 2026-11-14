@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -50,22 +51,39 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
     }
   }
 
-  /// Add everyone from one of the teacher's saved class lists.
+  /// Add everyone from one of the teacher's saved class lists, or the
+  /// students who signed up for this report's grade and section.
   Future<void> _importList(AttendanceReport report) async {
     final lists = context.read<ClassListsCubit>().state.rows;
-    if (lists.isEmpty) {
+    List<String> signedUp = const [];
+    try {
+      final rows = await Supabase.instance.client.rpc('class_roster',
+          params: {'p_grade': report.grade, 'p_section': report.section});
+      signedUp = [for (final r in rows as List) '${(r as Map)['name']}'];
+    } catch (_) {
+      // offline or not available: the saved lists still work
+    }
+    if (!mounted) return;
+    if (lists.isEmpty && signedUp.isEmpty) {
       _toast('You have no saved class lists yet.');
       return;
     }
     final cubit = context.read<DrillCubit>();
-    final picked = await showDialog<Map<String, dynamic>>(
+    final picked = await showDialog<List<String>>(
       context: context,
       builder: (ctx) => SimpleDialog(
         title: const Text('Add from class list'),
         children: [
+          if (signedUp.isNotEmpty)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(ctx, signedUp),
+              child: Text.verbatim(
+                  '${tr(ctx, 'Students who signed up')}: ${report.grade}-${report.section}  (${signedUp.length})'),
+            ),
           for (final l in lists)
             SimpleDialogOption(
-              onPressed: () => Navigator.pop(ctx, l),
+              onPressed: () =>
+                  Navigator.pop(ctx, (l['students'] as List).cast<String>()),
               child: Text.verbatim(
                   '${l['name']}  (${(l['students'] as List).length})'),
             ),
@@ -76,7 +94,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
     final have = {for (final st in report.students) st.name.toLowerCase()};
     var added = 0;
     await _guard(() async {
-      for (final n in (picked['students'] as List).cast<String>()) {
+      for (final n in picked) {
         if (have.add(n.toLowerCase())) {
           await cubit.addStudent(widget.reportId, n);
           added++;
@@ -109,7 +127,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
       ),
     );
     c.dispose();
-    if (name == null || name.isEmpty) return;
+    if (name == null || name.isEmpty || !mounted) return;
     final lists = context.read<ClassListsCubit>();
     await _guard(() => lists.add({
           'name': name,

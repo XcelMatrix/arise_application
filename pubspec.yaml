@@ -30,6 +30,8 @@ dependencies:
   url_launcher: ^6.3.3
   vector_math: ^2.4.3
   archive: 4.0.7
+  flutter_foreground_task: ^11.0.3
+  flutter_local_notifications: ^23.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

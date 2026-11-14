@@ -32,7 +32,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
 
   Future<void> _save() async {
-    if (_pw.text.length < 6) return _toast('Password must be at least 6 characters.');
+    final problem = AuthService.passwordProblem(_pw.text);
+    if (problem != null) return _toast(problem);
     if (_pw.text != _pw2.text) return _toast('Passwords do not match');
     setState(() => _busy = true);
     try {

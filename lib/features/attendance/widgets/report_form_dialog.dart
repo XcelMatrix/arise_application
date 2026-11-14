@@ -188,6 +188,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
 
             // grade
             DropdownButtonFormField<String>(
+              key: ValueKey(_grade),
               initialValue: _grade,
               decoration: _dec('Grade'),
               items: [
@@ -217,6 +218,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
 
             // type of emergency
             DropdownButtonFormField<String>(
+              key: ValueKey(_emergency),
               initialValue: _emergency,
               decoration: _dec('Type of emergency'),
               items: [

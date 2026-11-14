@@ -12,6 +12,8 @@ import 'package:arise_application/features/alerts/widgets/alert_overlay.dart';
 import 'package:arise_application/core/widgets/splash_gate.dart';
 import 'package:arise_application/features/inbox/widgets/top_banner.dart';
 import 'package:arise_application/features/alerts/cubit/alert_cubit.dart';
+import 'package:arise_application/features/alerts/cubit/checkin_cubit.dart';
+import 'package:arise_application/features/alerts/services/background_alerts.dart';
 import 'package:arise_application/features/console/cubit/audit_cubit.dart';
 import 'package:arise_application/core/connectivity/connectivity_cubit.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
@@ -47,8 +49,17 @@ Future<void> main() async {
     publishableKey: supabasePublishableKey,
   );
 
+  // alerts while the app is closed (Android foreground service, no Firebase)
+  AlertBackground.init(url: supabaseUrl, key: supabasePublishableKey);
+  AlertBackground.sync();
+
   // the link in the "reset password" email opens the app and lands here
   Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    // start the standby service after login, stop it after logout
+    if (data.event == AuthChangeEvent.signedIn ||
+        data.event == AuthChangeEvent.signedOut) {
+      AlertBackground.sync();
+    }
     if (data.event == AuthChangeEvent.passwordRecovery) {
       navigatorKey.currentState?.push(ResetPasswordPage.route());
     }
@@ -92,6 +103,10 @@ class MyApp extends StatelessWidget {
             create: (context) => MarkersCubit()..load()),
         BlocProvider<AuditCubit>(create: (context) => AuditCubit()),
         BlocProvider<AlertCubit>(create: (context) => AlertCubit(), lazy: false),
+        // "I'm safe" answers for the active alert
+        BlocProvider<CheckInCubit>(
+            create: (context) => CheckInCubit(context.read<AlertCubit>()),
+            lazy: false),
         BlocProvider<ConnectivityCubit>(
             create: (context) => ConnectivityCubit(), lazy: false),
         // theme + language
@@ -195,6 +210,7 @@ Widget _appShell(BuildContext context, SettingsState settings,
             context.read<ClassListsCubit>().load();
             context.read<AnnouncementsCubit>().load();
             context.read<AlertCubit>().load();
+            context.read<CheckInCubit>().flush();
           } else {
             m
               ?..hideCurrentMaterialBanner()

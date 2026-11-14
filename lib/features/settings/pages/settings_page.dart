@@ -176,7 +176,7 @@ class SettingsPage extends StatelessWidget {
               // ------------------------------------------- Language and time
               _Group(
                 icon: Icons.language,
-                title: "Language and Time",
+                title: "Language and time",
                 children: [
                   _Setting(children: [
                   _Label("Language", "Choose the language of the app."),
@@ -234,6 +234,44 @@ class SettingsPage extends StatelessWidget {
                   ),
                   ]),
                 ],
+              ),
+
+              // ------------------------------------------- Reset to default
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: const Icon(Icons.restart_alt),
+                  label: const Text('Reset to default'),
+                  onPressed: () async {
+                    final ok = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Reset all settings?'),
+                        content: const Text(
+                            'Theme, language, text size, saturation and time format go back to the way they were when you installed the app.'),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('Cancel')),
+                          TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text('Reset',
+                                  style: TextStyle(color: Colors.red))),
+                        ],
+                      ),
+                    );
+                    if (ok != true || !context.mounted) return;
+                    await cubit.resetAll();
+                    if (context.mounted) rebuildAllScreens(context);
+                  },
+                ),
               ),
             ],
           );

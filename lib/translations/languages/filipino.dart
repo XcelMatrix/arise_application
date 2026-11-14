@@ -1,4 +1,6 @@
 import 'package:arise_application/translations/translation.dart';
+import 'package:arise_application/translations/parts/filipino_safety.dart';
+import 'package:arise_application/translations/parts/filipino_updates.dart';
 
 // =====================================================================
 // Filipino. To add another language, copy this file (e.g. spanish.dart),
@@ -16,8 +18,8 @@ final filipino = AppTranslation(
     'Agosto', 'Setyembre', 'Oktubre', 'Nobyembre', 'Disyembre',
   ],
   weekdays: ['Li', 'Lu', 'Ma', 'Mi', 'Hu', 'Bi', 'Sa'],
-  words: _words,
-  rules: _rulesList,
+  words: {..._words, ...filipinoSafetyWords, ...filipinoUpdateWords},
+  rules: [..._rulesList, ...filipinoSafetyRules],
 );
 
 const Map<String, String> _words = {

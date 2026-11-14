@@ -5,6 +5,32 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 const authRedirect = 'io.supabase.arise://login-callback/';
 
 class AuthService {
+  /// Password rule used when signing up, resetting and changing a password.
+  /// Returns the message to show, or null when the password is fine.
+  static String? passwordProblem(String pw) {
+    if (pw.length < 8 ||
+        !RegExp(r'[A-Za-z]').hasMatch(pw) ||
+        !RegExp(r'[0-9]').hasMatch(pw)) {
+      return 'Use at least 8 characters with a letter and a number.';
+    }
+    return null;
+  }
+
+  /// Is the signed-in person's email address verified?
+  bool get emailVerified =>
+      Supabase.instance.client.auth.currentUser?.emailConfirmedAt != null;
+
+  String? get email => Supabase.instance.client.auth.currentUser?.email;
+
+  /// Start an email change. Supabase emails a confirmation link; the address
+  /// only changes after it is opened.
+  Future<void> changeEmail(String newEmail) async {
+    await _supabaseClient.auth.updateUser(
+      UserAttributes(email: newEmail.trim()),
+      emailRedirectTo: authRedirect,
+    );
+  }
+
   final SupabaseClient _supabaseClient = Supabase.instance.client;
   
   // Sign in with email and password

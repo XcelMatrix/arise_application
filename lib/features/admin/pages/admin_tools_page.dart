@@ -6,6 +6,8 @@ import 'package:arise_application/features/account/cubit/account_cubit.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
 import 'package:arise_application/features/attendance/models/attendance_models.dart' show formatStamp;
 import 'package:arise_application/translations/translated_text.dart';
+import 'package:arise_application/features/admin/widgets/audit_log_view.dart';
+import 'package:arise_application/features/admin/services/backup_service.dart';
 
 /// Admin tools: people and roles, who can use which feature, and the
 /// 30-day clean-up of old records. Everything is enforced by the database
@@ -34,7 +36,7 @@ class AdminToolsPage extends StatelessWidget {
       );
     }
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         backgroundColor: AppColors.bg(context),
         appBar: AppBar(
@@ -55,11 +57,12 @@ class AdminToolsPage extends StatelessWidget {
               Tab(text: tr(context, 'People')),
               Tab(text: tr(context, 'Access')),
               Tab(text: tr(context, 'Data')),
+              Tab(text: tr(context, 'Activity')),
             ],
           ),
         ),
         body: const TabBarView(
-          children: [_UsersTab(), _AccessTab(), _DataTab()],
+          children: [_UsersTab(), _AccessTab(), _DataTab(), AuditLogView()],
         ),
       ),
     );
@@ -248,6 +251,7 @@ class _AccessTabState extends State<_AccessTab> {
     Feature.mapEdit: 'Edit evacuation maps',
     Feature.auditLog: 'See the audit log',
     Feature.emergencyAlert: 'Send emergency alerts',
+    Feature.contactsEdit: 'Edit emergency contacts',
   };
   static const _roles = {1: 'Everyone', 2: 'Teachers and admins', 3: 'Admins only'};
 
@@ -347,11 +351,135 @@ class _DataTabState extends State<_DataTab> {
   Map<String, dynamic>? _status;
   bool _busy = false;
   String? _result;
+  DateTime? _lastBackup;
+  String? _backupResult;
 
   @override
   void initState() {
     super.initState();
     _load();
+    BackupService.lastBackup().then((d) {
+      if (mounted) setState(() => _lastBackup = d);
+    });
+  }
+
+  Future<void> _backup() async {
+    setState(() => _busy = true);
+    try {
+      final n = await BackupService.exportAndShare();
+      final d = await BackupService.lastBackup();
+      if (mounted) {
+        setState(() {
+          _lastBackup = d;
+          _backupResult = '$n ${tr(context, 'records saved to the backup file.')}';
+        });
+      }
+    } catch (e) {
+      if (mounted) _toast(context, _errorMessage(e));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// New school year: students move up a grade and give their section again;
+  /// class lists move up and start empty.
+  Future<void> _rollover() async {
+    var students = true;
+    var lists = true;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) => AlertDialog(
+          title: const Text('Start a new school year?'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                    'Past drills, reports and alerts are kept. Make a backup first, because this cannot be undone.'),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: students,
+                  onChanged: (v) => setLocal(() => students = v ?? false),
+                  title: const Text('Move students up one grade'),
+                  subtitle: const Text(
+                      'Each student is asked for their section again. Grade 12 students are cleared (they graduated); delete their accounts in People if you wish.'),
+                ),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: lists,
+                  onChanged: (v) => setLocal(() => lists = v ?? false),
+                  title: const Text('Move class lists up one grade'),
+                  subtitle: const Text(
+                      'Lists start empty and fill again as students enter their section. Grade 12 lists are deleted.'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Cancel')),
+            TextButton(
+                onPressed: (students || lists) ? () => Navigator.pop(ctx, true) : null,
+                child: const Text('Start new year')),
+          ],
+        ),
+      ),
+    );
+    if (ok != true || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      final r = await Supabase.instance.client.rpc('admin_school_year_rollover',
+          params: {'p_students': students, 'p_lists': lists});
+      final m = Map<String, dynamic>.from(r as Map);
+      if (mounted) {
+        setState(() => _backupResult =
+            '${m['students']} ${tr(context, 'students moved up')}, ${m['graduated']} ${tr(context, 'graduated')}, '
+            '${m['lists']} ${tr(context, 'lists moved up')}, ${m['lists_removed']} ${tr(context, 'lists removed')}.');
+      }
+    } catch (e) {
+      if (mounted) _toast(context, _errorMessage(e));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _restore() async {
+    setState(() => _busy = true);
+    try {
+      final backup = await BackupService.pickBackup();
+      if (backup == null || !mounted) return;
+      final n = BackupService.recordCount(backup);
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Restore this backup?'),
+          content: Text.verbatim(
+              '$n ${tr(ctx, 'records are in this file. Records that already exist are kept as they are; missing ones are added back.')}'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Cancel')),
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Restore')),
+          ],
+        ),
+      );
+      if (ok != true) return;
+      final r = await BackupService.restore(backup);
+      if (mounted) {
+        setState(() => _backupResult =
+            '${r['reports']} ${tr(context, 'reports')}, ${r['drills']} ${tr(context, 'drills')}, '
+            '${r['alerts']} ${tr(context, 'alerts')}, ${r['audit']} ${tr(context, 'audit entries restored.')}');
+      }
+    } catch (e) {
+      if (mounted) _toast(context, _errorMessage(e));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   Future<void> _load() async {
@@ -401,9 +529,99 @@ class _DataTabState extends State<_DataTab> {
     final s = _status;
     final scheduled = s?['scheduled'] == true;
     final last = s?['last_run'] as String?;
+    final stale = _lastBackup == null ||
+        DateTime.now().difference(_lastBackup!) > const Duration(days: 7);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.card(context),
+            borderRadius: BorderRadius.circular(14),
+            border: stale ? Border.all(color: Colors.orange, width: 1.5) : null,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                const Icon(Icons.backup, color: AdminToolsPage._blue),
+                const SizedBox(width: 10),
+                Text('Backup and restore',
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text(context),
+                        fontFamily: 'Geist')),
+              ]),
+              const SizedBox(height: 10),
+              const Text(
+                  'Records older than 30 days are deleted automatically. Save a backup file first if you want to keep them, then store it somewhere safe (Drive, email, your computer).'),
+              const SizedBox(height: 8),
+              Text.verbatim(_lastBackup == null
+                  ? tr(context, 'No backup made on this phone yet.')
+                  : '${tr(context, 'Last backup')}: ${formatStamp(_lastBackup!)}'),
+              if (stale)
+                Text('Make a backup before the next clean-up.',
+                    style: const TextStyle(
+                        color: Colors.orange, fontWeight: FontWeight.bold)),
+              if (_backupResult != null) ...[
+                const SizedBox(height: 6),
+                Text.verbatim(_backupResult!,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+              ],
+              const SizedBox(height: 12),
+              Wrap(spacing: 10, runSpacing: 8, children: [
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                      backgroundColor: AdminToolsPage._blue),
+                  onPressed: _busy ? null : _backup,
+                  icon: const Icon(Icons.ios_share),
+                  label: const Text('Back up now'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: _busy ? null : _restore,
+                  icon: const Icon(Icons.restore),
+                  label: const Text('Restore from file'),
+                ),
+              ]),
+            ],
+          ),
+        ),
+        // new school year
+        Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.card(context),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                const Icon(Icons.event_repeat, color: AdminToolsPage._blue),
+                const SizedBox(width: 10),
+                Text('New school year',
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text(context),
+                        fontFamily: 'Geist')),
+              ]),
+              const SizedBox(height: 10),
+              const Text(
+                  'At the start of a school year, move students and class lists up one grade.'),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: _busy ? null : _rollover,
+                icon: const Icon(Icons.arrow_upward),
+                label: const Text('Start new school year'),
+              ),
+            ],
+          ),
+        ),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(

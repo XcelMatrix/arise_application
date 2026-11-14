@@ -18,6 +18,8 @@ class Feature {
   static const mapEdit = 'map_edit';
   static const auditLog = 'audit_log';
   static const emergencyAlert = 'emergency_alert';
+  // only admins edit emergency contact numbers by default
+  static const contactsEdit = 'contacts_edit';
 }
 
 class AccountState {
@@ -27,6 +29,10 @@ class AccountState {
   final String? username; // the handle the app uses (from register page)
   final String? displayName; // what people see (editable on profile page)
   final String? avatarUrl;
+
+  /// Students: the grade and section they typed after logging in.
+  final String? grade;
+  final String? section;
   final Map<String, int> featureMinRank;
 
   /// 'pending' | 'approved' | 'rejected' for teacher sign-ups, else null.
@@ -39,9 +45,18 @@ class AccountState {
     this.username,
     this.displayName,
     this.avatarUrl,
+    this.grade,
+    this.section,
     this.featureMinRank = const {},
     this.teacherRequestStatus,
   });
+
+  /// Students (the 'member' role) who have not told us their class yet.
+  bool get needsClass =>
+      loaded &&
+      rank == 1 &&
+      roleName == 'member' &&
+      (grade == null || grade!.isEmpty || section == null || section!.isEmpty);
 
   /// Teacher who isn't approved yet (or was declined): app stays locked.
   bool get isTeacherPending =>
@@ -67,6 +82,8 @@ class AccountState {
     String? username,
     String? displayName,
     String? avatarUrl,
+    String? grade,
+    String? section,
     Map<String, int>? featureMinRank,
     String? teacherRequestStatus,
     bool clearDisplayName = false,
@@ -79,6 +96,8 @@ class AccountState {
         username: username ?? this.username,
         displayName: clearDisplayName ? null : (displayName ?? this.displayName),
         avatarUrl: clearAvatar ? null : (avatarUrl ?? this.avatarUrl),
+        grade: grade ?? this.grade,
+        section: section ?? this.section,
         featureMinRank: featureMinRank ?? this.featureMinRank,
         teacherRequestStatus: teacherRequestStatus ?? this.teacherRequestStatus,
       );
@@ -124,7 +143,7 @@ class AccountCubit extends Cubit<AccountState> {
 
       final details = await _sb
           .from('profile_details')
-          .select('display_name, avatar_url')
+          .select('display_name, avatar_url, grade, section')
           .eq('user_id', uid)
           .maybeSingle();
 
@@ -144,6 +163,8 @@ class AccountCubit extends Cubit<AccountState> {
         username: profile?['username'] as String?,
         displayName: details?['display_name'] as String?,
         avatarUrl: details?['avatar_url'] as String?,
+        grade: details?['grade'] as String?,
+        section: details?['section'] as String?,
         teacherRequestStatus: request?['status'] as String?,
         featureMinRank: {
           for (final f in features)
@@ -156,6 +177,16 @@ class AccountCubit extends Cubit<AccountState> {
     } finally {
       _loading = false;
     }
+  }
+
+  /// Students: save grade + section. The database also adds the student's
+  /// name to every class list with the same grade and section.
+  Future<void> setClass(String grade, String section) async {
+    await _sb.rpc('set_my_class', params: {
+      'p_grade': grade,
+      'p_section': section,
+    });
+    emit(state.copyWith(grade: grade.trim(), section: section.trim()));
   }
 
   /// Create or edit the display name. Empty clears it (falls back to username).

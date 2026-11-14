@@ -127,6 +127,20 @@ class SettingsCubit extends Cubit<SettingsState> {
     } catch (_) {}
   }
 
+  /// Back to how the app looked when it was installed: light theme,
+  /// English, 16 px text, full colour, 12-hour clock.
+  Future<void> resetAll() async {
+    Tr.current = Tr.byCode('en');
+    TimeFormat.use24h = false;
+    emit(const SettingsState());
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      for (final k in [_themeKey, _langKey, _fontKey, _satKey, _clockKey]) {
+        await prefs.remove(k);
+      }
+    } catch (_) {}
+  }
+
   Future<void> setUse24h(bool on) async {
     TimeFormat.use24h = on;
     emit(state.copyWith(use24h: on));

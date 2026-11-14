@@ -8,7 +8,30 @@ class AuditEntry {
   final String actor;
   final String action;
   final String? detail;
-  const AuditEntry(this.id, this.time, this.actor, this.action, this.detail);
+
+  /// alert | role | deletion | drill | other
+  final String category;
+
+  /// the thing this entry is about (for alerts: the alert's id)
+  final String? refId;
+  const AuditEntry(this.id, this.time, this.actor, this.action, this.detail,
+      {this.category = 'other', this.refId});
+
+  static String classify(String action) {
+    final a = action.toLowerCase();
+    if (a.startsWith('emergency alert')) return 'alert';
+    if (a.startsWith('role changed') ||
+        a.startsWith('access changed') ||
+        a.startsWith('teacher approved') ||
+        a.startsWith('teacher declined')) {
+      return 'role';
+    }
+    if (a.contains('deleted') || a.startsWith('old data removed')) {
+      return 'deletion';
+    }
+    if (a.startsWith('drill')) return 'drill';
+    return 'other';
+  }
 
   factory AuditEntry.fromRow(Map<String, dynamic> r) => AuditEntry(
         (r['id'] as num).toInt(),
@@ -16,6 +39,8 @@ class AuditEntry {
         (r['actor_name'] as String?) ?? 'System',
         r['action'] as String,
         r['detail'] as String?,
+        category: (r['category'] as String?) ?? classify(r['action'] as String),
+        refId: r['ref_id'] as String?,
       );
 }
 
@@ -49,7 +74,7 @@ class AuditCubit extends Cubit<AuditState> {
           .from('audit_log')
           .select()
           .order('created_at', ascending: false)
-          .limit(200);
+          .limit(300);
       await LocalCache.save('audit_log', rows);
       if (!isClosed) {
         emit(AuditState(loaded: true, entries: [

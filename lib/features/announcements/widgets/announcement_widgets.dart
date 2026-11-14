@@ -71,6 +71,7 @@ Future<void> showAnnouncementEditor(BuildContext context,
       await cubit.update(existing.id, t, b);
     }
   } catch (e) {
+    if (!context.mounted) return;
     messenger.showSnackBar(
         SnackBar(content: Text.verbatim('${tr(context, 'Could not save')}: $e')));
   }

@@ -6,6 +6,8 @@ import 'package:arise_application/core/widgets/app_drawer.dart';
 import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/features/account/cubit/account_cubit.dart';
+import 'package:arise_application/features/resources/pages/offline_guides_page.dart';
+import 'package:arise_application/features/resources/pages/event_log_page.dart';
 import 'package:arise_application/features/home/pages/home_page.dart';
 import 'package:arise_application/features/attendance/pages/attendance_page.dart';
 import 'package:arise_application/features/console/pages/timed_console_page.dart';
@@ -140,6 +142,30 @@ class _DisasterResourcesPageState extends State<DisasterResourcesPage> {
               icon: Icons.menu_book_rounded,
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const DisasterGuidelinesPage()));
+              },
+            ),
+
+            const SizedBox(height: 26),
+
+            // Offline emergency guides (built into the app)
+            _buildResourceCard(
+              context,
+              title: "Emergency guides",
+              icon: Icons.medical_services,
+              onTap: () {
+                Navigator.push(context, OfflineGuidesPage.route());
+              },
+            ),
+
+            const SizedBox(height: 26),
+
+            // Past alerts and drills
+            _buildResourceCard(
+              context,
+              title: "Event log",
+              icon: Icons.history,
+              onTap: () {
+                Navigator.push(context, EventLogPage.route());
               },
             ),
 

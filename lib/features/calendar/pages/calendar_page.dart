@@ -573,6 +573,7 @@ class _EventDialogState extends State<_EventDialog> {
             ),
             if (_drillType != null)
               DropdownButtonFormField<String>(
+                key: ValueKey(_drillType),
                 initialValue: _drillType,
                 decoration: _dec(context, 'Type of emergency'),
                 items: [

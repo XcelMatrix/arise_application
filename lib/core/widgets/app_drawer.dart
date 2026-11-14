@@ -11,6 +11,7 @@ import 'package:arise_application/features/inbox/pages/inbox_page.dart';
 import 'package:arise_application/features/account/pages/profile_page.dart';
 import 'package:arise_application/features/settings/pages/settings_page.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
+import 'package:arise_application/features/reports/pages/reports_page.dart';
 
 /// Side menu opened from the profile-picture button.
 /// Tap your picture to open your profile.
@@ -151,6 +152,18 @@ class AppDrawer extends StatelessWidget {
             icon: Icons.calendar_month,
             label: 'Calendar',
             onTap: () => _open(context, CalendarPage.route()),
+          ),
+          // attendance / drill summaries (teachers and admins)
+          BlocBuilder<AccountCubit, AccountState>(
+            builder: (context, acc) => acc.canAccess(Feature.attendance) ||
+                    acc.canAccess(Feature.timedConsole)
+                ? _item(
+                    context,
+                    icon: Icons.summarize,
+                    label: 'Reports',
+                    onTap: () => _open(context, ReportsPage.route()),
+                  )
+                : const SizedBox.shrink(),
           ),
           _item(
             context,

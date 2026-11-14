@@ -81,6 +81,7 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String?>(
+                  key: ValueKey(buildingId),
                   initialValue: buildingId,
                   isExpanded: true,
                   decoration: InputDecoration(
@@ -228,6 +229,7 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
     setState(() => _busy = true);
     try {
       await _sb.rpc('set_current_map', params: {'p_id': row['id']});
+      if (!mounted) return;
       await context.read<MapsCubit>().load();
       _toast('Now the first floor shown.');
     } catch (e) {
@@ -259,7 +261,7 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
       ),
     );
     c.dispose();
-    if (name == null || name.isEmpty || name == row['name']) return;
+    if (name == null || name.isEmpty || name == row['name'] || !mounted) return;
     try {
       if (building) {
         await context.read<BuildingsCubit>().edit(row['id'] as String, {'name': name});

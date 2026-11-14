@@ -17,6 +17,9 @@ import 'package:arise_application/features/console/cubit/audit_cubit.dart';
 import 'package:arise_application/core/widgets/flashing_logo.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
 import 'package:arise_application/features/console/pages/drill_history_page.dart';
+import 'package:arise_application/features/admin/widgets/audit_text.dart';
+import 'package:arise_application/features/alerts/cubit/alert_cubit.dart';
+import 'package:arise_application/translations/translation.dart';
 
 class TimedConsolePage extends StatefulWidget {
   const TimedConsolePage({super.key});
@@ -459,6 +462,7 @@ class _AuditView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final a = context.watch<AuditCubit>().state;
+    final alertRows = context.watch<AlertLogCubit>().state.rows;
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(14, 14, 14, 14),
@@ -509,15 +513,16 @@ class _AuditView extends StatelessWidget {
                                 style:
                                     const TextStyle(color: Color(0xFF777777))),
                             TextSpan(
-                                text: tr(context, e.action),
+                                text: AuditText.action(e),
                                 style: TextStyle(color: c)),
                             if (e.detail != null)
                               TextSpan(
-                                  text: ': ${e.detail}',
+                                  text:
+                                      ': ${AuditText.detail(e, alertRows) ?? ''}',
                                   style: const TextStyle(
                                       color: Color(0xFFDDDDDD))),
                             TextSpan(
-                                text: '  by ${e.actor}',
+                                text: '  ${tr(context, 'by')} ${e.actor}',
                                 style:
                                     const TextStyle(color: Color(0xFF888888))),
                           ],
@@ -580,10 +585,11 @@ class _AlertHistoryView extends StatelessWidget {
                                     '[${sent.month}/${sent.day} ${DrillCubit.formatClock(sent)}] ',
                                 style: const TextStyle(color: Color(0xFF777777))),
                             TextSpan(
-                                text: '${(r['kind'] as String).toUpperCase()}: ',
+                                text: '${Tr.t(r['kind'] as String).toUpperCase()}: ',
                                 style: const TextStyle(color: Color(0xFFFF5555))),
                             TextSpan(
-                                text: '${r['message']}',
+                                text: localizedAlertMessage('${r['message']}',
+                                    parseAlertTranslations(r['translations'])),
                                 style: const TextStyle(color: Color(0xFFDDDDDD))),
                             TextSpan(
                                 text: '  by ${(r['sender_name'] as String?) ?? 'Unknown'}',

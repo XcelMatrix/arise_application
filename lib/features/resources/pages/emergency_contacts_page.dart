@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Text;
 import 'package:arise_application/core/widgets/back_or_logo.dart';
 import 'package:arise_application/translations/translated_text.dart';
-import 'package:arise_application/features/resources/widgets/editable_content.dart';
+import 'package:arise_application/features/resources/widgets/contacts_body.dart';
 import 'package:arise_application/core/widgets/app_drawer.dart';
 import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

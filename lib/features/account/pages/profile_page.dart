@@ -9,6 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/translations/translation.dart';
 import 'package:arise_application/features/auth/services/auth_service.dart';
 import 'package:arise_application/features/account/cubit/account_cubit.dart';
+import 'package:arise_application/features/account/widgets/class_gate.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -135,11 +136,63 @@ class _ProfilePageState extends State<ProfilePage> {
     a.dispose();
     b.dispose();
     if (ok != true) return;
-    if (pw.length < 6) return _toast('Password must be at least 6 characters.');
+    final problem = AuthService.passwordProblem(pw);
+    if (problem != null) return _toast(problem);
     if (!same) return _toast('Passwords do not match');
     try {
       await authService.setNewPassword(pw);
       _toast('Password updated.');
+    } catch (e) {
+      _toast('$e');
+    }
+  }
+
+  Future<void> _changeEmail() async {
+    final c = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Change email'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+                'We will email a confirmation link. Your email only changes after you open it.'),
+            TextField(
+              controller: c,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(labelText: tr(ctx, 'New email address')),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Send link')),
+        ],
+      ),
+    );
+    final email = c.text.trim();
+    c.dispose();
+    if (ok != true || email.isEmpty) return;
+    try {
+      await authService.changeEmail(email);
+      _toast('Check your new email for the confirmation link.');
+    } catch (e) {
+      _toast('$e');
+    }
+  }
+
+  Future<void> _resendVerification() async {
+    final email = authService.email;
+    if (email == null) return;
+    try {
+      await authService.resendVerification(email);
+      _toast('Verification email sent.');
     } catch (e) {
       _toast('$e');
     }
@@ -478,6 +531,44 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
 
                 const SizedBox(height: 12),
+
+                // email + verification status
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                      authService.emailVerified
+                          ? Icons.verified
+                          : Icons.mark_email_unread,
+                      color: authService.emailVerified
+                          ? Colors.green
+                          : Colors.orange),
+                  title: Text.verbatim(authService.email ?? ''),
+                  subtitle: Text(authService.emailVerified
+                      ? 'Email verified'
+                      : 'Email not verified yet'),
+                  trailing: TextButton(
+                    onPressed: authService.emailVerified
+                        ? _changeEmail
+                        : _resendVerification,
+                    child: Text(authService.emailVerified ? 'Change' : 'Resend'),
+                  ),
+                ),
+
+                // students: change grade and section
+                if (account.roleName == 'member')
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.school, color: _blue),
+                    title: Text.verbatim(account.grade == null
+                        ? tr(context, 'Not set')
+                        : '${tr(context, 'Grade')} ${account.grade} · ${account.section ?? ''}'),
+                    subtitle: const Text('Your grade and section'),
+                    trailing: TextButton(
+                      onPressed: () =>
+                          Navigator.push(context, ClassSetupPage.route()),
+                      child: const Text('Change'),
+                    ),
+                  ),
 
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(

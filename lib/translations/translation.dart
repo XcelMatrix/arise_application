@@ -63,8 +63,11 @@ class Tr {
     return english;
   }
 
-  static String t(String text) {
-    final lang = current;
+  static String t(String text) => inLanguage(current, text);
+
+  /// Translate [text] into a specific language (not just the current one).
+  /// Used to prepare an alert in every language when it is sent.
+  static String inLanguage(AppTranslation lang, String text) {
     if (lang.code == english.code || text.isEmpty) return text;
     final exact = lang.words[text];
     if (exact != null) return exact;

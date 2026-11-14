@@ -323,9 +323,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 if (val == null || val.isEmpty) {
                   return Tr.t('Required');
                 }
-                if (val.length < 6) {
-                  return Tr.t('6 characters minimum');
-                }
+                final problem = AuthService.passwordProblem(val);
+                if (problem != null) return Tr.t(problem);
                 return null;
               },
             ),

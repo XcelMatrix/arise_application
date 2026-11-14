@@ -426,6 +426,7 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
         children: [
           Expanded(
             child: DropdownButtonFormField<String>(
+              key: ValueKey(_buildingId),
               initialValue: _buildingId,
               isExpanded: true,
               decoration: deco('Building'),
@@ -452,6 +453,7 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
             const SizedBox(width: 10),
             Expanded(
               child: DropdownButtonFormField<String>(
+                key: ValueKey(selected?['id'] as String?),
                 initialValue: selected?['id'] as String?,
                 isExpanded: true,
                 decoration: deco('Floor'),
