@@ -130,11 +130,11 @@ class _HomePageState extends State<HomePage> {
                 const AnnouncementsSection(),
                 const SizedBox(height: 8),
 
-                // go to evacuation maps
+                // go to the disaster resources
                 _buildGoogleClassroomCard(
                   context,
-                  title: "Evacuation Map",
-                  description: "View emergency routes and safe zones.",
+                  title: "Disaster Resources",
+                  description: "Guidelines and evacuation plans.",
                   imagePath: "assets/images/evacuation_banner.png",
                   onTap: () => Navigator.push(context, MaterialPageRoute(
                     builder: (context) => const DisasterResourcesPage()
@@ -146,7 +146,7 @@ class _HomePageState extends State<HomePage> {
                 _buildGoogleClassroomCard(
                   context,
                   title: "Attendance Report",
-                  description: "Check your daily and historical attendance records.",
+                  description: "Your attendance records.",
                   imagePath: "assets/images/attendance_banner.png",
                   onTap: () {
                     if (!_allowed(Feature.attendance)) return _denied();
@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                 _buildGoogleClassroomCard(
                   context,
                   title: "Console",
-                  description: "Access programmed terminal sessions and tools.",
+                  description: "Terminal sessions and tools.",
                   imagePath: "assets/images/console_banner.png",
                   onTap: () {
                     if (!_allowed(Feature.timedConsole)) return _denied();

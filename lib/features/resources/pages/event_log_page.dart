@@ -36,17 +36,41 @@ class _Event {
 /// A log of past events: emergency alerts and drills, newest first.
 /// Saved on the phone, so it can be read with no signal. Records older
 /// than 30 days are removed automatically.
-class EventLogPage extends StatefulWidget {
+class EventLogPage extends StatelessWidget {
   const EventLogPage({super.key});
 
   static Route<void> route() =>
       MaterialPageRoute(builder: (_) => const EventLogPage());
 
   @override
-  State<EventLogPage> createState() => _EventLogPageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg(context),
+      appBar: AppBar(
+        backgroundColor: _blue,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Incident History'),
+        titleTextStyle: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontFamily: 'Geist'),
+        centerTitle: true,
+      ),
+      body: const EventLogBody(),
+    );
+  }
 }
 
-class _EventLogPageState extends State<EventLogPage> {
+/// The event log without a page around it (used inside the Console).
+class EventLogBody extends StatefulWidget {
+  const EventLogBody({super.key});
+
+  @override
+  State<EventLogBody> createState() => _EventLogBodyState();
+}
+
+class _EventLogBodyState extends State<EventLogBody> {
   static const _drillsKey = 'event_log_drills';
 
   List<Map<String, dynamic>> _drills = const [];
@@ -132,20 +156,7 @@ class _EventLogPageState extends State<EventLogPage> {
     final alertState = context.watch<AlertLogCubit>().state;
     final events = _events(alertState.rows);
     final offline = alertState.offline || _drillsOffline;
-    return Scaffold(
-      backgroundColor: AppColors.bg(context),
-      appBar: AppBar(
-        backgroundColor: _blue,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Event log'),
-        titleTextStyle: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontFamily: 'Geist'),
-        centerTitle: true,
-      ),
-      body: !alertState.loaded
+    return !alertState.loaded
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: () async {
@@ -278,7 +289,6 @@ class _EventLogPageState extends State<EventLogPage> {
                   ),
                 ],
               ),
-            ),
-    );
+            );
   }
 }

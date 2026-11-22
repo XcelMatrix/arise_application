@@ -32,6 +32,8 @@ dependencies:
   archive: 4.0.7
   flutter_foreground_task: ^11.0.3
   flutter_local_notifications: ^23.0.1
+  audioplayers: ^6.8.1
+  flutter_volume_controller: ^2.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -43,30 +45,15 @@ flutter:
     - assets/icons/icon.png
     - assets/icons/icon_white.png
     - assets/logo.png
-    - assets/Duck.glb
     - assets/images/triangle.png
-    - assets/models/Chicken_01.gltf
-    - assets/models/Chicken_01.bin
     - assets/models/
+    - assets/sounds/
+    - assets/sounds/siren.wav
+    - assets/images/contact_logos/
+    - assets/images/
+    
   fonts:
     - family: Geist
       fonts:
         - asset: assets/fonts/geist/Geist-Regular.ttf
           weight: 400
-
-flutter_native_splash:
-  android: true
-  ios: false
-  web: false
-
-  color: "#ffffff"
-  image: assets/icons/icon.png
-
-  color_dark: "#000000"
-  image_dark: assets/icons/icon_white.png
-
-  android_12:
-    color: "#ffffff"
-    image: assets/icons/icon.png
-    color_dark: "#000000"
-    image_dark: assets/icons/icon_white.png

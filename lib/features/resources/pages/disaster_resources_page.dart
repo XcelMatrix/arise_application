@@ -6,12 +6,10 @@ import 'package:arise_application/core/widgets/app_drawer.dart';
 import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/features/account/cubit/account_cubit.dart';
-import 'package:arise_application/features/resources/pages/offline_guides_page.dart';
-import 'package:arise_application/features/resources/pages/event_log_page.dart';
 import 'package:arise_application/features/home/pages/home_page.dart';
 import 'package:arise_application/features/attendance/pages/attendance_page.dart';
 import 'package:arise_application/features/console/pages/timed_console_page.dart';
-import 'package:arise_application/features/resources/pages/evacuation_map_page.dart';
+import 'package:arise_application/features/resources/pages/evacuation_plan_page.dart';
 import 'package:arise_application/features/resources/pages/emergency_contacts_page.dart';
 import 'package:arise_application/features/resources/pages/disaster_guidelines_page.dart';
 
@@ -111,13 +109,13 @@ class _DisasterResourcesPageState extends State<DisasterResourcesPage> {
           children: [
             const SizedBox(height: 8),
 
-            // Evacuation Map Button
+            // Guidelines (disaster guidelines and the emergency guides)
             _buildResourceCard(
               context,
-              title: "Evacuation Map",
-              icon: Icons.location_on,
+              title: "Guidelines",
+              icon: Icons.menu_book_rounded,
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const EvacuationMapPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const DisasterGuidelinesPage()));
               },
             ),
 
@@ -135,37 +133,13 @@ class _DisasterResourcesPageState extends State<DisasterResourcesPage> {
 
             const SizedBox(height: 26),
 
-            // Disaster Guidelines Button
+            // Evacuation Plan Button
             _buildResourceCard(
               context,
-              title: "Disaster Guidelines",
-              icon: Icons.menu_book_rounded,
+              title: "Evacuation Plan",
+              icon: Icons.location_on,
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const DisasterGuidelinesPage()));
-              },
-            ),
-
-            const SizedBox(height: 26),
-
-            // Offline emergency guides (built into the app)
-            _buildResourceCard(
-              context,
-              title: "Emergency guides",
-              icon: Icons.medical_services,
-              onTap: () {
-                Navigator.push(context, OfflineGuidesPage.route());
-              },
-            ),
-
-            const SizedBox(height: 26),
-
-            // Past alerts and drills
-            _buildResourceCard(
-              context,
-              title: "Event log",
-              icon: Icons.history,
-              onTap: () {
-                Navigator.push(context, EventLogPage.route());
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const EvacuationPlanPage()));
               },
             ),
 
@@ -266,8 +240,7 @@ class _DisasterResourcesPageState extends State<DisasterResourcesPage> {
                   color: AppColors.text(context),
                   fontFamily: 'Geist',
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
               ),
             ),
           ],

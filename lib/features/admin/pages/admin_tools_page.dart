@@ -249,7 +249,7 @@ class _AccessTabState extends State<_AccessTab> {
     Feature.teacherReview: 'Approve teachers',
     Feature.contentEdit: 'Edit guidelines and contacts',
     Feature.mapEdit: 'Edit evacuation maps',
-    Feature.auditLog: 'See the audit log',
+    Feature.auditLog: 'See the activity log',
     Feature.emergencyAlert: 'Send emergency alerts',
     Feature.contactsEdit: 'Edit emergency contacts',
   };
@@ -643,7 +643,7 @@ class _DataTabState extends State<_DataTab> {
               ]),
               const SizedBox(height: 10),
               const Text(
-                  'Drills, attendance reports, emergency alerts and the audit log are deleted automatically once they are 30 days old.'),
+                  'Drills, attendance reports, emergency alerts and the activity log are deleted automatically once they are 30 days old.'),
               const SizedBox(height: 10),
               if (s != null)
                 Text.verbatim(scheduled

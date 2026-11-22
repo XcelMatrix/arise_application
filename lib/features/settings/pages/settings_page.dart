@@ -238,7 +238,7 @@ class SettingsPage extends StatelessWidget {
 
               // ------------------------------------------- Reset to default
               Padding(
-                padding: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.only(bottom: 80),
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,

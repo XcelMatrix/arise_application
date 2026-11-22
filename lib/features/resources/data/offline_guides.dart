@@ -81,7 +81,7 @@ const offlineGuides = <OfflineGuide>[
         Say({'en': 'On the way out', 'fil': 'Sa paglabas'}),
         SaySteps({
           'en': [
-            'Use the nearest safe exit and the route shown on the Evacuation Map.',
+            'Use the nearest safe exit and the route shown on the Evacuation Plan.',
             'Walk, do not run. Do not push. Keep to the right on stairs.',
             'Do not use elevators.',
             'If there is smoke, stay low and cover your nose and mouth with cloth.',
@@ -89,7 +89,7 @@ const offlineGuides = <OfflineGuide>[
             'Do not go back inside for any reason.',
           ],
           'fil': [
-            'Gamitin ang pinakamalapit na ligtas na labasan at ang ruta sa Mapa ng Paglikas.',
+            'Gamitin ang pinakamalapit na ligtas na labasan at ang ruta sa Plano ng Paglikas.',
             'Maglakad, huwag tumakbo. Huwag magtulakan. Sa hagdan, manatili sa kanan.',
             'Huwag gumamit ng elevator.',
             'Kung may usok, yumuko nang mababa at takpan ang ilong at bibig ng tela.',
@@ -123,7 +123,7 @@ const offlineGuides = <OfflineGuide>[
     id: 'first_aid',
     icon: Icons.medical_services,
     color: Color(0xFFC62828),
-    title: Say({'en': 'First aid', 'fil': 'Pangunang lunas'}),
+    title: Say({'en': 'First Aid', 'fil': 'Pangunang lunas'}),
     summary: Say({
       'en': 'Basic first aid until trained help arrives.',
       'fil': 'Pangunahing lunas habang hinihintay ang sinanay na tulong.',
@@ -254,7 +254,7 @@ const offlineGuides = <OfflineGuide>[
     id: 'lockdown',
     icon: Icons.lock,
     color: Color(0xFF283593),
-    title: Say({'en': 'Lockdown procedure', 'fil': 'Pamamaraan sa lockdown'}),
+    title: Say({'en': 'Lockdown Procedure', 'fil': 'Pamamaraan sa lockdown'}),
     summary: Say({
       'en': 'What to do when there is a threat inside or near the school.',
       'fil': 'Ang gagawin kapag may banta sa loob o malapit sa paaralan.',

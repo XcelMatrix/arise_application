@@ -110,6 +110,7 @@ class _CheckInRosterPageState extends State<CheckInRosterPage> {
     try {
       final sent = await _sb.rpc('remind_non_responders',
           params: {'p_alert': widget.alertId});
+      if (!mounted) return;
       m.showSnackBar(SnackBar(
           content: Text.verbatim('${tr(context, 'Reminder sent to')} $sent ${tr(context, 'people.')}')));
     } catch (e) {

@@ -90,7 +90,7 @@ class _DisasterGuidelinesPageState extends State<DisasterGuidelinesPage> {
         backgroundColor: Color(0xFF3C6E87),
 
         // Page title
-        title: const Text("Disaster Guidelines"),
+        title: const Text("Guidelines"),
         titleTextStyle: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,

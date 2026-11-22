@@ -32,7 +32,7 @@ const List<String> emergencyTypes = [
 ];
 
 const List<String> gradeOptions = [
-  '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12',
+  '7', '8', '9', '10', '11', '12',
 ];
 
 String _two(int n) => n.toString().padLeft(2, '0');

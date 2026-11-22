@@ -15,7 +15,11 @@ class ProfileMenuButton extends StatelessWidget {
       builder: (context, account) {
         return BlocBuilder<InboxCubit, InboxState>(
           builder: (context, inbox) {
-            return Builder(
+            // shifted a little to the left without changing the bar's layout,
+            // so the title stays centered
+            return Transform.translate(
+              offset: const Offset(-4, 0),
+              child: Builder(
               builder: (context) => Badge(
                 isLabelVisible: inbox.unread > 0,
                 label: Text.verbatim('${inbox.unread}'),
@@ -48,7 +52,7 @@ class ProfileMenuButton extends StatelessWidget {
                   onPressed: () => Scaffold.of(context).openEndDrawer(),
                 ),
               ),
-            );
+            ));
           },
         );
       },

@@ -281,7 +281,7 @@ class _HeadcountListPageState extends State<HeadcountListPage> {
     try {
       final n = await _sb.rpc('mark_list_safe',
           params: {'p_alert': widget.alertId, 'p_list': widget.listId});
-      _toast('$n ${tr(context, 'students marked safe.')}');
+      if (mounted) _toast('$n ${tr(context, 'students marked safe.')}');
     } catch (e) {
       _toast(_err(e));
     } finally {

@@ -222,6 +222,7 @@ class ClassListsPage extends StatelessWidget {
           added += fresh.length;
         }
       }
+      if (!context.mounted) return;
       toast('${tr(context, 'Imported')} $added ${tr(context, 'students')}.');
     } catch (e) {
       toast('$e');

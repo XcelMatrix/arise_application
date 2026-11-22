@@ -24,15 +24,21 @@ import 'package:ar_flutter_plugin_plus/models/ar_node.dart';
 import 'package:arise_application/features/home/pages/home_page.dart';
 import 'package:arise_application/features/resources/pages/evacuation_maps_page.dart';
 import 'package:arise_application/features/resources/services/map_files.dart';
+import 'package:arise_application/features/resources/services/map_upload.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
 import 'package:arise_application/core/data/rows_cubit.dart';
 import 'package:arise_application/features/resources/widgets/map_marker_kinds.dart';
 
+/// The map of one building: its 3D model (AR) and its 2D image, with the
+/// floors, markers and upload buttons. Opened from the Evacuation Plan hub.
 class EvacuationMapPage extends StatefulWidget {
-  const EvacuationMapPage({super.key});
+  const EvacuationMapPage({super.key, required this.buildingId});
 
-  static Route<void> route() {
-    return MaterialPageRoute(builder: (context) => const EvacuationMapPage());
+  final String buildingId;
+
+  static Route<void> route(String buildingId) {
+    return MaterialPageRoute(
+        builder: (context) => EvacuationMapPage(buildingId: buildingId));
   }
 
   @override
@@ -44,10 +50,6 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
 
   // The one model shown on the map.
   static const String _modelAsset = "assets/ACAD2101.glb";
-
-  /// Shown when AR can't run. Add this image to your project and list it
-  /// under `assets:` in pubspec.yaml.
-  static const String _fallbackImage = "assets/images/evacuation_map.png";
 
   /// If AR hasn't started after this long, switch to the image.
   static const Duration _arLoadTimeout = Duration(seconds: 10);
@@ -72,7 +74,8 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
   bool _busy = false;
 
   // ---- what is shown: a building, and one floor (map) of it per mode ----
-  String? _buildingId;
+  late final String _buildingId = widget.buildingId;
+  bool _watchdogStarted = false;
   String? _modelFloorId;
   String? _imageFloorId;
   Map<String, dynamic>? _modelRow;
@@ -111,16 +114,15 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
 
   List<Map<String, dynamic>> _allMaps() => context.read<MapsCubit>().state.rows;
 
-  /// Buildings that have at least one map.
-  List<Map<String, dynamic>> _buildingsWithMaps() {
-    final ids = {for (final m in _allMaps()) m['building_id']};
-    return context
-        .read<BuildingsCubit>()
-        .state
-        .rows
-        .where((b) => ids.contains(b['id']))
-        .toList();
+  String _buildingName() {
+    for (final b in context.read<BuildingsCubit>().state.rows) {
+      if (b['id'] == _buildingId) return b['name'] as String;
+    }
+    return tr(context, 'Evacuation Plan');
   }
+
+  bool get _hasModel => _floors('model').isNotEmpty;
+  bool get _hasImage => _floors('image').isNotEmpty;
 
   /// The floors (maps) of the chosen building for one mode, oldest first.
   List<Map<String, dynamic>> _floors(String kind) {
@@ -159,10 +161,6 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
     if (!mounted) return;
     final maps = context.read<MapsCubit>().state;
     if (!maps.loaded) return;
-    final withMaps = _buildingsWithMaps();
-    if (_buildingId == null || !withMaps.any((b) => b['id'] == _buildingId)) {
-      _buildingId = withMaps.isEmpty ? null : withMaps.first['id'] as String;
-    }
     final m = _selectedRow('model');
     final i = _selectedRow('image');
     File? img;
@@ -180,6 +178,22 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
       _modelFileName = modelName;
     });
     if (modelChanged && modelNode != null) await _reloadModel();
+    if (m != null && _platformSupportsAr && !_arFailed && !_watchdogStarted) {
+      _watchdogStarted = true;
+      _startWatchdog(); // AR is shown now: give it time to start
+    }
+    if (m == null && _arReady) {
+      // the model was deleted: the AR view is gone, so forget its session
+      try {
+        arSessionManager?.dispose();
+      } catch (_) {}
+      arSessionManager = null;
+      arObjectManager = null;
+      modelNode = null;
+      _markerNodes.clear();
+      _arReady = false;
+      _watchdogStarted = false;
+    }
     MapFiles.tidy(maps.rows.map(MapFiles.fileName));
   }
 
@@ -190,8 +204,6 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
     if (!_platformSupportsAr) {
       _arFailed = true;
       _failReason = "AR isn't supported on this device.";
-    } else {
-      _startWatchdog();
     }
   }
 
@@ -319,7 +331,7 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
         backgroundColor: _blue,
 
         // Page title
-        title: const Text("Evacuation Map"),
+        title: Text.verbatim(_buildingName(), overflow: TextOverflow.ellipsis),
         titleTextStyle: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -331,6 +343,17 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
         // Profile button
         actions: <Widget>[
           // teachers/admins: upload and choose the maps everyone sees
+          if (context.select<AccountCubit, bool>(
+              (c) => c.state.canAccess(Feature.mapEdit)))
+            PopupMenuButton<String>(
+              tooltip: tr(context, 'Upload'),
+              icon: const Icon(Icons.upload_file, color: Colors.white),
+              onSelected: _upload,
+              itemBuilder: (_) => const [
+                PopupMenuItem(value: 'model', child: Text('Upload 3D model')),
+                PopupMenuItem(value: 'image', child: Text('Upload 2D image')),
+              ],
+            ),
           if (context.select<AccountCubit, bool>(
               (c) => c.state.canAccess(Feature.mapEdit)))
             IconButton(
@@ -393,18 +416,74 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
             if (modelNode != null) _syncMarkers();
           }),
         ],
-        child: _arFailed ? _buildFallback() : _buildArView(context),
+        child: !context.watch<MapsCubit>().state.loaded
+            ? const Center(child: CircularProgressIndicator())
+            : (!_hasModel && !_hasImage)
+                ? _emptyState()
+                : (_hasModel && !_arFailed)
+                    ? _buildArView(context)
+                    : _buildFallback(),
       ),
     );
   }
 
-  // ---------------- building / floor chooser + markers (shared) ----------------
+  Future<void> _upload(String kind) async {
+    final ok = await MapUploader.upload(context, kind, buildingId: _buildingId);
+    if (ok) _loadSelected();
+  }
+
+  /// Nothing uploaded for this building yet.
+  Widget _emptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.map_outlined, size: 64, color: _blue),
+            const SizedBox(height: 14),
+            Text(
+              _canEdit
+                  ? 'Nothing is uploaded for this building yet.'
+                  : 'No evacuation map has been uploaded for this building yet.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.text(context),
+                  fontFamily: 'Geist'),
+            ),
+            if (_canEdit) ...[
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                    backgroundColor: _blue,
+                    minimumSize: const Size(240, 48)),
+                onPressed: () => _upload('model'),
+                icon: const Icon(Icons.view_in_ar),
+                label: const Text('Upload 3D model'),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                    backgroundColor: _blue,
+                    minimumSize: const Size(240, 48)),
+                onPressed: () => _upload('image'),
+                icon: const Icon(Icons.map_outlined),
+                label: const Text('Upload 2D image'),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------- floor chooser + markers (shared) ----------------
 
   Widget _selector({required bool ar}) {
-    final buildings = _buildingsWithMaps();
-    if (buildings.isEmpty) return const SizedBox.shrink();
     final kind = ar ? 'model' : 'image';
     final floors = _floors(kind);
+    if (floors.length <= 1) return const SizedBox.shrink();
     final selected = _selectedRow(kind);
 
     InputDecoration deco(String label) => InputDecoration(
@@ -424,33 +503,7 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
       child: Row(
         children: [
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              key: ValueKey(_buildingId),
-              initialValue: _buildingId,
-              isExpanded: true,
-              decoration: deco('Building'),
-              dropdownColor: AppColors.card(context),
-              items: [
-                for (final b in buildings)
-                  DropdownMenuItem(
-                      value: b['id'] as String,
-                      child: Text.verbatim(b['name'] as String,
-                          overflow: TextOverflow.ellipsis)),
-              ],
-              onChanged: (v) {
-                if (v == null || v == _buildingId) return;
-                setState(() {
-                  _buildingId = v;
-                  _modelFloorId = null;
-                  _imageFloorId = null;
-                });
-                _loadSelected();
-              },
-            ),
-          ),
           if (floors.length > 1) ...[
-            const SizedBox(width: 10),
             Expanded(
               child: DropdownButtonFormField<String>(
                 key: ValueKey(selected?['id'] as String?),
@@ -600,6 +653,7 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
       children: [
         if (_placeKind != null) _placeBanner(),
         _selector(ar: false),
+        if (_hasModel)
         Container(
           width: double.infinity,
           color: AppColors.soft(context),
@@ -636,15 +690,12 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
   }
 
   Widget _imageArea() {
-    final anyImage = _allMaps().any((r) => r['kind'] == 'image');
     ImageProvider? provider;
     String? note;
-    if (!anyImage) {
-      provider = const AssetImage(_fallbackImage); // nothing uploaded: built-in
-    } else if (_imageFile != null) {
+    if (_hasImage && _imageFile != null) {
       provider = FileImage(_imageFile!);
     } else {
-      note = _imageRow == null
+      note = !_hasImage
           ? 'No 2D map for this building yet.'
           : 'This map needs a connection the first time it is opened.';
     }
@@ -775,11 +826,12 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
                 ],
                 const SizedBox(height: 6),
                 // manual escape hatch if AR looks wrong but didn't error
-                _arButton(
-                  "View map image",
-                  () => _fallBack("Switched to the map image."),
-                  icon: Icons.image_outlined,
-                ),
+                if (_hasImage)
+                  _arButton(
+                    "View map image",
+                    () => _fallBack("Switched to the map image."),
+                    icon: Icons.image_outlined,
+                  ),
 
               ],
             ),

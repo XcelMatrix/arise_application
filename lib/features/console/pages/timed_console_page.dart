@@ -19,6 +19,7 @@ import 'package:arise_application/core/data/content_cubits.dart';
 import 'package:arise_application/features/console/pages/drill_history_page.dart';
 import 'package:arise_application/features/admin/widgets/audit_text.dart';
 import 'package:arise_application/features/alerts/cubit/alert_cubit.dart';
+import 'package:arise_application/features/resources/pages/event_log_page.dart';
 import 'package:arise_application/translations/translation.dart';
 
 class TimedConsolePage extends StatefulWidget {
@@ -151,7 +152,9 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
       );
 
   Widget _page(BuildContext context) {
-    return Scaffold(
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
       backgroundColor: AppColors.bg(context),
       endDrawer: const AppDrawer(),
       appBar: AppBar(
@@ -167,6 +170,17 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
         actions: <Widget>[
           const ProfileMenuButton()
         ],
+        bottom: TabBar(
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: const Color(0xFFD0DEE6),
+          labelStyle: const TextStyle(
+              fontWeight: FontWeight.bold, fontFamily: 'Geist'),
+          tabs: [
+            Tab(text: tr(context, 'Console')),
+            Tab(text: tr(context, 'Incident History')),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _visibleNav(context).indexOf(_currentIndex),
@@ -208,7 +222,10 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
             .map((e) => e.value)
             .toList(),
       ),
-      body: BlocConsumer<DrillCubit, DrillState>(
+      body: TabBarView(
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+      BlocConsumer<DrillCubit, DrillState>(
         listenWhen: (a, b) => a.log.length != b.log.length,
         listener: (_, _) => _scrollToBottom(),
         builder: (context, state) {
@@ -328,6 +345,7 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
                     style: SegmentedButton.styleFrom(
                       selectedBackgroundColor: _blue,
                       selectedForegroundColor: Colors.white,
+                      foregroundColor: _blue, // tabs that are not selected
                     ),
                     segments: const [
                       ButtonSegment(
@@ -337,7 +355,7 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
                       ButtonSegment(
                           value: 1,
                           icon: Icon(Icons.fact_check),
-                          label: Text('Audit log')),
+                          label: Text('Activity')),
                       ButtonSegment(
                           value: 2,
                           icon: Icon(Icons.warning_amber_rounded),
@@ -424,7 +442,10 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
           );
         },
       ),
-    );
+          const EventLogBody(),
+        ],
+      ),
+    ));
   }
 }
 

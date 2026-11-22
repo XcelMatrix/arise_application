@@ -47,7 +47,7 @@ class _ContactLogoState extends State<ContactLogo> {
 
   Future<void> _load() async {
     final p = widget.path;
-    if (p == null || p.isEmpty) return;
+    if (p == null || p.isEmpty || p.startsWith('asset:')) return;
     try {
       final dir = await getApplicationSupportDirectory();
       final f = File('${dir.path}/contact_logos/${p.replaceAll('/', '_')}');
@@ -66,6 +66,26 @@ class _ContactLogoState extends State<ContactLogo> {
   @override
   Widget build(BuildContext context) {
     final r = widget.radius;
+    final p = widget.path;
+    if (p != null && p.startsWith('asset:')) {
+      // a logo that ships inside the app (assets/images/contact_logos/)
+      return Container(
+        width: r * 2,
+        height: r * 2,
+        decoration:
+            const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+        clipBehavior: Clip.antiAlias,
+        child: Image.asset(
+          'assets/images/contact_logos/${p.substring(6)}',
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => CircleAvatar(
+            radius: r,
+            backgroundColor: widget.color,
+            child: Icon(widget.icon, color: Colors.white),
+          ),
+        ),
+      );
+    }
     if (_file == null) {
       return CircleAvatar(
         radius: r,

@@ -79,6 +79,32 @@ class RowsCubit extends Cubit<RowsState> {
     await load();
   }
 
+  /// Adds a row without reloading and returns its id (the caller reloads).
+  Future<String> insertRow(Map<String, dynamic> values) async {
+    final r = await _sb.from(table).insert(values).select('id').single();
+    return r['id'] as String;
+  }
+
+  /// Saves a new order: ids[0] gets sort_order 1, ids[1] gets 2, and so on.
+  /// Only rows whose number changed are written.
+  Future<void> reorder(List<String> ids) async {
+    final cur = {
+      for (final r in state.rows)
+        r['id'] as String: (r['sort_order'] as num?)?.toInt() ?? 0
+    };
+    final writes = <Future<void>>[];
+    for (var i = 0; i < ids.length; i++) {
+      if (cur[ids[i]] == i + 1) continue;
+      final id = ids[i];
+      final n = i + 1;
+      writes.add(() async {
+        await _sb.from(table).update({'sort_order': n}).eq('id', id);
+      }());
+    }
+    await Future.wait(writes);
+    await load();
+  }
+
   Future<void> edit(String id, Map<String, dynamic> values) async {
     final r = await _sb.from(table).update(values).eq('id', id).select();
     if (r.isEmpty) throw 'You are not allowed to change this.';

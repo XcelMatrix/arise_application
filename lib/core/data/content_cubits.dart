@@ -35,3 +35,34 @@ class BuildingsCubit extends RowsCubit {
 class MarkersCubit extends RowsCubit {
   MarkersCubit() : super('map_markers', orderBy: ['created_at']);
 }
+
+/// The Before / During / After steps of each disaster guideline (with icons).
+class GuidelineItemsCubit extends RowsCubit {
+  GuidelineItemsCubit() : super('guideline_items', orderBy: ['sort_order']);
+
+  /// the steps of one guideline, in order
+  List<Map<String, dynamic>> of(String guidelineId) {
+    final rows = [
+      for (final r in state.rows)
+        if (r['guideline_id'] == guidelineId) r
+    ];
+    rows.sort((a, b) => ((a['sort_order'] as num?) ?? 0)
+        .compareTo((b['sort_order'] as num?) ?? 0));
+    return rows;
+  }
+
+  /// Adds a step so that it ends up at [index] in its guideline.
+  Future<void> insertAt(
+      String guidelineId, int index, Map<String, dynamic> values) async {
+    final id = await insertRow({...values, 'guideline_id': guidelineId});
+    final ids = [for (final r in of(guidelineId)) r['id'] as String];
+    ids.insert(index.clamp(0, ids.length), id);
+    await reorder(ids);
+  }
+}
+
+/// Groups of guidelines ("Emergency guides", "Disasters", ...), editable.
+class GuidelineCategoriesCubit extends RowsCubit {
+  GuidelineCategoriesCubit()
+      : super('guideline_categories', orderBy: ['sort_order', 'name']);
+}

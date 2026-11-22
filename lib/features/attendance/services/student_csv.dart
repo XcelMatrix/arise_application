@@ -80,7 +80,7 @@ class StudentCsv {
     final m = RegExp(r'(\d{1,2})').firstMatch(s);
     if (m == null) return null;
     final n = int.parse(m.group(1)!);
-    return (n >= 1 && n <= 12) ? '$n' : null;
+    return (n >= 7 && n <= 12) ? '$n' : null;
   }
 
   static String _clean(String s) => s.replaceAll(RegExp(r'\s+'), ' ').trim();

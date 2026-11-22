@@ -1,4 +1,5 @@
-import 'dart:typed_data';
+import 'dart:async';
+
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -190,41 +191,67 @@ class ContactsBody extends StatelessWidget {
       'note': note.text.trim().isEmpty ? null : note.text.trim(),
       'category': category,
     };
-    name.dispose();
-    phone.dispose();
-    note.dispose();
+    // let the dialog finish closing before the controllers go away
+    Future.delayed(const Duration(milliseconds: 600), () {
+      name.dispose();
+      phone.dispose();
+      note.dispose();
+    });
     if (ok != true) return;
     if ((values['name'] as String).isEmpty) return;
+    if (!context.mounted) return;
+    final nav = Navigator.of(context, rootNavigator: true);
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      useRootNavigator: true,
+      builder: (_) => const PopScope(
+        canPop: false,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+    );
     try {
-      // upload the new logo first; the contact only points at it once it is saved
-      String? logoPath = oldLogo;
-      if (newLogo != null) {
-        final b = newLogo!;
-        final png = b.length > 3 && b[0] == 0x89 && b[1] == 0x50;
-        logoPath = '${DateTime.now().millisecondsSinceEpoch}.${png ? 'png' : 'jpg'}';
-        await Supabase.instance.client.storage.from(ContactLogo.bucket).uploadBinary(
-            logoPath, b,
-            fileOptions:
-                FileOptions(contentType: png ? 'image/png' : 'image/jpeg'));
-      } else if (removeLogo) {
-        logoPath = null;
-      }
-      values['logo_path'] = logoPath;
-      if (row == null) {
-        await cubit.add({...values, 'sort_order': count + 1});
-      } else {
-        await cubit.edit(row['id'] as String, values);
-      }
-      // tidy up the picture that is no longer used
-      if (oldLogo != null && oldLogo != logoPath) {
-        try {
+      await (() async {
+        // upload the new logo first; the contact only points at it once it is saved
+        String? logoPath = oldLogo;
+        if (newLogo != null) {
+          final b = newLogo!;
+          final png = b.length > 3 && b[0] == 0x89 && b[1] == 0x50;
+          logoPath =
+              '${DateTime.now().millisecondsSinceEpoch}.${png ? 'png' : 'jpg'}';
           await Supabase.instance.client.storage
               .from(ContactLogo.bucket)
-              .remove([oldLogo]);
-        } catch (_) {}
+              .uploadBinary(logoPath, b,
+                  fileOptions:
+                      FileOptions(contentType: png ? 'image/png' : 'image/jpeg'));
+        } else if (removeLogo) {
+          logoPath = null;
+        }
+        values['logo_path'] = logoPath;
+        if (row == null) {
+          await cubit.add({...values, 'sort_order': count + 1});
+        } else {
+          await cubit.edit(row['id'] as String, values);
+        }
+        // tidy up the picture that is no longer used
+        if (oldLogo != null && oldLogo != logoPath) {
+          try {
+            await Supabase.instance.client.storage
+                .from(ContactLogo.bucket)
+                .remove([oldLogo]);
+          } catch (_) {}
+        }
+      })()
+          .timeout(const Duration(seconds: 30));
+    } on TimeoutException {
+      if (context.mounted) {
+        _err(context,
+            'Saving took too long. Check your connection and try again.');
       }
     } catch (e) {
       if (context.mounted) _err(context, e);
+    } finally {
+      if (nav.canPop()) nav.pop();
     }
   }
 

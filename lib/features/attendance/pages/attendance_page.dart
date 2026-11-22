@@ -276,9 +276,9 @@ class _AttendancePageState extends State<AttendancePage> {
                   children: [
                     Expanded(
                       child: Text('Attendance Records',
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontSize: 20,
-                              color: AppColors.body(context),
+                              color: _blue,
                               fontFamily: 'Geist')),
                     ),
                     IconButton(
@@ -290,7 +290,7 @@ class _AttendancePageState extends State<AttendancePage> {
                               height: 20,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: _blue))
-                          : const Icon(Icons.refresh),
+                          : const Icon(Icons.refresh, color: _blue),
                     ),
                   ],
                 ),

@@ -66,7 +66,7 @@ class GuidePage extends StatelessWidget {
                   ),
                   _Section(
                     icon: Icons.view_in_ar,
-                    title: "Evacuation Map controls",
+                    title: "Evacuation Plan controls",
                     lines: [
                       "Drag to move the map.",
                       "Pinch to zoom in and out.",

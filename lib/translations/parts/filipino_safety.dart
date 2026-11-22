@@ -81,7 +81,7 @@ const Map<String, String> filipinoSafetyWords = {
   'Emergency guides': 'Mga gabay sa emergency',
   'These guides are saved in the app and work without internet.': 'Naka-save sa app ang mga gabay na ito at gumagana kahit walang internet.',
   'Call 911': 'Tumawag sa 911',
-  'Event log': 'Talaan ng mga pangyayari',
+  'Incident History': 'Kasaysayan ng mga insidente',
   'Alert': 'Alert',
   'Still active': 'Aktibo pa rin',
   'All clear': 'All clear',

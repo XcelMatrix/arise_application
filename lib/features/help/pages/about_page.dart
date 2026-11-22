@@ -74,7 +74,7 @@ class AboutPage extends StatelessWidget {
           ),
           const _Block(
             icon: Icons.view_in_ar,
-            title: "Evacuation Map (AR)",
+            title: "Evacuation Plan (AR)",
             body:
                 "See the evacuation map in augmented reality, or as a picture if AR is not available on your device.",
           ),

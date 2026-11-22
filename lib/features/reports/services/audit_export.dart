@@ -23,7 +23,7 @@ class AuditExport {
       List<AuditEntry> entries, List<Map<String, dynamic>> alerts) {
     final r = rows(entries, alerts);
     return ExportFiles.document((ctx) => [
-          ExportFiles.h1(Tr.t('Audit log')),
+          ExportFiles.h1(Tr.t('Activity')),
           pw.SizedBox(height: 4),
           pw.Text('${Tr.t('Created')}: ${ExportFiles.dateTime(DateTime.now())}'),
           pw.Text('${Tr.t('Entries')}: ${entries.length}'),
@@ -38,10 +38,10 @@ class AuditExport {
   static Future<void> sharePdf(
           List<AuditEntry> e, List<Map<String, dynamic>> alerts) =>
       ExportFiles.sharePdf(ExportFiles.stem('audit_log', DateTime.now()),
-          pdf(e, alerts), 'ARISE audit log');
+          pdf(e, alerts), 'ARISE activity log');
 
   static Future<void> shareCsv(
           List<AuditEntry> e, List<Map<String, dynamic>> alerts) =>
       ExportFiles.shareCsv(ExportFiles.stem('audit_log', DateTime.now()),
-          rows(e, alerts), 'ARISE audit log');
+          rows(e, alerts), 'ARISE activity log');
 }

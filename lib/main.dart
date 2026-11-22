@@ -92,6 +92,10 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<GuidelinesCubit>(
             create: (context) => GuidelinesCubit()..load()),
+        BlocProvider<GuidelineItemsCubit>(
+            create: (context) => GuidelineItemsCubit()..load()),
+        BlocProvider<GuidelineCategoriesCubit>(
+            create: (context) => GuidelineCategoriesCubit()..load()),
         BlocProvider<ContactsCubit>(create: (context) => ContactsCubit()..load()),
         BlocProvider<ClassListsCubit>(
             create: (context) => ClassListsCubit()..load()),
@@ -206,6 +210,8 @@ Widget _appShell(BuildContext context, SettingsState settings,
             // back online: refresh everything that was showing a saved copy
             context.read<DrillCubit>().flushOutbox();
             context.read<GuidelinesCubit>().load();
+            context.read<GuidelineItemsCubit>().load();
+            context.read<GuidelineCategoriesCubit>().load();
             context.read<ContactsCubit>().load();
             context.read<ClassListsCubit>().load();
             context.read<AnnouncementsCubit>().load();

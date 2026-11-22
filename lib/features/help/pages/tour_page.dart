@@ -58,7 +58,7 @@ class _TourPageState extends State<TourPage> {
       Icons.shield_outlined,
     ),
     _Slide(
-      'Evacuation Map',
+      'Evacuation Plan',
       'View the evacuation map in AR. Drag to move, pinch to zoom, twist to rotate. If AR is not available, a map image is shown instead.',
       'assets/images/evacuation_banner.png',
       Icons.view_in_ar,
