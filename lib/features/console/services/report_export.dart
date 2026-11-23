@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 import 'package:arise_application/features/console/cubit/drill_cubit.dart';
 import 'package:arise_application/features/attendance/models/attendance_models.dart';
 import 'package:arise_application/features/console/models/drill_record.dart';
+import 'package:arise_application/features/reports/services/export_files.dart';
 
 /// Drill report as a PDF or a CSV (opens in Excel / Sheets), shared through
 /// the phone's share sheet (save to Files, Drive, email, ...).
@@ -61,65 +61,47 @@ class ReportExport {
   }
 
   static Future<pw.Document> pdf(DrillRecord r) async {
-    final doc = pw.Document();
     final totals = [
       for (final s in AttendanceStatus.values) [s.label, '${r.total(s)}'],
     ];
-    doc.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(36),
-        build: (ctx) => [
-          pw.Text('ARISE Drill Report',
-              style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 6),
+    final noNames = r.reports.every((x) =>
+        x.namesFor(AttendanceStatus.missing).isEmpty &&
+        x.namesFor(AttendanceStatus.injured).isEmpty);
+    return ExportFiles.document((ctx) => [
+          ExportFiles.h1('Drill Report'),
+          pw.SizedBox(height: 8),
           pw.Text('Started: ${drillDate(r.started)}'),
           pw.Text('Status: ${r.status}'),
           if (r.type.isNotEmpty) pw.Text('Emergency: ${r.type}'),
           if (r.duration != null)
-            pw.Text('Evacuation time: ${DrillCubit.formatDurationWords(r.duration!)}'),
-          pw.Text('Reports sent: ${r.reports.where((x) => x.submitted).length} of ${r.reports.length}'),
-          pw.SizedBox(height: 14),
-          pw.Text('Totals',
-              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 4),
-          pw.TableHelper.fromTextArray(
-            headers: ['Status', 'Students'],
-            data: totals,
-            cellAlignment: pw.Alignment.centerLeft,
-          ),
-          pw.SizedBox(height: 14),
-          pw.Text('Sections',
-              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 4),
-          pw.TableHelper.fromTextArray(
-            headers: ['Section', 'Site', 'Present', 'Absent', 'Missing', 'Injured', 'Sent'],
-            data: [
+            pw.Text(
+                'Evacuation time: ${DrillCubit.formatDurationWords(r.duration!)}'),
+          pw.Text(
+              'Reports sent: ${r.reports.where((x) => x.submitted).length} of ${r.reports.length}'),
+          ExportFiles.h2('Totals'),
+          ExportFiles.table(['Status', 'Students'], totals),
+          ExportFiles.h2('Sections'),
+          ExportFiles.table(
+            ['Section', 'Site', 'Present', 'Absent', 'Missing', 'Injured', 'Sent'],
+            [
               for (final x in r.reports)
                 [
                   x.consoleLabel, x.site, '${x.present}', '${x.absent}',
                   '${x.missing}', '${x.injured}', x.submitted ? 'Yes' : 'No',
                 ],
             ],
-            cellAlignment: pw.Alignment.centerLeft,
-            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
           ),
-          pw.SizedBox(height: 14),
-          pw.Text('Missing and injured students',
-              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-          pw.SizedBox(height: 4),
-          if (r.reports.every((x) =>
-              x.namesFor(AttendanceStatus.missing).isEmpty &&
-              x.namesFor(AttendanceStatus.injured).isEmpty))
-            pw.Text('None'),
+          ExportFiles.h2('Missing and injured students'),
+          if (noNames) pw.Text('None'),
           for (final x in r.reports)
             for (final s in [AttendanceStatus.missing, AttendanceStatus.injured])
               if (x.namesFor(s).isNotEmpty)
-                pw.Text('${x.consoleLabel}  ${s.label}: ${x.namesFor(s).join(', ')}'),
-        ],
-      ),
-    );
-    return doc;
+                pw.Padding(
+                  padding: const pw.EdgeInsets.only(bottom: 2),
+                  child: pw.Text(
+                      '${x.consoleLabel}  ${s.label}: ${x.namesFor(s).join(', ')}'),
+                ),
+        ]);
   }
 
   static Future<File> _write(String name, List<int> bytes) async {

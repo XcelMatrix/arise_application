@@ -146,8 +146,8 @@ class GuidelinesBody extends StatelessWidget {
               children: [
                 FloatingActionButton.extended(
                   heroTag: 'add_guideline_category',
-                  backgroundColor: Colors.white,
-                  foregroundColor: _blue,
+                  backgroundColor: _blue,
+                  foregroundColor: Colors.white,
                   onPressed: () =>
                       editGuidelineCategory(context, count: cats.length),
                   icon: const Icon(Icons.create_new_folder),

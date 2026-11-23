@@ -16,6 +16,8 @@ import 'package:arise_application/features/attendance/models/attendance_models.d
 import 'package:arise_application/features/attendance/pages/attendance_report_page.dart';
 import 'package:arise_application/features/home/pages/home_page.dart';
 import 'package:arise_application/features/attendance/widgets/report_form_dialog.dart';
+import 'package:arise_application/core/data/content_cubits.dart';
+import 'package:arise_application/features/resources/data/guideline_icons.dart';
 
 /// Table of the user's attendance reports. Tap a row to open it, tap
 /// "Add Attendance" to create a new one.
@@ -80,12 +82,6 @@ class _AttendancePageState extends State<AttendancePage> {
       _toast('Could not create attendance: ${DrillCubit.describe(e)}');
     }
   }
-
-  TextStyle _head(BuildContext context) => TextStyle(
-      fontWeight: FontWeight.bold,
-      fontFamily: 'Geist',
-      color: AppColors.body(context));
-  static const _cell = TextStyle(fontFamily: 'Geist', fontSize: 14);
 
   String _statusText(AttendanceReport r) {
     if (r.students.isEmpty && !r.submitted) return 'No students';
@@ -211,28 +207,13 @@ class _AttendancePageState extends State<AttendancePage> {
             .map((e) => e.value)
             .toList(),
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // saved class lists
-          FloatingActionButton(
-            heroTag: 'fab_class_lists',
-            tooltip: tr(context, 'Class lists'),
-            backgroundColor: _blue,
-            onPressed: () => Navigator.push(context, ClassListsPage.route()),
-            child: const Icon(Icons.groups, color: Colors.white),
-          ),
-          const SizedBox(height: 12),
-          FloatingActionButton.extended(
-            heroTag: 'fab_add_attendance',
-            backgroundColor: _blue,
-            onPressed: _add,
-            icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text('Add Attendance',
-                style: TextStyle(color: Colors.white, fontFamily: 'Geist')),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab_add_attendance',
+        backgroundColor: _blue,
+        onPressed: _add,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Add Attendance',
+            style: TextStyle(color: Colors.white, fontFamily: 'Geist')),
       ),
       body: BlocBuilder<DrillCubit, DrillState>(
         builder: (context, state) {
@@ -274,7 +255,13 @@ class _AttendancePageState extends State<AttendancePage> {
                 padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
                 child: Row(
                   children: [
-                    const SizedBox(width: 48), // balances the refresh button
+                    // saved class lists, on the left of the title
+                    IconButton(
+                      tooltip: tr(context, 'Class Lists'),
+                      onPressed: () =>
+                          Navigator.push(context, ClassListsPage.route()),
+                      icon: const Icon(Icons.groups, color: _blue),
+                    ),
                     Expanded(
                       child: Text('Attendance Records',
                           textAlign: TextAlign.center,
@@ -313,50 +300,19 @@ class _AttendancePageState extends State<AttendancePage> {
                     : RefreshIndicator(
                         color: _blue,
                         onRefresh: _refresh,
-                        child: ListView(
-                          padding: const EdgeInsets.only(bottom: 96),
-                          children: [
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: DataTable(
-                                showCheckboxColumn: false,
-                                columnSpacing: 28,
-                                headingTextStyle: _head(context),
-                                dataTextStyle: _cell,
-                                columns: const [
-                                  DataColumn(label: Text('Timestamp')),
-                                  DataColumn(label: Text('Grade & Section')),
-                                  DataColumn(label: Text('Emergency')),
-                                  DataColumn(label: Text('Site')),
-                                  DataColumn(label: Text('Status')),
-                                ],
-                                rows: [
-                                  for (final r in state.mine)
-                                    DataRow(
-                                      onSelectChanged: (_) => Navigator.push(
-                                          context,
-                                          AttendanceReportPage.route(r.id)),
-                                      cells: [
-                                        DataCell(Text(formatStamp(r.eventTime))),
-                                        DataCell(Text(r.label)),
-                                        DataCell(Text(r.emergencyType)),
-                                        DataCell(Text(r.site)),
-                                        DataCell(Text(
-                                          _statusText(r),
-                                          style: TextStyle(
-                                            fontFamily: 'Geist',
-                                            fontWeight: FontWeight.bold,
-                                            color: r.submitted
-                                                ? const Color(0xFF2E7D32)
-                                                : Colors.grey.shade700,
-                                          ),
-                                        )),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
+                        child: ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
+                          itemCount: state.mine.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 12),
+                          itemBuilder: (context, i) {
+                            final r = state.mine[i];
+                            return _RecordCard(
+                              report: r,
+                              status: _statusText(r),
+                              onTap: () => Navigator.push(
+                                  context, AttendanceReportPage.route(r.id)),
+                            );
+                          },
                         ),
                       ),
               ),
@@ -364,6 +320,170 @@ class _AttendancePageState extends State<AttendancePage> {
           );
         },
       ),
+    );
+  }
+}
+
+
+/// One attendance record as a card: the disaster's icon, the class, when and
+/// where, and the Present / Absent / Missing / Injured counts.
+class _RecordCard extends StatelessWidget {
+  const _RecordCard(
+      {required this.report, required this.status, required this.onTap});
+
+  final AttendanceReport report;
+  final String status;
+  final VoidCallback onTap;
+
+  static const _blue = Color(0xFF3C6E87);
+
+  IconData _icon(BuildContext context) {
+    final type = report.emergencyType;
+    if (type != 'Other' && emergencyTypes.contains(type)) {
+      for (final g in context.watch<GuidelinesCubit>().state.rows) {
+        if ('${g['title']}'.toLowerCase() == type.toLowerCase()) {
+          final spec = g['icon'] as String?;
+          if (spec != null &&
+              spec.startsWith('i:') &&
+              GuidelineIcons.map.containsKey(spec.substring(2))) {
+            return GuidelineIcons.map[spec.substring(2)]!;
+          }
+        }
+      }
+    }
+    return Icons.warning_amber;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final r = report;
+    final sent = r.submitted;
+    final pill = sent ? const Color(0xFF2E7D32) : _blue;
+    return Material(
+      color: AppColors.card(context),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _blue.withValues(alpha: 0.45), width: 1.2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: _blue,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(_icon(context), color: Colors.white, size: 26),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text.verbatim(r.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: _blue,
+                                fontFamily: 'Geist')),
+                        const SizedBox(height: 2),
+                        Text(r.emergencyType,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 14,
+                                color: _blue,
+                                fontFamily: 'Geist')),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: pill.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: pill),
+                    ),
+                    child: Text(status,
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: pill,
+                            fontFamily: 'Geist')),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              _line(Icons.schedule, formatStamp(r.eventTime)),
+              if (r.site.isNotEmpty) _line(Icons.place, r.site),
+              if (r.students.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    for (final s in AttendanceStatus.values) ...[
+                      Expanded(child: _count(context, s)),
+                      if (s != AttendanceStatus.values.last)
+                        const SizedBox(width: 6),
+                    ],
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _line(IconData icon, String text) => Padding(
+        padding: const EdgeInsets.only(top: 2),
+        child: Row(children: [
+          Icon(icon, size: 16, color: _blue),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text.verbatim(text,
+                style: const TextStyle(
+                    fontSize: 13, color: _blue, fontFamily: 'Geist')),
+          ),
+        ]),
+      );
+
+  Widget _count(BuildContext context, AttendanceStatus s) {
+    final n = report.students.where((x) => x.status == s).length;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        color: s.color.withValues(alpha: dark ? 0.30 : 0.12),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(children: [
+        Text.verbatim('$n',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: s.color,
+                fontFamily: 'Geist')),
+        Text(s.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                fontSize: 10, color: s.color, fontFamily: 'Geist')),
+      ]),
     );
   }
 }

@@ -9,6 +9,8 @@ import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/translations/translation.dart';
 import 'package:arise_application/features/attendance/models/attendance_models.dart' show gradeOptions;
 import 'package:arise_application/core/theme/app_colors.dart';
+import 'package:arise_application/core/widgets/app_drawer.dart';
+import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:arise_application/features/attendance/services/student_csv.dart';
 
 /// A teacher's saved class lists: name, grade, section and student names.
@@ -237,21 +239,16 @@ class ClassListsPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _blue,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Class lists'),
+        title: const Text('Class Lists'),
         titleTextStyle: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,
             fontFamily: 'Geist'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            tooltip: tr(context, 'Import students from a spreadsheet'),
-            icon: const Icon(Icons.upload_file),
-            onPressed: () => _import(context),
-          ),
-        ],
+        actions: const [ProfileMenuButton()],
       ),
+      endDrawer: const AppDrawer(),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: _blue,
         foregroundColor: Colors.white,
@@ -259,7 +256,27 @@ class ClassListsPage extends StatelessWidget {
         icon: const Icon(Icons.add),
         label: const Text('New list'),
       ),
-      body: !s.loaded
+      body: Column(
+        children: [
+          // just below the top bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _blue,
+                  side: const BorderSide(color: _blue),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                onPressed: () => _import(context),
+                icon: const Icon(Icons.upload_file),
+                label: const Text('Import students from a spreadsheet'),
+              ),
+            ),
+          ),
+          Expanded(
+            child: !s.loaded
           ? const FlashingLogo()
           : s.rows.isEmpty
               ? const Center(
@@ -315,6 +332,9 @@ class ClassListsPage extends StatelessWidget {
                       ),
                   ],
                 ),
+          ),
+        ],
+      ),
     );
   }
 }

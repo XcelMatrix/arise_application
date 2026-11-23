@@ -63,32 +63,55 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
 
   Future<void> _rename(Map<String, dynamic> row, {bool building = false}) async {
     final c = TextEditingController(text: row['name'] as String);
-    final name = await showDialog<String>(
+    final d = TextEditingController(text: '${row['description'] ?? ''}');
+    final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(building ? 'Rename building' : 'Rename map'),
-        content: TextField(
-          controller: c,
-          maxLength: building ? 80 : 100,
-          decoration: InputDecoration(labelText: tr(ctx, 'Name')),
+        title: Text(building ? 'Edit building' : 'Edit floor'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: c,
+                maxLength: building ? 80 : 100,
+                decoration: InputDecoration(labelText: tr(ctx, 'Name')),
+              ),
+              TextField(
+                controller: d,
+                minLines: 3,
+                maxLines: 8,
+                maxLength: 600,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                    labelText: tr(ctx, 'Description (optional)')),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () => Navigator.pop(ctx, false),
               child: const Text('Cancel')),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, c.text.trim()),
+              onPressed: () => Navigator.pop(ctx, true),
               child: const Text('Save')),
         ],
       ),
     );
-    c.dispose();
-    if (name == null || name.isEmpty || name == row['name'] || !mounted) return;
+    final name = c.text.trim();
+    final desc = d.text.trim();
+    Future.delayed(const Duration(milliseconds: 600), () {
+      c.dispose();
+      d.dispose();
+    });
+    if (ok != true || name.isEmpty || !mounted) return;
+    final values = {'name': name, 'description': desc.isEmpty ? null : desc};
     try {
       if (building) {
-        await context.read<BuildingsCubit>().edit(row['id'] as String, {'name': name});
+        await context.read<BuildingsCubit>().edit(row['id'] as String, values);
       } else {
-        await context.read<MapsCubit>().edit(row['id'] as String, {'name': name});
+        await context.read<MapsCubit>().edit(row['id'] as String, values);
       }
     } on PostgrestException catch (e) {
       _toast(e.code == '23505' ? 'That name is already used.' : e.message);
@@ -162,8 +185,15 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
               fontWeight: FontWeight.bold,
               color: AppColors.text(context),
               fontFamily: 'Geist')),
-      subtitle: Text.verbatim(
-          '${isModel ? '3D' : '2D'} · ${_size((r['size_bytes'] as num?)?.toInt())}'),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text.verbatim(
+              '${isModel ? '3D' : '2D'} · ${_size((r['size_bytes'] as num?)?.toInt())}'),
+          if ('${r['description'] ?? ''}'.trim().isNotEmpty)
+            Text.verbatim('${r['description']}'.trim()),
+        ],
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -187,7 +217,7 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
             itemBuilder: (_) => [
               if (r['is_current'] != true)
                 const PopupMenuItem(value: 'use', child: Text('Show this floor first')),
-              const PopupMenuItem(value: 'rename', child: Text('Rename')),
+              const PopupMenuItem(value: 'rename', child: Text('Edit name and description')),
               const PopupMenuItem(value: 'delete', child: Text('Delete')),
             ],
           ),
@@ -218,13 +248,20 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
                     fontWeight: FontWeight.bold,
                     color: _blue,
                     fontFamily: 'Geist')),
-            subtitle: Text.verbatim('${maps.length} ${tr(context, maps.length == 1 ? 'map' : 'maps')}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.verbatim('${maps.length} ${tr(context, maps.length == 1 ? 'map' : 'maps')}'),
+                if ('${b['description'] ?? ''}'.trim().isNotEmpty)
+                  Text.verbatim('${b['description']}'.trim()),
+              ],
+            ),
             trailing: PopupMenuButton<String>(
               onSelected: (v) => v == 'rename'
                   ? _rename(b, building: true)
                   : _deleteBuilding(b, maps),
               itemBuilder: (_) => const [
-                PopupMenuItem(value: 'rename', child: Text('Rename building')),
+                PopupMenuItem(value: 'rename', child: Text('Edit name and description')),
                 PopupMenuItem(value: 'delete', child: Text('Delete building')),
               ],
             ),

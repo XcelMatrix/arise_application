@@ -19,9 +19,9 @@ const _green = Color(0xFF2E7D32);
 /// The kinds of contact you can pick. The order here is the order on the page.
 /// ('other' is only for older contacts that don't fit; it can't be picked.)
 const _categories = <String, (IconData, Color, String)>{
-  'fire': (Icons.local_fire_department, Color(0xFFE65100), 'Fire Station'),
   'school': (Icons.school, Color(0xFF3C6E87), 'School'),
   'hospital': (Icons.local_hospital, Color(0xFFC62828), 'Hospital'),
+  'fire': (Icons.local_fire_department, Color(0xFFE65100), 'Fire Station'),
   'police': (Icons.local_police, Color(0xFF283593), 'Police Station'),
   'other': (Icons.contact_phone, Color(0xFF546E7A), 'Other'),
 };
@@ -39,6 +39,11 @@ String _catKey(Object? v) {
 }
 
 int _rankOf(Map<String, dynamic> r) {
+  // the School Emergency Response Team (sort_order 0) always comes first
+  if (r['name'] == 'School Emergency Response Team' ||
+      (r['sort_order'] is num && (r['sort_order'] as num) <= 0)) {
+    return -1;
+  }
   final i = _categories.keys.toList().indexOf(_catKey(r['category']));
   return i < 0 ? _categories.length : i;
 }

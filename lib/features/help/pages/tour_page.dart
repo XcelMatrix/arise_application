@@ -122,6 +122,30 @@ class _TourPageState extends State<TourPage> {
       child: Center(child: Icon(s.icon, size: 96, color: Colors.white)),
     );
     if (s.image == null) return fallback;
+    if (s.image == 'assets/icons/icon.png') {
+      // first slide: the ARISE icon with the ARISE wordmark under it, as on
+      // the login page but bigger, centred and always inside the screen
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              flex: 5,
+              child: Image.asset('assets/icons/icon.png',
+                  fit: BoxFit.contain, errorBuilder: (_, _, _) => fallback),
+            ),
+            const SizedBox(height: 12),
+            Flexible(
+              flex: 2,
+              child: Image.asset('assets/logo.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => const SizedBox.shrink()),
+            ),
+          ],
+        ),
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: Image.asset(

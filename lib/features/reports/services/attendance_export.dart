@@ -1,3 +1,4 @@
+import 'package:arise_application/features/reports/models/drill_assessment.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:arise_application/features/attendance/models/attendance_models.dart';
 import 'package:arise_application/features/console/cubit/drill_cubit.dart';
@@ -132,12 +133,15 @@ class AttendanceExport {
 
   // ------------------------------------------------------------ drill summary
 
-  static List<List<Object?>> drillsCsv(List<DrillRecord> drills) => [
+  static List<List<Object?>> drillsCsv(List<DrillRecord> drills,
+          [Map<String, DrillAssessment> assessments = const {}]) => [
         [
           Tr.t('Drill started'), Tr.t('Emergency'), Tr.t('Status'),
           Tr.t('Evacuation time'), Tr.t('Reports sent'), Tr.t('Students'),
           _status(AttendanceStatus.present), _status(AttendanceStatus.absent),
           _status(AttendanceStatus.missing), _status(AttendanceStatus.injured),
+          Tr.t('Assessment score (%)'), Tr.t('Assessment rating'),
+          Tr.t('Assessment notes'),
         ],
         for (final d in drills)
           [
@@ -147,13 +151,18 @@ class AttendanceExport {
             d.reports.where((r) => r.submitted).fold<int>(0, (a, r) => a + r.total),
             d.total(AttendanceStatus.present), d.total(AttendanceStatus.absent),
             d.total(AttendanceStatus.missing), d.total(AttendanceStatus.injured),
+            assessments[d.id]?.score ?? '',
+            assessments[d.id] == null ? '' : Tr.t(assessments[d.id]!.rating),
+            assessments[d.id]?.notes ?? '',
           ],
       ];
 
   static String _drillStatus(String s) =>
       s == 'complete' ? 'Complete' : s == 'cancelled' ? 'Cancelled' : s;
 
-  static pw.Document drillsPdf(List<DrillRecord> drills, {required String period}) {
+  static pw.Document drillsPdf(List<DrillRecord> drills,
+      {required String period,
+      Map<String, DrillAssessment> assessments = const {}}) {
     final done = drills.where((d) => d.status == 'complete').toList();
     final times = [for (final d in done) if (d.duration != null) d.duration!];
     final avg = times.isEmpty
@@ -188,6 +197,22 @@ class AttendanceExport {
                 '${d.total(AttendanceStatus.missing)}', '${d.total(AttendanceStatus.injured)}',
               ],
           ]),
+          if (drills.any((d) => assessments.containsKey(d.id))) ...[
+            ExportFiles.h2(Tr.t('Drill assessment')),
+            ExportFiles.table([
+              Tr.t('Drill started'), Tr.t('Assessment score (%)'),
+              Tr.t('Assessment rating'), Tr.t('Assessment notes'),
+            ], [
+              for (final d in drills)
+                if (assessments[d.id] != null)
+                  [
+                    drillDate(d.started),
+                    '${assessments[d.id]!.score}',
+                    Tr.t(assessments[d.id]!.rating),
+                    assessments[d.id]!.notes,
+                  ],
+            ]),
+          ],
         ]);
   }
 }

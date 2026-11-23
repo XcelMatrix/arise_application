@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
+import 'package:arise_application/core/widgets/app_drawer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
@@ -8,6 +10,7 @@ import 'package:arise_application/features/account/cubit/account_cubit.dart';
 import 'package:arise_application/features/console/cubit/drill_cubit.dart';
 import 'package:arise_application/features/attendance/models/attendance_models.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
+import 'package:arise_application/features/resources/data/guideline_icons.dart';
 import 'package:arise_application/features/attendance/widgets/report_form_dialog.dart';
 
 /// One attendance report. Grade, section, site, emergency type and
@@ -259,43 +262,9 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                 color: Colors.white,
                 fontFamily: 'Geist'),
             centerTitle: true,
-            actions: [
-PopupMenuButton<String>(
-                iconColor: Colors.white,
-                onSelected: (v) {
-                  if (v == 'present') _markAllPresent();
-                  if (v == 'import') _importList(report);
-                  if (v == 'save') _saveAsList(report);
-                  if (v == 'edit') _edit(report);
-                  if (v == 'delete') _delete(report);
-                },
-                itemBuilder: (_) => [
-                  PopupMenuItem(
-                    value: 'present',
-                    enabled: report.students.isNotEmpty,
-                    child: const Text('Mark all present'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'import',
-                    child: Text('Add from class list'),
-                  ),
-                  PopupMenuItem(
-                    value: 'save',
-                    enabled: report.students.isNotEmpty,
-                    child: const Text('Save as class list'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'edit',
-                    child: Text('Edit details'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: Text('Delete attendance'),
-                  ),
-                ],
-              ),
-            ],
+            actions: const [ProfileMenuButton()],
           ),
+          endDrawer: const AppDrawer(),
           body: Column(
             children: [
               if (state.drillActive)
@@ -323,14 +292,58 @@ PopupMenuButton<String>(
                   color: AppColors.soft(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Column(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _InfoRow(Icons.schedule, formatStamp(report.eventTime)),
-                    _InfoRow(Icons.groups,
-                        'Grade ${report.grade} - ${report.section}'),
-                    _InfoRow(Icons.place, report.site),
-                    _InfoRow(Icons.warning_amber, report.emergencyType),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _InfoRow(Icons.schedule, formatStamp(report.eventTime)),
+                          _InfoRow(Icons.groups,
+                              'Grade ${report.grade} - ${report.section}'),
+                          _InfoRow(Icons.place, report.site),
+                          _EmergencyRow(report.emergencyType),
+                        ],
+                      ),
+                    ),
+                    // the actions menu lives in the details card
+                    PopupMenuButton<String>(
+                                    iconColor: const Color(0xFF3C6E87),
+                                    padding: EdgeInsets.zero,
+                                    tooltip: tr(context, 'More'),
+                                    onSelected: (v) {
+                                      if (v == 'present') _markAllPresent();
+                                      if (v == 'import') _importList(report);
+                                      if (v == 'save') _saveAsList(report);
+                                      if (v == 'edit') _edit(report);
+                                      if (v == 'delete') _delete(report);
+                                    },
+                                    itemBuilder: (_) => [
+                                      PopupMenuItem(
+                                        value: 'present',
+                                        enabled: report.students.isNotEmpty,
+                                        child: const Text('Mark all present'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'import',
+                                        child: Text('Add from class list'),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'save',
+                                        enabled: report.students.isNotEmpty,
+                                        child: const Text('Save as class list'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'edit',
+                                        child: Text('Edit details'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Delete attendance'),
+                                      ),
+                                    ],
+                                  ),
                   ],
                 ),
               ),
@@ -726,6 +739,56 @@ class _RenameDialogState extends State<_RenameDialog> {
           child: const Text('Save'),
         ),
       ],
+    );
+  }
+}
+
+
+/// The emergency line: the same icon the disaster has in the Guidelines, or the
+/// warning triangle when it is not one of the listed disasters (picked "Other").
+class _EmergencyRow extends StatelessWidget {
+  const _EmergencyRow(this.type);
+  final String type;
+
+  @override
+  Widget build(BuildContext context) {
+    String? spec;
+    if (type != 'Other' && emergencyTypes.contains(type)) {
+      for (final g in context.watch<GuidelinesCubit>().state.rows) {
+        if ('${g['title']}'.toLowerCase() == type.toLowerCase()) {
+          spec = g['icon'] as String?;
+          break;
+        }
+      }
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          // drawn exactly like the other rows: a plain dark cyan icon, 18 px
+          if (spec != null && spec.startsWith('i:') &&
+              GuidelineIcons.map.containsKey(spec.substring(2)))
+            Icon(GuidelineIcons.map[spec.substring(2)],
+                size: 18, color: const Color(0xFF3C6E87))
+          else if (spec != null && spec.isNotEmpty)
+            SizedBox(
+                width: 18,
+                height: 18,
+                child: GuidelineIcon(
+                    spec: spec, fallback: Icons.warning_amber, size: 18))
+          else
+            const Icon(Icons.warning_amber,
+                size: 18, color: Color(0xFF3C6E87)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(type,
+                style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF3C6E87),
+                    fontFamily: 'Geist')),
+          ),
+        ],
+      ),
     );
   }
 }

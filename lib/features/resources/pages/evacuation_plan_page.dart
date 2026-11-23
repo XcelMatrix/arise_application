@@ -90,6 +90,8 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
     final cubit = context.read<BuildingsCubit>();
     final count = cubit.state.rows.length;
     final nameC = TextEditingController(text: (row?['name'] as String?) ?? '');
+    final descC =
+        TextEditingController(text: (row?['description'] as String?) ?? '');
     final oldImage = row?['image_path'] as String?;
     Uint8List? picked;
     var removed = false;
@@ -150,6 +152,15 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
                       labelText: tr(ctx, 'Building name'),
                       hintText: tr(ctx, 'e.g. Science building')),
                 ),
+                TextField(
+                  controller: descC,
+                  minLines: 3,
+                  maxLines: 8,
+                  maxLength: 600,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                      labelText: tr(ctx, 'Description (optional)')),
+                ),
               ],
             ),
           ),
@@ -165,8 +176,12 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
       ),
     );
     final name = nameC.text.trim();
+    final desc = descC.text.trim();
     // let the dialog finish closing before the controller goes away
-    Future.delayed(const Duration(milliseconds: 600), nameC.dispose);
+    Future.delayed(const Duration(milliseconds: 600), () {
+      nameC.dispose();
+      descC.dispose();
+    });
     if (ok != true || name.isEmpty || !mounted) return;
 
     String? uploaded;
@@ -179,12 +194,17 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
       if (row == null) {
         await cubit.add({
           'name': name,
+          'description': desc.isEmpty ? null : desc,
           'image_path': imagePath,
           'sort_order': count + 1,
         });
       } else {
         await cubit
-            .edit(row['id'] as String, {'name': name, 'image_path': imagePath});
+            .edit(row['id'] as String, {
+          'name': name,
+          'description': desc.isEmpty ? null : desc,
+          'image_path': imagePath,
+        });
       }
       uploaded = null;
       if (oldImage != null && oldImage != imagePath) {
@@ -408,16 +428,47 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
                         style: const TextStyle(color: Colors.grey)),
                   ),
                 )
-              : GridView.count(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 1,
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, canEdit ? 96 : 16),
-                  children: [
-                    for (final b in buildings.rows)
-                      _card(b, canEdit, hasModel, hasImage),
-                  ],
+              : LayoutBuilder(
+                  builder: (context, box) {
+                    final w = (box.maxWidth - 32 - 14) / 2;
+                    return SingleChildScrollView(
+                      padding:
+                          EdgeInsets.fromLTRB(16, 16, 16, canEdit ? 96 : 16),
+                      child: Wrap(
+                        spacing: 14,
+                        runSpacing: 14,
+                        children: [
+                          for (final b in buildings.rows)
+                            SizedBox(
+                              width: w,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AspectRatio(
+                                    aspectRatio: 1,
+                                    child: _card(b, canEdit, hasModel, hasImage),
+                                  ),
+                                  // the whole description, however long
+                                  if ('${b['description'] ?? ''}'.trim().isNotEmpty)
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(4, 8, 4, 0),
+                                      child: Text.verbatim(
+                                        '${b['description']}'.trim(),
+                                        style: const TextStyle(
+                                            fontSize: 13,
+                                            height: 1.3,
+                                            color: _blue,
+                                            fontFamily: 'Geist'),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
     );
   }

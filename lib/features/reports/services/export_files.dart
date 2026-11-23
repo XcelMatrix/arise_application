@@ -51,14 +51,47 @@ class ExportFiles {
         files: [XFile(f.path, mimeType: 'application/pdf')], subject: subject));
   }
 
-  // ---- small PDF building blocks ----
-  static pw.Widget h1(String t) => pw.Text(t,
-      style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold));
+  // ---- small PDF building blocks (styled like the app: dark cyan) ----
+  static const cyan = PdfColor.fromInt(0xFF3C6E87);
+  static const cyanLight = PdfColor.fromInt(0xFFE4F2F9);
 
+  /// Dark cyan banner with the ARISE name and the document title.
+  static pw.Widget h1(String t) => pw.Container(
+        width: double.infinity,
+        padding: const pw.EdgeInsets.fromLTRB(16, 14, 16, 14),
+        decoration: pw.BoxDecoration(
+          color: cyan,
+          borderRadius: pw.BorderRadius.circular(10),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text('ARISE',
+                style: pw.TextStyle(
+                    fontSize: 11,
+                    letterSpacing: 3,
+                    fontWeight: pw.FontWeight.bold,
+                    color: cyanLight)),
+            pw.SizedBox(height: 4),
+            pw.Text(t,
+                style: pw.TextStyle(
+                    fontSize: 22,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.white)),
+          ],
+        ),
+      );
+
+  /// Section heading with a dark cyan bar beside it.
   static pw.Widget h2(String t) => pw.Padding(
-        padding: const pw.EdgeInsets.only(top: 14, bottom: 4),
-        child: pw.Text(t,
-            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+        padding: const pw.EdgeInsets.only(top: 16, bottom: 6),
+        child: pw.Row(children: [
+          pw.Container(width: 4, height: 16, color: cyan),
+          pw.SizedBox(width: 8),
+          pw.Text(t,
+              style: pw.TextStyle(
+                  fontSize: 14, fontWeight: pw.FontWeight.bold, color: cyan)),
+        ]),
       );
 
   static pw.Widget table(List<String> headers, List<List<String>> data) =>
@@ -66,9 +99,19 @@ class ExportFiles {
         headers: headers,
         data: data,
         cellAlignment: pw.Alignment.centerLeft,
-        headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
-        cellStyle: const pw.TextStyle(fontSize: 9.5),
+        headerStyle: pw.TextStyle(
+            fontWeight: pw.FontWeight.bold,
+            fontSize: 9.5,
+            color: PdfColors.white),
+        headerDecoration: const pw.BoxDecoration(color: cyan),
+        cellStyle: const pw.TextStyle(fontSize: 9.5, color: PdfColors.grey900),
+        cellPadding:
+            const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 4),
+        border: pw.TableBorder(
+          horizontalInside: const pw.BorderSide(color: cyanLight, width: 0.8),
+          bottom: const pw.BorderSide(color: cyan, width: 1),
+        ),
+        oddRowDecoration: const pw.BoxDecoration(color: cyanLight),
       );
 
   static pw.Document document(List<pw.Widget> Function(pw.Context) build) {
@@ -76,6 +119,24 @@ class ExportFiles {
     doc.addPage(pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.all(36),
+      footer: (ctx) => pw.Container(
+        margin: const pw.EdgeInsets.only(top: 10),
+        padding: const pw.EdgeInsets.only(top: 6),
+        decoration: const pw.BoxDecoration(
+            border: pw.Border(top: pw.BorderSide(color: cyan, width: 1))),
+        child: pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text('ARISE',
+                style: pw.TextStyle(
+                    fontSize: 9,
+                    fontWeight: pw.FontWeight.bold,
+                    color: cyan)),
+            pw.Text('${ctx.pageNumber} / ${ctx.pagesCount}',
+                style: const pw.TextStyle(fontSize: 9, color: cyan)),
+          ],
+        ),
+      ),
       build: build,
     ));
     return doc;

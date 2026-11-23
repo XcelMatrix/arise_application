@@ -480,6 +480,49 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
 
   // ---------------- floor chooser + markers (shared) ----------------
 
+  /// The building's description and the shown floor's description, in full.
+  /// A long text scrolls inside the panel instead of being cut off.
+  Widget _info({required bool ar}) {
+    String bDesc = '';
+    for (final b in context.watch<BuildingsCubit>().state.rows) {
+      if (b['id'] == _buildingId) {
+        bDesc = ('${b['description'] ?? ''}').trim();
+      }
+    }
+    final sel = _selectedRow(ar ? 'model' : 'image');
+    final fDesc = ('${sel?['description'] ?? ''}').trim();
+    if (bDesc.isEmpty && fDesc.isEmpty) return const SizedBox.shrink();
+    final style = TextStyle(
+        fontSize: 14,
+        height: 1.35,
+        color: ar ? Colors.white : _blue,
+        fontFamily: 'Geist');
+    return Container(
+      width: double.infinity,
+      color: ar ? Colors.black.withValues(alpha: 0.45) : AppColors.soft(context),
+      constraints:
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.28),
+      child: Scrollbar(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (bDesc.isNotEmpty) Text.verbatim(bDesc, style: style),
+              if (bDesc.isNotEmpty && fDesc.isNotEmpty)
+                const SizedBox(height: 8),
+              if (fDesc.isNotEmpty) ...[
+                Text.verbatim('${sel?['name']}',
+                    style: style.copyWith(fontWeight: FontWeight.bold)),
+                Text.verbatim(fDesc, style: style),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _selector({required bool ar}) {
     final kind = ar ? 'model' : 'image';
     final floors = _floors(kind);
@@ -653,6 +696,7 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
       children: [
         if (_placeKind != null) _placeBanner(),
         _selector(ar: false),
+        _info(ar: false),
         if (_hasModel)
         Container(
           width: double.infinity,
@@ -766,6 +810,7 @@ class _EvacuationMapPageState extends State<EvacuationMapPage> {
           right: 0,
           child: Column(children: [
             _selector(ar: true),
+            _info(ar: true),
             if (_placeKind != null) _placeBanner(),
           ]),
         ),

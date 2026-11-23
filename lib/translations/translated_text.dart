@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' as m show Theme, Brightness;
 import 'package:flutter/widgets.dart' as w;
 import 'package:arise_application/translations/translation.dart';
 
@@ -60,12 +61,27 @@ class Text extends w.StatelessWidget {
   final String? semanticsLabel;
   final bool _translate;
 
+  /// In dark mode the app's dark cyan text becomes a lighter cyan and light
+  /// grey text becomes white, so everything stays readable.
+  static w.TextStyle? _forTheme(w.BuildContext context, w.TextStyle? s) {
+    final c = s?.color;
+    if (c == null || m.Theme.of(context).brightness != m.Brightness.dark) {
+      return s;
+    }
+    final v = c.toARGB32();
+    if (v == 0xFF3C6E87) return s!.copyWith(color: const w.Color(0xFF8DBFD6));
+    final r = (v >> 16) & 0xFF, g = (v >> 8) & 0xFF, b = v & 0xFF;
+    final grey = r == g && g == b && r >= 0x60 && r <= 0xC8 && (v >> 24) == 0xFF;
+    if (grey) return s!.copyWith(color: const w.Color(0xFFFFFFFF));
+    return s;
+  }
+
   @override
   w.Widget build(w.BuildContext context) {
     if (_translate) LangScope.of(context);
     return w.Text(
       _translate ? Tr.t(data) : data,
-      style: style,
+      style: _forTheme(context, style),
       textAlign: textAlign,
       softWrap: softWrap,
       overflow: overflow,

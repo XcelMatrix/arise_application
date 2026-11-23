@@ -58,6 +58,21 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
+  /// A rounded box that holds a few related menu items.
+  Widget _group(BuildContext context, List<Widget> items) {
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: AppColors.card(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _blue.withValues(alpha: 0.35)),
+      ),
+      child: Column(children: items),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -137,90 +152,115 @@ class AppDrawer extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: 8),
-
-          // inbox (mail icon, unread count)
-          BlocBuilder<InboxCubit, InboxState>(
-            builder: (context, inbox) => _item(
-              context,
-              icon: Icons.mail_outline,
-              label: 'Inbox',
-              trailing:
-                  inbox.unread > 0 ? Badge(label: Text.verbatim('${inbox.unread}')) : null,
-              onTap: () => _open(context, InboxPage.route()),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, box) => SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: box.maxHeight),
+                  child: IntrinsicHeight(
+                    child: BlocBuilder<AccountCubit, AccountState>(
+                      builder: (context, acc) => Column(
+                        children: [
+                          const SizedBox(height: 12),
+                          // top: inbox, messages, settings
+                          _group(context, [
+                            BlocBuilder<InboxCubit, InboxState>(
+                              builder: (context, inbox) => _item(
+                                context,
+                                icon: Icons.mail_outline,
+                                label: 'Inbox',
+                                trailing: inbox.unread > 0
+                                    ? Badge(
+                                        label: Text.verbatim('${inbox.unread}'))
+                                    : null,
+                                onTap: () =>
+                                    _open(context, InboxPage.route()),
+                              ),
+                            ),
+                            if (acc.canAccess(Feature.chat))
+                              _item(
+                                context,
+                                icon: Icons.forum,
+                                label: 'Messages',
+                                onTap: () =>
+                                    _open(context, RoomsPage.route()),
+                              ),
+                            _item(
+                              context,
+                              icon: Icons.settings,
+                              label: 'Settings',
+                              onTap: () =>
+                                  _open(context, SettingsPage.route()),
+                            ),
+                          ]),
+                          // middle: emergency alert, calendar, reports
+                          _group(context, [
+                            if (acc.canAccess(Feature.emergencyAlert))
+                              _item(
+                                context,
+                                icon: Icons.warning_amber_rounded,
+                                label: 'Emergency Alert',
+                                onTap: () => _open(
+                                    context, EmergencyAlertPage.route()),
+                              ),
+                            _item(
+                              context,
+                              icon: Icons.calendar_month,
+                              label: 'Calendar',
+                              onTap: () =>
+                                  _open(context, CalendarPage.route()),
+                            ),
+                            if (acc.canAccess(Feature.attendance) ||
+                                acc.canAccess(Feature.timedConsole))
+                              _item(
+                                context,
+                                icon: Icons.summarize,
+                                label: 'Reports',
+                                onTap: () =>
+                                    _open(context, ReportsPage.route()),
+                              ),
+                            if (acc.rank >= 3)
+                              _item(
+                                context,
+                                icon: Icons.admin_panel_settings,
+                                label: 'Admin tools',
+                                onTap: () =>
+                                    _open(context, AdminToolsPage.route()),
+                              ),
+                          ]),
+                          const Spacer(),
+                          // bottom: about, help
+                          _group(context, [
+                            _item(
+                              context,
+                              icon: Icons.info_outline,
+                              label: 'About',
+                              onTap: () => _open(context, AboutPage.route()),
+                            ),
+                            _item(
+                              context,
+                              icon: Icons.help_outline,
+                              label: 'Help',
+                              onTap: () => _open(context, GuidePage.route()),
+                            ),
+                          ]),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
-          // messages between teachers
-          BlocBuilder<AccountCubit, AccountState>(
-            builder: (context, acc) => acc.canAccess(Feature.chat)
-                ? _item(
-                    context,
-                    icon: Icons.forum,
-                    label: 'Messages',
-                    onTap: () => _open(context, RoomsPage.route()),
-                  )
-                : const SizedBox.shrink(),
+          const Padding(
+            padding: EdgeInsets.only(top: 6),
+            child: Divider(
+                height: 2,
+                thickness: 2,
+                indent: 12,
+                endIndent: 12,
+                color: _blue),
           ),
-          // send an emergency alert (teachers and admins)
-          BlocBuilder<AccountCubit, AccountState>(
-            builder: (context, acc) => acc.canAccess(Feature.emergencyAlert)
-                ? _item(
-                    context,
-                    icon: Icons.warning_amber_rounded,
-                    label: 'Emergency alert',
-                    onTap: () => _open(context, EmergencyAlertPage.route()),
-                  )
-                : const SizedBox.shrink(),
-          ),
-          _item(
-            context,
-            icon: Icons.calendar_month,
-            label: 'Calendar',
-            onTap: () => _open(context, CalendarPage.route()),
-          ),
-          // attendance / drill summaries (teachers and admins)
-          BlocBuilder<AccountCubit, AccountState>(
-            builder: (context, acc) => acc.canAccess(Feature.attendance) ||
-                    acc.canAccess(Feature.timedConsole)
-                ? _item(
-                    context,
-                    icon: Icons.summarize,
-                    label: 'Reports',
-                    onTap: () => _open(context, ReportsPage.route()),
-                  )
-                : const SizedBox.shrink(),
-          ),
-          BlocBuilder<AccountCubit, AccountState>(
-            builder: (context, acc) => acc.rank >= 3
-                ? _item(
-                    context,
-                    icon: Icons.admin_panel_settings,
-                    label: 'Admin tools',
-                    onTap: () => _open(context, AdminToolsPage.route()),
-                  )
-                : const SizedBox.shrink(),
-          ),
-          _item(
-            context,
-            icon: Icons.settings,
-            label: 'Settings',
-            onTap: () => _open(context, SettingsPage.route()),
-          ),
-          _item(
-            context,
-            icon: Icons.info_outline,
-            label: 'About',
-            onTap: () => _open(context, AboutPage.route()),
-          ),
-          _item(
-            context,
-            icon: Icons.help_outline,
-            label: 'Help',
-            onTap: () => _open(context, GuidePage.route()),
-          ),
-
-          const Spacer(),
-          const Divider(height: 1),
           SafeArea(
             top: false,
             child: _item(

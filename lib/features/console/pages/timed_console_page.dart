@@ -344,6 +344,7 @@ class _TimedConsolePageState extends State<TimedConsolePage> {
                     showSelectedIcon: false,
                     style: SegmentedButton.styleFrom(
                       selectedBackgroundColor: _blue,
+                      side: const BorderSide(color: _blue),
                       selectedForegroundColor: Colors.white,
                       foregroundColor: _blue, // tabs that are not selected
                     ),

@@ -6,6 +6,8 @@ import 'package:arise_application/features/resources/data/guideline_icons.dart';
 import 'package:arise_application/features/resources/data/guideline_text.dart';
 import 'package:arise_application/features/resources/widgets/guideline_editor.dart';
 import 'package:arise_application/translations/translated_text.dart';
+import 'package:arise_application/core/widgets/app_drawer.dart';
+import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 
 const _blue = Color(0xFF3C6E87);
 
@@ -111,7 +113,38 @@ class GuidelineDetailPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6),
       child: Column(
         children: [
-          Center(child: GuidelineIcon(spec: g['icon'] as String?, size: 120)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (canEdit) const SizedBox(width: 48), // balances the buttons
+              GuidelineIcon(spec: g['icon'] as String?, size: 120),
+              if (canEdit)
+                SizedBox(
+                  width: 48,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: tr(context, 'Edit'),
+                        icon: const Icon(Icons.edit, color: _blue),
+                        onPressed: () =>
+                            editGuidelineEntry(context, row: g, count: count),
+                      ),
+                      IconButton(
+                        tooltip: tr(context, 'Delete'),
+                        icon: const Icon(Icons.delete_outline, color: _blue),
+                        onPressed: () async {
+                          final nav = Navigator.of(context);
+                          if (await deleteGuidelineEntry(context, g)) {
+                            nav.pop();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
           const SizedBox(height: 12),
           Text.verbatim(g['title'] as String,
               textAlign: TextAlign.center,
@@ -167,6 +200,7 @@ class GuidelineDetailPage extends StatelessWidget {
     }
 
     return Scaffold(
+      endDrawer: const AppDrawer(),
       appBar: AppBar(
         backgroundColor: _blue,
         foregroundColor: Colors.white,
@@ -175,22 +209,7 @@ class GuidelineDetailPage extends StatelessWidget {
             style: const TextStyle(
                 fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Geist')),
         actions: [
-          if (canEdit) ...[
-            IconButton(
-              tooltip: tr(context, 'Edit'),
-              icon: const Icon(Icons.edit),
-              onPressed: () =>
-                  editGuidelineEntry(context, row: g, count: count),
-            ),
-            IconButton(
-              tooltip: tr(context, 'Delete'),
-              icon: const Icon(Icons.delete_outline),
-              onPressed: () async {
-                final nav = Navigator.of(context);
-                if (await deleteGuidelineEntry(context, g)) nav.pop();
-              },
-            ),
-          ],
+          const ProfileMenuButton(),
         ],
       ),
       body: !itemsCubit.state.loaded && items.isEmpty
@@ -242,24 +261,29 @@ class GuidelineDetailPage extends StatelessWidget {
 
     switch (kind) {
       case 'section':
+        // the title sits between two thick lines, so each section stands apart
         return Padding(
-          padding: const EdgeInsets.only(top: 22, bottom: 8),
+          padding: const EdgeInsets.only(top: 26, bottom: 10),
+          // thick lines above and below; long titles wrap to fit the screen
           child: Container(
-            padding: const EdgeInsets.fromLTRB(14, 8, 4, 8),
-            decoration: BoxDecoration(
-              color: _blue.withValues(alpha: 0.08),
-              border: Border.all(color: _blue, width: 1.5),
-              borderRadius: BorderRadius.circular(12),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: const BoxDecoration(
+              border: Border.symmetric(
+                  horizontal: BorderSide(color: _blue, width: 3)),
             ),
             child: Row(children: [
               Expanded(
-                child: Text.verbatim(_titleCase(en),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.w900,
-                        color: _blue,
-                        fontFamily: 'Geist')),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text.verbatim(_titleCase(en),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w900,
+                          color: _blue,
+                          fontFamily: 'Geist')),
+                ),
               ),
               more,
             ]),
@@ -315,7 +339,7 @@ class GuidelineDetailPage extends StatelessWidget {
       default: // item
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 7),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
             GuidelineIcon(
                 spec: r['icon'] as String?,
                 fallback: Icons.circle_outlined,

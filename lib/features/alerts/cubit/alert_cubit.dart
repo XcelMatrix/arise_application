@@ -11,13 +11,31 @@ import 'package:arise_application/translations/translation.dart';
 /// language picked in Settings. "Other" has no standard message: the sender
 /// types it and it is shown as typed.
 const alertTemplates = {
-  'Fire': 'Fire reported. Evacuate now using the nearest safe exit and go to your evacuation site.',
-  'Earthquake': 'Earthquake. Drop, cover and hold on. Evacuate to the open area once the shaking stops.',
+  'Tropical Cyclone': 'Tropical cyclone warning. Stay indoors, away from windows, and follow instructions.',
+  'Storm Surge': 'Storm surge warning. Move to higher ground away from the coast and wait for instructions.',
   'Flood': 'Flooding. Move to higher ground and wait for instructions.',
-  'Typhoon': 'Typhoon warning. Stay indoors and away from windows.',
+  'Landslide': 'Landslide warning. Move away from slopes and follow instructions.',
+  'Earthquake': 'Earthquake. Drop, cover and hold on. Evacuate to the open area once the shaking stops.',
+  'Tsunami': 'Tsunami warning. Move to high ground right away and stay there until the all-clear.',
+  'Volcanic Eruption': 'Volcanic eruption. Cover your nose and mouth, stay indoors and follow instructions.',
+  'Fire': 'Fire reported. Evacuate now using the nearest safe exit and go to your evacuation site.',
   'Lockdown': 'Lockdown. Lock doors, stay quiet and stay away from windows until the all-clear.',
   'Other': '',
 };
+
+/// What the alert dropdown offers (the disasters, plus Lockdown and Other).
+const alertKinds = [
+  'Tropical Cyclone',
+  'Storm Surge',
+  'Flood',
+  'Landslide',
+  'Earthquake',
+  'Tsunami',
+  'Volcanic Eruption',
+  'Fire',
+  'Lockdown',
+  'Other',
+];
 
 class EmergencyAlert {
   final String id;
@@ -186,11 +204,15 @@ class AlertCubit extends Cubit<AlertState> with WidgetsBindingObserver {
     } catch (_) {}
   }
 
-  Future<void> send(String kind, String message, [String details = '']) async {
+  /// [message] is the English text; [fil] is the optional Filipino version
+  /// (people using the app in Filipino see it instead of the English one).
+  Future<void> send(String kind, String message,
+      [String details = '', String fil = '']) async {
     final id = await _sb.rpc('send_alert', params: {
       'p_kind': kind,
       'p_message': message,
       'p_details': details,
+      'p_translations': fil.trim().isEmpty ? null : {'fil': fil.trim()},
     }) as String;
     // the sender does not need the full-screen alert: mark it as seen BEFORE
     // anything reloads, otherwise the realtime reload shows it again

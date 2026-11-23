@@ -7,7 +7,9 @@ import 'package:arise_application/core/services/local_cache.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
 import 'package:arise_application/features/account/cubit/account_cubit.dart';
 import 'package:arise_application/features/attendance/models/attendance_models.dart';
+import 'package:arise_application/features/console/cubit/drill_cubit.dart';
 import 'package:arise_application/features/console/models/drill_record.dart';
+import 'package:arise_application/features/reports/models/drill_assessment.dart';
 import 'package:arise_application/features/reports/services/attendance_export.dart';
 import 'package:arise_application/features/reports/services/export_files.dart';
 import 'package:arise_application/translations/translated_text.dart';
@@ -40,6 +42,7 @@ class _ReportsPageState extends State<ReportsPage> {
   bool _busy = false;
   List<AttendanceReport> _reports = const [];
   List<DrillRecord> _drills = const [];
+  Map<String, DrillAssessment> _assess = const {};
 
   @override
   void initState() {
@@ -81,6 +84,18 @@ class _ReportsPageState extends State<ReportsPage> {
         _drills = [
           for (final r in data) DrillRecord.fromRow(Map<String, dynamic>.from(r)),
         ];
+        // the assessments written for these drills (none yet if the table is
+        // not set up: the list just shows "Not assessed")
+        try {
+          final a = await _sb.from('drill_assessments').select();
+          _assess = {
+            for (final r in a)
+              '${r['drill_id']}':
+                  DrillAssessment.fromRow(Map<String, dynamic>.from(r)),
+          };
+        } catch (_) {
+          _assess = const {};
+        }
       }
       _offline = false;
     } catch (e) {
@@ -146,9 +161,12 @@ class _ReportsPageState extends State<ReportsPage> {
         final subject = 'ARISE ${Tr.t('Drill summary')}';
         if (pdf) {
           await ExportFiles.sharePdf(
-              stem, AttendanceExport.drillsPdf(_drills, period: _periodLabel), subject);
+              stem, AttendanceExport.drillsPdf(_drills,
+                  period: _periodLabel, assessments: _assess),
+              subject);
         } else {
-          await ExportFiles.shareCsv(stem, AttendanceExport.drillsCsv(_drills), subject);
+          await ExportFiles.shareCsv(
+              stem, AttendanceExport.drillsCsv(_drills, _assess), subject);
         }
       }
     } catch (e) {
@@ -158,23 +176,229 @@ class _ReportsPageState extends State<ReportsPage> {
     }
   }
 
-  Widget _stat(BuildContext context, String label, String value, Color c) =>
-      Expanded(
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          decoration: BoxDecoration(
-            color: c.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(children: [
-            Text.verbatim(value,
-                style: TextStyle(
-                    fontSize: 20, fontWeight: FontWeight.bold, color: c)),
-            Text(label, style: TextStyle(fontSize: 11, color: c)),
-          ]),
+  Widget _stat(BuildContext context, String label, String value, Color c) {
+    // in dark mode: a lighter colour for the text and a lighter box
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final fg = dark ? Color.lerp(c, Colors.white, 0.55)! : c;
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        margin: const EdgeInsets.symmetric(horizontal: 3),
+        decoration: BoxDecoration(
+          color: dark ? c.withValues(alpha: 0.30) : c.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
         ),
-      );
+        child: Column(children: [
+          Text.verbatim(value,
+              style: TextStyle(
+                  fontSize: 20, fontWeight: FontWeight.bold, color: fg)),
+          Text(label, style: TextStyle(fontSize: 11, color: fg)),
+        ]),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------- assessment
+
+  Future<void> _assessDrill(DrillRecord d) async {
+    final existing = _assess[d.id];
+    final answers = <String, int>{...?existing?.answers};
+    final notes = TextEditingController(text: existing?.notes ?? '');
+    final saved = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) {
+          final live = DrillAssessment(d.id, answers, '', null);
+          final sent = d.reports.where((r) => r.submitted).length;
+          return Padding(
+            padding:
+                EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            child: SizedBox(
+              height: MediaQuery.of(ctx).size.height * 0.88,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Drill assessment',
+                            style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: _blue,
+                                fontFamily: 'Geist')),
+                        const SizedBox(height: 4),
+                        Text.verbatim(
+                            '${drillDate(d.started)}'
+                            '${d.type.isEmpty ? '' : '  •  ${Tr.t(d.type)}'}',
+                            style: const TextStyle(color: _blue)),
+                        Text.verbatim(
+                            '${d.duration == null ? '' : '${Tr.t('Evacuation time')}: ${DrillCubit.formatDurationWords(d.duration!)}  •  '}'
+                            '${Tr.t('Reports sent')}: $sent/${d.reports.length}',
+                            style: const TextStyle(fontSize: 12, color: _blue)),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      children: [
+                        for (final item in assessmentItems) ...[
+                          Text(item.label,
+                              style: const TextStyle(
+                                  color: _blue, fontFamily: 'Geist')),
+                          const SizedBox(height: 4),
+                          SegmentedButton<int>(
+                            emptySelectionAllowed: true,
+                            showSelectedIcon: false,
+                            style: SegmentedButton.styleFrom(
+                              foregroundColor: _blue,
+                              selectedForegroundColor: Colors.white,
+                              selectedBackgroundColor: _blue,
+                              side: const BorderSide(color: _blue),
+                            ),
+                            segments: const [
+                              ButtonSegment(value: 2, label: Text('Yes')),
+                              ButtonSegment(value: 1, label: Text('Partly')),
+                              ButtonSegment(value: 0, label: Text('No')),
+                            ],
+                            selected: answers.containsKey(item.key)
+                                ? {answers[item.key]!}
+                                : <int>{},
+                            onSelectionChanged: (v) => setLocal(() {
+                              if (v.isEmpty) {
+                                answers.remove(item.key);
+                              } else {
+                                answers[item.key] = v.first;
+                              }
+                            }),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        TextField(
+                          controller: notes,
+                          minLines: 2,
+                          maxLines: 5,
+                          maxLength: 500,
+                          style: const TextStyle(color: _blue),
+                          textCapitalization: TextCapitalization.sentences,
+                          decoration: InputDecoration(
+                            labelText: tr(ctx, 'Notes (optional)'),
+                            labelStyle: const TextStyle(color: _blue),
+                            border: const OutlineInputBorder(
+                                borderSide: BorderSide(color: _blue)),
+                            enabledBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(color: _blue)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child: Row(children: [
+                      Expanded(
+                        child: Text.verbatim(
+                            answers.isEmpty
+                                ? ''
+                                : '${live.score}%  •  ${Tr.t(live.rating)}',
+                            style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: _blue)),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: _blue,
+                            foregroundColor: Colors.white),
+                        onPressed:
+                            answers.isEmpty ? null : () => Navigator.pop(ctx, true),
+                        child: const Text('Save assessment'),
+                      ),
+                    ]),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    final note = notes.text.trim();
+    Future.delayed(const Duration(milliseconds: 600), notes.dispose);
+    if (saved != true || !mounted) return;
+    try {
+      await _sb.from('drill_assessments').upsert({
+        'drill_id': d.id,
+        'answers': answers,
+        'notes': note,
+        'score': DrillAssessment(d.id, answers, '', null).score,
+        'assessed_at': DateTime.now().toUtc().toIso8601String(),
+      }, onConflict: 'drill_id');
+      await _load();
+      _toast(Tr.t('Assessment saved.'));
+    } catch (e) {
+      _toast(e is PostgrestException ? e.message : '$e');
+    }
+  }
+
+  Widget _assessmentSection(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(children: const [
+          Icon(Icons.fact_check, color: _blue),
+          SizedBox(width: 8),
+          Text('Drill assessment',
+              style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: _blue,
+                  fontFamily: 'Geist')),
+        ]),
+        const SizedBox(height: 4),
+        Text(
+            'After a drill, rate how it went. The scores are included in the exports.',
+            style: const TextStyle(fontSize: 12, color: _blue)),
+        const SizedBox(height: 8),
+        if (_drills.isEmpty)
+          Text('No drills in this period.',
+              style: const TextStyle(color: _blue)),
+        for (final d in _drills)
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color: AppColors.card(context),
+              border: Border.all(color: _blue.withValues(alpha: dark ? 0.7 : 0.4)),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ListTile(
+              onTap: () => _assessDrill(d),
+              title: Text.verbatim(
+                  '${drillDate(d.started)}${d.type.isEmpty ? '' : '  •  ${Tr.t(d.type)}'}',
+                  style: const TextStyle(
+                      color: _blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontFamily: 'Geist')),
+              subtitle: _assess[d.id] == null
+                  ? Text('Not assessed yet',
+                      style: const TextStyle(color: _blue, fontSize: 12))
+                  : Text.verbatim(
+                      '${_assess[d.id]!.score}%  •  ${Tr.t(_assess[d.id]!.rating)}',
+                      style: const TextStyle(color: _blue, fontSize: 12)),
+              trailing: Icon(
+                  _assess[d.id] == null ? Icons.rate_review : Icons.edit,
+                  color: _blue),
+            ),
+          ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -348,6 +572,11 @@ class _ReportsPageState extends State<ReportsPage> {
             Text(
                 'CSV opens in Excel or Google Sheets. For one drill with every student, open Drill history.',
                 style: const TextStyle(fontSize: 12, color: _blue)),
+            if (_kind == 'drills') ...[
+              const SizedBox(height: 24),
+              _assessmentSection(context),
+              const SizedBox(height: 24),
+            ],
           ],
         ],
       ),

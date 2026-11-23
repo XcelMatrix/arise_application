@@ -229,46 +229,19 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
             ),
             const SizedBox(height: 12),
 
-            // type of emergency: its own boxed section with a choice per disaster
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-              decoration: BoxDecoration(
-                color: _blue.withValues(alpha: 0.07),
-                border: Border.all(color: _blue, width: 1.5),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Type of emergency',
-                      style: const TextStyle(
-                          color: _blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          fontFamily: 'Geist')),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: [
-                      for (final e in emergencyTypes)
-                        ChoiceChip(
-                          label: Text(e),
-                          selected: _emergency == e,
-                          showCheckmark: false,
-                          selectedColor: _blue,
-                          backgroundColor: Colors.transparent,
-                          side: const BorderSide(color: _blue),
-                          labelStyle: TextStyle(
-                              color: _emergency == e ? Colors.white : _blue,
-                              fontFamily: 'Geist'),
-                          onSelected: (_) => setState(() => _emergency = e),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
+            // type of emergency (a dropdown, drawn like the timestamp box)
+            DropdownButtonFormField<String>(
+              key: ValueKey(_emergency),
+              initialValue: _emergency,
+              isExpanded: true,
+              style: _text,
+              iconEnabledColor: _blue,
+              decoration: _dec('Type of Emergency'),
+              items: [
+                for (final e in emergencyTypes)
+                  DropdownMenuItem(value: e, child: Text(e)),
+              ],
+              onChanged: (v) => setState(() => _emergency = v ?? _emergency),
             ),
             if (_emergency == 'Other') ...[
               const SizedBox(height: 12),

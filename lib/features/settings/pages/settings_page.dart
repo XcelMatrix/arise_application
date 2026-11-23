@@ -54,7 +54,7 @@ class SettingsPage extends StatelessWidget {
                     items: const [
                       DropdownMenuItem(
                         value: ThemeMode.system,
-                        child: _Option(Icons.phone_android, "Device theme"),
+                        child: _Option(Icons.phone_android, "Device Theme"),
                       ),
                       DropdownMenuItem(
                         value: ThemeMode.light,

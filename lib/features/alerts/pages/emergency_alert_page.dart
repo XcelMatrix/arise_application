@@ -6,8 +6,6 @@ import 'package:arise_application/features/alerts/cubit/alert_cubit.dart';
 import 'package:arise_application/features/alerts/pages/checkin_roster_page.dart';
 import 'package:arise_application/features/alerts/pages/headcount_page.dart';
 import 'package:arise_application/translations/translated_text.dart';
-import 'package:arise_application/translations/translation.dart';
-import 'package:arise_application/features/attendance/models/attendance_models.dart' show emergencyTypes;
 import 'package:arise_application/core/theme/app_colors.dart';
 
 /// Teachers and admins broadcast an emergency alert from here.
@@ -25,29 +23,88 @@ class _EmergencyAlertPageState extends State<EmergencyAlertPage> {
   static const _red = Color(0xFF3C6E87); // the app's dark cyan
   String _kind = 'Fire';
   final _details = TextEditingController(); // optional extra line
-  final _custom = TextEditingController(); // only for "Other"
+  final _english = TextEditingController(text: alertTemplates['Fire']);
+  final _filipino = TextEditingController(); // optional Filipino version
   bool _busy = false;
 
-  /// the message that will be sent (English; every phone translates it)
-  String get _message =>
-      _kind == 'Other' ? _custom.text.trim() : (alertTemplates[_kind] ?? '');
+  /// the message that will be sent (English)
+  String get _message => _english.text.trim();
 
   @override
   void dispose() {
     _details.dispose();
-    _custom.dispose();
+    _english.dispose();
+    _filipino.dispose();
     super.dispose();
+  }
+
+  /// picking a type fills in its standard English message (still editable)
+  void _pickKind(String k) {
+    final old = alertTemplates[_kind] ?? '';
+    setState(() {
+      _kind = k;
+      if (_english.text.trim().isEmpty || _english.text.trim() == old) {
+        _english.text = alertTemplates[k] ?? '';
+      }
+    });
   }
 
   InputDecoration _dec(String label) => InputDecoration(
         labelText: tr(context, label),
-        filled: true,
-        fillColor: AppColors.field(context),
+        labelStyle: const TextStyle(color: _red, fontFamily: 'Geist'),
+        alignLabelWithHint: true,
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: _red),
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: _red),
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: _red, width: 2),
         ),
       );
+
+  /// a titled box, so the page reads as separate sections
+  Widget _section(IconData icon, String title, List<Widget> children,
+      {String? hint}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+      decoration: BoxDecoration(
+        color: AppColors.card(context),
+        border: Border.all(color: _red.withValues(alpha: 0.6), width: 1.5),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(icon, color: _red, size: 22),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(title,
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: _red,
+                      fontFamily: 'Geist')),
+            ),
+          ]),
+          if (hint != null) ...[
+            const SizedBox(height: 4),
+            Text(hint,
+                style: const TextStyle(
+                    fontSize: 12, color: _red, fontFamily: 'Geist')),
+          ],
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
 
   void _toast(String m) {
     if (!mounted) return;
@@ -76,7 +133,8 @@ class _EmergencyAlertPageState extends State<EmergencyAlertPage> {
     if (ok != true || !mounted) return;
     setState(() => _busy = true);
     try {
-      await context.read<AlertCubit>().send(_kind, _message, _details.text.trim());
+      await context.read<AlertCubit>().send(
+          _kind, _message, _details.text.trim(), _filipino.text.trim());
       _toast('Alert sent to everyone.');
     } catch (e) {
       _toast('Could not send: $e');
@@ -105,7 +163,7 @@ class _EmergencyAlertPageState extends State<EmergencyAlertPage> {
       appBar: AppBar(
         backgroundColor: _red,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Emergency alert'),
+        title: const Text('Emergency Alert'),
         titleTextStyle: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -116,7 +174,10 @@ class _EmergencyAlertPageState extends State<EmergencyAlertPage> {
       ),
       endDrawer: const AppDrawer(),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        // extra room at the bottom so the phone's navigation buttons never
+        // cover the Send button
+        padding: EdgeInsets.fromLTRB(
+            20, 20, 20, 40 + MediaQuery.of(context).viewPadding.bottom),
         children: [
           if (active != null)
             Container(
@@ -166,87 +227,57 @@ class _EmergencyAlertPageState extends State<EmergencyAlertPage> {
                 ],
               ),
             ),
-          const Text('Type of emergency',
-              style: TextStyle(color: Colors.grey, fontFamily: 'Geist')),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: [
-              for (final t in emergencyTypes)
-                ChoiceChip(
-                  label: Text(t),
-                  selected: _kind == t,
-                  selectedColor: _red,
-                  labelStyle: TextStyle(
-                      color: _kind == t ? Colors.white : null,
-                      fontFamily: 'Geist'),
-                  onSelected: (_) => setState(() => _kind = t),
-                ),
+          _section(Icons.category, 'Type of Emergency', [
+            DropdownButtonFormField<String>(
+              key: ValueKey(_kind),
+              initialValue: _kind,
+              isExpanded: true,
+              style: const TextStyle(color: _red, fontFamily: 'Geist', fontSize: 16),
+              decoration: _dec('Type of Emergency'),
+              items: [
+                for (final t in alertKinds)
+                  DropdownMenuItem(value: t, child: Text(t)),
+              ],
+              onChanged: (v) => _pickKind(v ?? _kind),
+            ),
+          ]),
+          _section(
+            Icons.campaign,
+            'Message',
+            [
+              TextField(
+                controller: _english,
+                style: const TextStyle(color: _red, fontFamily: 'Geist'),
+                minLines: 3,
+                maxLines: 6,
+                maxLength: 300,
+                textCapitalization: TextCapitalization.sentences,
+                onChanged: (_) => setState(() {}),
+                decoration: _dec('English message'),
+              ),
+              const SizedBox(height: 4),
+              TextField(
+                controller: _filipino,
+                style: const TextStyle(color: _red, fontFamily: 'Geist'),
+                minLines: 3,
+                maxLines: 6,
+                maxLength: 300,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: _dec('Filipino message (optional)'),
+              ),
             ],
+            hint:
+                'People using the app in English see the English message. People using Filipino see the Filipino message; if you leave it empty they see the English one.',
           ),
-          const SizedBox(height: 16),
-          if (_kind == 'Other')
+          _section(Icons.place, 'Details (optional)', [
             TextField(
-              controller: _custom,
-              minLines: 3,
-              maxLines: 6,
-              maxLength: 300,
+              controller: _details,
+              style: const TextStyle(color: _red, fontFamily: 'Geist'),
+              maxLength: 120,
               textCapitalization: TextCapitalization.sentences,
-              decoration: _dec('Message to everyone'),
-            )
-          else
-            // the standard message, shown in the sender's own language
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.card(context),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text.verbatim(Tr.t(_message),
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.text(context),
-                      fontFamily: 'Geist')),
+              decoration: _dec('For example the building'),
             ),
-          const SizedBox(height: 4),
-          Text(
-              _kind == 'Other'
-                  ? 'This message is shown exactly as you type it, in every language.'
-                  : 'Everyone sees this message in the language they chose in Settings.',
-              style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _details,
-            maxLength: 120,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: _dec('Extra details (optional), for example the building'),
-          ),
-          if (_kind != 'Other')
-            // see how it will look in each language
-            Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                title: Text('Preview in other languages',
-                    style: const TextStyle(fontFamily: 'Geist')),
-                children: [
-                  for (final l in Tr.languages)
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.card(context),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text.verbatim(
-                          '${l.flag} ${l.nativeName}\n${Tr.inLanguage(l, _message)}',
-                          style: TextStyle(color: AppColors.text(context))),
-                    ),
-                ],
-              ),
-            ),
-          const SizedBox(height: 12),
+          ]),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: _red,
