@@ -12,6 +12,9 @@ import 'package:arise_application/features/account/pages/profile_page.dart';
 import 'package:arise_application/features/settings/pages/settings_page.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
 import 'package:arise_application/features/reports/pages/reports_page.dart';
+import 'package:arise_application/features/chat/pages/rooms_page.dart';
+import 'package:arise_application/features/alerts/pages/emergency_alert_page.dart';
+import 'package:arise_application/features/admin/pages/admin_tools_page.dart';
 
 /// Side menu opened from the profile-picture button.
 /// Tap your picture to open your profile.
@@ -147,6 +150,28 @@ class AppDrawer extends StatelessWidget {
               onTap: () => _open(context, InboxPage.route()),
             ),
           ),
+          // messages between teachers
+          BlocBuilder<AccountCubit, AccountState>(
+            builder: (context, acc) => acc.canAccess(Feature.chat)
+                ? _item(
+                    context,
+                    icon: Icons.forum,
+                    label: 'Messages',
+                    onTap: () => _open(context, RoomsPage.route()),
+                  )
+                : const SizedBox.shrink(),
+          ),
+          // send an emergency alert (teachers and admins)
+          BlocBuilder<AccountCubit, AccountState>(
+            builder: (context, acc) => acc.canAccess(Feature.emergencyAlert)
+                ? _item(
+                    context,
+                    icon: Icons.warning_amber_rounded,
+                    label: 'Emergency alert',
+                    onTap: () => _open(context, EmergencyAlertPage.route()),
+                  )
+                : const SizedBox.shrink(),
+          ),
           _item(
             context,
             icon: Icons.calendar_month,
@@ -162,6 +187,16 @@ class AppDrawer extends StatelessWidget {
                     icon: Icons.summarize,
                     label: 'Reports',
                     onTap: () => _open(context, ReportsPage.route()),
+                  )
+                : const SizedBox.shrink(),
+          ),
+          BlocBuilder<AccountCubit, AccountState>(
+            builder: (context, acc) => acc.rank >= 3
+                ? _item(
+                    context,
+                    icon: Icons.admin_panel_settings,
+                    label: 'Admin tools',
+                    onTap: () => _open(context, AdminToolsPage.route()),
                   )
                 : const SizedBox.shrink(),
           ),

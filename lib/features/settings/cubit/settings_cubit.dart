@@ -20,7 +20,7 @@ class SettingsState {
   final bool use24h;
 
   const SettingsState({
-    this.themeMode = ThemeMode.light,
+    this.themeMode = ThemeMode.system,
     this.language = 'en',
     this.fontSize = defaultFontSize,
     this.saturation = 1.0,
@@ -55,7 +55,8 @@ class SettingsState {
 class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit() : super(const SettingsState());
 
-  static const _themeKey = 'arise_theme_dark';
+  static const _themeKey = 'arise_theme_dark'; // older versions
+  static const _themeModeKey = 'arise_theme_mode'; // system | light | dark
   static const _langKey = 'arise_lang_code';
   static const _fontKey = 'arise_font_px';
   static const _satKey = 'arise_saturation';
@@ -64,7 +65,12 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final dark = prefs.getBool(_themeKey) ?? false;
+      final saved = prefs.getString(_themeModeKey);
+      final mode = saved == 'light'
+          ? ThemeMode.light
+          : saved == 'dark'
+              ? ThemeMode.dark
+              : ThemeMode.system; // default: follow the device
       // older versions saved a yes/no for Filipino
       final lang = prefs.getString(_langKey) ??
           ((prefs.getBool('arise_lang_fil') ?? false) ? 'fil' : 'en');
@@ -76,7 +82,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       Tr.current = Tr.byCode(lang);
       TimeFormat.use24h = use24;
       emit(SettingsState(
-        themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+        themeMode: mode,
         language: lang,
         fontSize: font
             .clamp(SettingsState.minFontSize, SettingsState.maxFontSize)
@@ -93,7 +99,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(state.copyWith(themeMode: mode));
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_themeKey, mode == ThemeMode.dark);
+      await prefs.setString(_themeModeKey, mode.name);
     } catch (_) {}
   }
 
@@ -127,15 +133,15 @@ class SettingsCubit extends Cubit<SettingsState> {
     } catch (_) {}
   }
 
-  /// Back to how the app looked when it was installed: light theme,
-  /// English, 16 px text, full colour, 12-hour clock.
+  /// Back to how the app looked when it was installed: the device's
+  /// theme, English, 16 px text, full colour, 12-hour clock.
   Future<void> resetAll() async {
     Tr.current = Tr.byCode('en');
     TimeFormat.use24h = false;
     emit(const SettingsState());
     try {
       final prefs = await SharedPreferences.getInstance();
-      for (final k in [_themeKey, _langKey, _fontKey, _satKey, _clockKey]) {
+      for (final k in [_themeKey, _themeModeKey, _langKey, _fontKey, _satKey, _clockKey]) {
         await prefs.remove(k);
       }
     } catch (_) {}

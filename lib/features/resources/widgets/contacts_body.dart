@@ -16,19 +16,30 @@ import 'package:arise_application/translations/translated_text.dart';
 const _blue = Color(0xFF3C6E87);
 const _green = Color(0xFF2E7D32);
 
-/// The kinds of contact. The order here is the order on the page.
+/// The kinds of contact you can pick. The order here is the order on the page.
+/// ('other' is only for older contacts that don't fit; it can't be picked.)
 const _categories = <String, (IconData, Color, String)>{
-  'principal': (Icons.school, Color(0xFF3C6E87), 'Principal'),
-  'nurse': (Icons.medical_services, Color(0xFFC62828), 'School nurse'),
-  'fire': (Icons.local_fire_department, Color(0xFFE65100), 'Fire station'),
-  'police': (Icons.local_police, Color(0xFF283593), 'Police station'),
-  'ambulance': (Icons.emergency, Color(0xFFAD1457), 'Ambulance'),
-  'hotline': (Icons.support_agent, Color(0xFF00695C), 'Hotline'),
+  'fire': (Icons.local_fire_department, Color(0xFFE65100), 'Fire Station'),
+  'school': (Icons.school, Color(0xFF3C6E87), 'School'),
+  'hospital': (Icons.local_hospital, Color(0xFFC62828), 'Hospital'),
+  'police': (Icons.local_police, Color(0xFF283593), 'Police Station'),
   'other': (Icons.contact_phone, Color(0xFF546E7A), 'Other'),
 };
 
+/// older type names -> the current ones
+String _catKey(Object? v) {
+  switch ('$v') {
+    case 'principal':
+    case 'nurse':
+      return 'school';
+    case 'ambulance':
+      return 'hospital';
+  }
+  return _categories.containsKey('$v') ? '$v' : 'other';
+}
+
 int _rankOf(Map<String, dynamic> r) {
-  final i = _categories.keys.toList().indexOf('${r['category'] ?? 'other'}');
+  final i = _categories.keys.toList().indexOf(_catKey(r['category']));
   return i < 0 ? _categories.length : i;
 }
 
@@ -71,8 +82,7 @@ class ContactsBody extends StatelessWidget {
     final name = TextEditingController(text: '${row?['name'] ?? ''}');
     final phone = TextEditingController(text: '${row?['phone'] ?? ''}');
     final note = TextEditingController(text: '${row?['note'] ?? ''}');
-    var category = '${row?['category'] ?? 'other'}';
-    if (!_categories.containsKey(category)) category = 'other';
+    var category = row == null ? 'fire' : _catKey(row['category']);
 
     // logo: the one it has now, a newly picked one, or removed
     final oldLogo = row?['logo_path'] as String?;
@@ -139,6 +149,7 @@ class ContactsBody extends StatelessWidget {
                   decoration: InputDecoration(labelText: tr(ctx, 'Type')),
                   items: [
                     for (final e in _categories.entries)
+                      if (e.key != 'other' || category == 'other')
                       DropdownMenuItem(
                         value: e.key,
                         child: Row(children: [
@@ -148,7 +159,7 @@ class ContactsBody extends StatelessWidget {
                         ]),
                       ),
                   ],
-                  onChanged: (v) => setLocal(() => category = v ?? 'other'),
+                  onChanged: (v) => setLocal(() => category = v ?? 'fire'),
                 ),
                 TextField(
                   controller: name,
@@ -169,7 +180,7 @@ class ContactsBody extends StatelessWidget {
                   minLines: 1,
                   maxLines: 4,
                   decoration:
-                      InputDecoration(labelText: tr(ctx, 'Note (optional)')),
+                      InputDecoration(labelText: tr(ctx, 'Description (optional)')),
                 ),
               ],
             ),
@@ -351,8 +362,7 @@ class ContactsBody extends StatelessWidget {
 
   Widget _tile(BuildContext context, ContactsCubit cubit,
       Map<String, dynamic> r, bool canEdit) {
-    final cat = _categories['${r['category'] ?? 'other'}'] ??
-        _categories['other']!;
+    final cat = _categories[_catKey(r['category'])]!;
     final phone = '${r['phone'] ?? ''}'.trim();
     final hasNumber = phone.isNotEmpty;
     final note = r['note'] as String?;

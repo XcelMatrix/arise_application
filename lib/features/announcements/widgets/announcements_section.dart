@@ -36,6 +36,7 @@ class AnnouncementsSection extends StatelessWidget {
             ),
             if (canPost)
               TextButton.icon(
+                style: TextButton.styleFrom(foregroundColor: _blue),
                 onPressed: () => showAnnouncementEditor(context),
                 icon: const Icon(Icons.add, size: 18),
                 label: const Text('Post'),
@@ -60,6 +61,7 @@ class AnnouncementsSection extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
+              style: TextButton.styleFrom(foregroundColor: _blue),
               onPressed: () => Navigator.push(context, AnnouncementsPage.route()),
               child: const Text('See all announcements'),
             ),

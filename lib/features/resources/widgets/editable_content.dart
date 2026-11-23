@@ -183,6 +183,7 @@ class GuidelinesBody extends StatelessWidget {
       child: Row(children: [
         Expanded(
           child: Text.verbatim(title,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -209,11 +210,16 @@ class GuidelinesBody extends StatelessWidget {
               }
             },
             itemBuilder: (ctx) => [
-              PopupMenuItem(value: 'edit', child: Text('Edit category')),
-              PopupMenuItem(value: 'add', child: Text('Add guideline here')),
-              PopupMenuItem(value: 'up', child: Text('Move up')),
-              PopupMenuItem(value: 'down', child: Text('Move down')),
-              PopupMenuItem(value: 'delete', child: Text('Delete category')),
+              PopupMenuItem(value: 'edit', child: Text('Edit category',
+                  style: TextStyle(color: _blue))),
+              PopupMenuItem(value: 'add', child: Text('Add guideline here',
+                  style: TextStyle(color: _blue))),
+              PopupMenuItem(value: 'up', child: Text('Move up',
+                  style: TextStyle(color: _blue))),
+              PopupMenuItem(value: 'down', child: Text('Move down',
+                  style: TextStyle(color: _blue))),
+              PopupMenuItem(value: 'delete', child: Text('Delete category',
+                  style: TextStyle(color: _blue))),
             ],
           ),
       ]),
@@ -260,7 +266,7 @@ class GuidelinesBody extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              GuidelineIcon(spec: r['icon'] as String?, size: 52),
+              GuidelineIcon(spec: r['icon'] as String?, size: 76),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -297,10 +303,14 @@ class GuidelinesBody extends StatelessWidget {
                     }
                   },
                   itemBuilder: (ctx) => [
-                    PopupMenuItem(value: 'edit', child: Text('Edit')),
-                    PopupMenuItem(value: 'up', child: Text('Move up')),
-                    PopupMenuItem(value: 'down', child: Text('Move down')),
-                    PopupMenuItem(value: 'delete', child: Text('Delete')),
+                    PopupMenuItem(value: 'edit', child: Text('Edit',
+                  style: TextStyle(color: _blue))),
+                    PopupMenuItem(value: 'up', child: Text('Move up',
+                  style: TextStyle(color: _blue))),
+                    PopupMenuItem(value: 'down', child: Text('Move down',
+                  style: TextStyle(color: _blue))),
+                    PopupMenuItem(value: 'delete', child: Text('Delete',
+                  style: TextStyle(color: _blue))),
                   ],
                 )
               else

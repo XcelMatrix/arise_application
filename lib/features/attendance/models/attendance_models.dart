@@ -22,12 +22,16 @@ enum AttendanceStatus {
   }
 }
 
+/// The emergencies to pick from: the disasters in the Guidelines.
 const List<String> emergencyTypes = [
-  'Fire',
-  'Earthquake',
+  'Tropical Cyclone',
+  'Storm Surge',
   'Flood',
-  'Typhoon',
-  'Lockdown',
+  'Landslide',
+  'Earthquake',
+  'Tsunami',
+  'Volcanic Eruption',
+  'Fire',
   'Other',
 ];
 

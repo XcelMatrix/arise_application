@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/widgets/app_drawer.dart';
+import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/features/alerts/cubit/alert_cubit.dart';
 import 'package:arise_application/features/alerts/pages/checkin_roster_page.dart';
@@ -20,7 +22,7 @@ class EmergencyAlertPage extends StatefulWidget {
 }
 
 class _EmergencyAlertPageState extends State<EmergencyAlertPage> {
-  static const _red = Color(0xFFB3261E);
+  static const _red = Color(0xFF3C6E87); // the app's dark cyan
   String _kind = 'Fire';
   final _details = TextEditingController(); // optional extra line
   final _custom = TextEditingController(); // only for "Other"
@@ -110,7 +112,9 @@ class _EmergencyAlertPageState extends State<EmergencyAlertPage> {
             color: Colors.white,
             fontFamily: 'Geist'),
         centerTitle: true,
+        actions: const [ProfileMenuButton()],
       ),
+      endDrawer: const AppDrawer(),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [

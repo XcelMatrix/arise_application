@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/widgets/app_drawer.dart';
+import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:arise_application/core/widgets/back_or_logo.dart';
 import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
@@ -10,8 +12,6 @@ class GuidePage extends StatelessWidget {
   static Route<void> route() {
     return MaterialPageRoute(builder: (context) => const GuidePage());
   }
-
-  void _leave(BuildContext context) => Navigator.of(context).pop();
 
   static const _blue = Color(0xFF3C6E87);
 
@@ -31,18 +31,10 @@ class GuidePage extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         automaticallyImplyLeading: false,
         actions: [
-          TextButton(
-            onPressed: () => _leave(context),
-            child: Text(
-              "Close",
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Geist'),
-            ),
-          ),
+          const ProfileMenuButton(),
         ],
       ),
+      endDrawer: const AppDrawer(),
       body: SafeArea(
         child: Column(
           children: [
@@ -115,28 +107,6 @@ class GuidePage extends StatelessWidget {
                     ],
                   ),
                 ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _blue,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                  ),
-                  onPressed: () => _leave(context),
-                  child: Text(
-                    "Close",
-                    style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontFamily: 'Geist'),
-                  ),
-                ),
               ),
             ),
           ],

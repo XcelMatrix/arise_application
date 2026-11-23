@@ -9,7 +9,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/features/account/cubit/account_cubit.dart';
 import 'package:arise_application/features/auth/pages/pending_approval_page.dart';
 import 'package:arise_application/features/attendance/pages/attendance_page.dart';
-import 'package:arise_application/features/home/widgets/home_speed_dial.dart';
 import 'package:arise_application/features/console/pages/timed_console_page.dart';
 import 'package:arise_application/features/resources/pages/disaster_resources_page.dart';
 
@@ -96,7 +95,6 @@ class _HomePageState extends State<HomePage> {
 
         final canAttendance = account.canAccess(Feature.attendance);
         final canConsole = account.canAccess(Feature.timedConsole);
-        final canChat = account.canAccess(Feature.chat);
         // student-locked tabs and cards are hidden, not just greyed out
         final visible = <int>[0, if (canAttendance) 1, if (canConsole) 2, 3];
 
@@ -175,14 +173,6 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 20),
               ],
             )
-          ),
-
-          // one three-dots button: Chat, Announcements and the Emergency
-          // alert (teachers and admins) pop up from it
-          floatingActionButton: HomeSpeedDial(
-            canChat: canChat,
-            canAlert: account.canAccess(Feature.emergencyAlert),
-            canAdmin: account.rank >= 3,
           ),
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: visible.indexOf(_currentIndex),

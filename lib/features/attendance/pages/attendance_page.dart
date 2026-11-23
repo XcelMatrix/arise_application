@@ -274,8 +274,10 @@ class _AttendancePageState extends State<AttendancePage> {
                 padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
                 child: Row(
                   children: [
+                    const SizedBox(width: 48), // balances the refresh button
                     Expanded(
                       child: Text('Attendance Records',
+                          textAlign: TextAlign.center,
                           style: const TextStyle(
                               fontSize: 20,
                               color: _blue,

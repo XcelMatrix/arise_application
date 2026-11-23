@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/widgets/app_drawer.dart';
+import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
 import 'package:arise_application/core/utils/time_format.dart';
@@ -30,7 +32,9 @@ class SettingsPage extends StatelessWidget {
             color: Colors.white,
             fontFamily: 'Geist'),
         centerTitle: true,
+        actions: const [ProfileMenuButton()],
       ),
+      endDrawer: const AppDrawer(),
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, settings) {
           final cubit = context.read<SettingsCubit>();
@@ -46,10 +50,12 @@ class SettingsPage extends StatelessWidget {
                   _Setting(children: [
                   _Label("Theme", "Choose how the app looks."),
                   _Dropdown<ThemeMode>(
-                    value: settings.themeMode == ThemeMode.dark
-                        ? ThemeMode.dark
-                        : ThemeMode.light,
+                    value: settings.themeMode,
                     items: const [
+                      DropdownMenuItem(
+                        value: ThemeMode.system,
+                        child: _Option(Icons.phone_android, "Device theme"),
+                      ),
                       DropdownMenuItem(
                         value: ThemeMode.light,
                         child: _Option(Icons.light_mode, "Light"),
@@ -238,7 +244,7 @@ class SettingsPage extends StatelessWidget {
 
               // ------------------------------------------- Reset to default
               Padding(
-                padding: const EdgeInsets.only(bottom: 80),
+                padding: const EdgeInsets.only(bottom: 44),
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,

@@ -1,3 +1,5 @@
+import 'package:arise_application/core/widgets/app_drawer.dart';
+import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -169,7 +171,7 @@ class _ReportsPageState extends State<ReportsPage> {
             Text.verbatim(value,
                 style: TextStyle(
                     fontSize: 20, fontWeight: FontWeight.bold, color: c)),
-            Text(label, style: const TextStyle(fontSize: 11)),
+            Text(label, style: TextStyle(fontSize: 11, color: c)),
           ]),
         ),
       );
@@ -209,11 +211,20 @@ class _ReportsPageState extends State<ReportsPage> {
             color: Colors.white,
             fontFamily: 'Geist'),
         centerTitle: true,
+        actions: const [ProfileMenuButton()],
       ),
+      endDrawer: const AppDrawer(),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           SegmentedButton<String>(
+            style: SegmentedButton.styleFrom(
+              foregroundColor: _blue,
+              backgroundColor: Colors.transparent,
+              selectedForegroundColor: Colors.white,
+              selectedBackgroundColor: _blue,
+              side: const BorderSide(color: _blue),
+            ),
             segments: [
               ButtonSegment(
                   value: 'attendance',
@@ -243,11 +254,12 @@ class _ReportsPageState extends State<ReportsPage> {
                 Text('Period',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: AppColors.text(context),
+                        color: _blue,
                         fontFamily: 'Geist')),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<int>(
                   initialValue: _days,
+                  style: const TextStyle(color: _blue, fontFamily: 'Geist'),
                   items: [
                     DropdownMenuItem(value: 7, child: Text('Last 7 days')),
                     DropdownMenuItem(value: 30, child: Text('Last 30 days')),
@@ -265,15 +277,17 @@ class _ReportsPageState extends State<ReportsPage> {
                     contentPadding: EdgeInsets.zero,
                     value: _names,
                     onChanged: (v) => setState(() => _names = v),
-                    title: Text('Include names of missing and injured students'),
+                    activeTrackColor: _blue,
+                    title: Text('Include names of missing and injured students',
+                        style: const TextStyle(color: _blue)),
                     subtitle: Text('Leave off if the file will be shared widely.',
-                        style: const TextStyle(fontSize: 12)),
+                        style: const TextStyle(fontSize: 12, color: _blue)),
                   ),
                   Text(
                       isAdmin
                           ? 'Includes the reports of every teacher.'
                           : 'Includes your own reports.',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      style: const TextStyle(fontSize: 12, color: _blue)),
                 ],
               ],
             ),
@@ -287,7 +301,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text('Offline. Showing the last saved copy.',
-                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      style: const TextStyle(color: _blue, fontSize: 12)),
                 ),
               ]),
             ),
@@ -300,7 +314,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 '${_kind == 'attendance' ? Tr.t('Reports') : Tr.t('Drills')}: $_count',
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.text(context),
+                    color: _blue,
                     fontFamily: 'Geist')),
             const SizedBox(height: 8),
             preview,
@@ -321,6 +335,8 @@ class _ReportsPageState extends State<ReportsPage> {
               Expanded(
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
+                      foregroundColor: _blue,
+                      side: const BorderSide(color: _blue),
                       padding: const EdgeInsets.symmetric(vertical: 14)),
                   onPressed: _busy ? null : () => _export(false),
                   icon: const Icon(Icons.table_chart),
@@ -331,7 +347,7 @@ class _ReportsPageState extends State<ReportsPage> {
             const SizedBox(height: 10),
             Text(
                 'CSV opens in Excel or Google Sheets. For one drill with every student, open Drill history.',
-                style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                style: const TextStyle(fontSize: 12, color: _blue)),
           ],
         ],
       ),

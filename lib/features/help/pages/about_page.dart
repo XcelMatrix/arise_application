@@ -1,3 +1,5 @@
+import 'package:arise_application/core/widgets/app_drawer.dart';
+import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:flutter/material.dart' hide Text;
 import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
@@ -25,9 +27,11 @@ class AboutPage extends StatelessWidget {
             color: Colors.white,
             fontFamily: 'Geist'),
         centerTitle: true,
+        actions: const [ProfileMenuButton()],
       ),
+      endDrawer: const AppDrawer(),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 64),
         children: [
           Center(
             child: Container(

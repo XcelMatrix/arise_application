@@ -1,3 +1,5 @@
+import 'package:arise_application/core/widgets/app_drawer.dart';
+import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:flutter/material.dart' hide Text;
 import 'package:arise_application/core/widgets/flashing_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -120,7 +122,9 @@ class _CalendarPageState extends State<CalendarPage> {
             color: Colors.white,
             fontFamily: 'Geist'),
         centerTitle: true,
+        actions: const [ProfileMenuButton()],
       ),
+      endDrawer: const AppDrawer(),
       floatingActionButton: canEdit
           ? FloatingActionButton.extended(
               backgroundColor: _blue,
@@ -166,7 +170,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.text(context),
+                  color: _blue,
                   fontFamily: 'Geist',
                 ),
               ),
@@ -221,7 +225,7 @@ class _CalendarPageState extends State<CalendarPage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.text(context),
+                color: _blue,
                 fontFamily: 'Geist',
               ),
             ),

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:typed_data';
+import 'package:arise_application/core/widgets/save_progress.dart';
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -163,11 +165,12 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
       ),
     );
     final name = nameC.text.trim();
-    nameC.dispose();
+    // let the dialog finish closing before the controller goes away
+    Future.delayed(const Duration(milliseconds: 600), nameC.dispose);
     if (ok != true || name.isEmpty || !mounted) return;
 
     String? uploaded;
-    try {
+    final err = await runWithProgress(context, () async {
       String? imagePath = removed ? null : oldImage;
       if (picked != null) {
         uploaded = await BuildingImageStore.upload(picked!);
@@ -187,14 +190,18 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
       if (oldImage != null && oldImage != imagePath) {
         await BuildingImageStore.remove(oldImage);
       }
-    } on PostgrestException catch (e) {
-      _toast(e.code == '23505'
-          ? 'A building with that name already exists.'
-          : e.message);
-    } catch (e) {
-      _toast('$e');
-    } finally {
+    });
+    if (err != null) {
       if (uploaded != null) await BuildingImageStore.remove(uploaded);
+      if (err is TimeoutException) {
+        _toast('Saving took too long. Check your connection and try again.');
+      } else if (err is PostgrestException) {
+        _toast(err.code == '23505'
+            ? 'A building with that name already exists.'
+            : err.message);
+      } else {
+        _toast('$err');
+      }
     }
   }
 
@@ -239,7 +246,9 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
       Set<String> hasImage) {
     final id = b['id'] as String;
     return Material(
-      borderRadius: BorderRadius.circular(18),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: _blue, width: 2)),
       clipBehavior: Clip.antiAlias,
       elevation: 3,
       color: _blue,

@@ -24,23 +24,30 @@ Future<void> showAnnouncementEditor(BuildContext context,
   final ok = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: Text(existing == null ? 'New announcement' : 'Edit announcement'),
+      title: Text(existing == null ? 'New Announcement' : 'Edit Announcement',
+          style: const TextStyle(color: Color(0xFF3C6E87), fontFamily: 'Geist')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: title,
+              style: const TextStyle(color: Color(0xFF3C6E87)),
               maxLength: 120,
               textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(labelText: tr(ctx, 'Title')),
+              decoration: InputDecoration(
+                  labelText: tr(ctx, 'Title'),
+                  labelStyle: const TextStyle(color: Color(0xFF3C6E87))),
             ),
             TextField(
               controller: body,
+              style: const TextStyle(color: Color(0xFF3C6E87)),
               maxLines: 5,
               minLines: 3,
               textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(labelText: tr(ctx, 'Message')),
+              decoration: InputDecoration(
+                  labelText: tr(ctx, 'Message'),
+                  labelStyle: const TextStyle(color: Color(0xFF3C6E87))),
             ),
           ],
         ),

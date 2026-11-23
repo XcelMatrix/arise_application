@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
-import 'package:arise_application/core/theme/app_colors.dart';
 import 'package:arise_application/features/account/cubit/account_cubit.dart';
 import 'package:arise_application/features/resources/data/guideline_icons.dart';
 import 'package:arise_application/features/resources/data/guideline_text.dart';
@@ -90,11 +89,16 @@ class GuidelineDetailPage extends StatelessWidget {
           padding: EdgeInsets.zero,
           onSelected: (a) => onMenu(a, index),
           itemBuilder: (ctx) => [
-            PopupMenuItem(value: 'edit', child: Text('Edit')),
-            PopupMenuItem(value: 'up', child: Text('Move up')),
-            PopupMenuItem(value: 'down', child: Text('Move down')),
-            PopupMenuItem(value: 'add', child: Text('Add a step below')),
-            PopupMenuItem(value: 'delete', child: Text('Delete')),
+            PopupMenuItem(value: 'edit', child: Text('Edit',
+                  style: TextStyle(color: _blue))),
+            PopupMenuItem(value: 'up', child: Text('Move up',
+                  style: TextStyle(color: _blue))),
+            PopupMenuItem(value: 'down', child: Text('Move down',
+                  style: TextStyle(color: _blue))),
+            PopupMenuItem(value: 'add', child: Text('Add a step below',
+                  style: TextStyle(color: _blue))),
+            PopupMenuItem(value: 'delete', child: Text('Delete',
+                  style: TextStyle(color: _blue))),
           ],
           child: child,
         );
@@ -102,26 +106,27 @@ class GuidelineDetailPage extends StatelessWidget {
     final body = <Widget>[];
     final desc = (g['description'] as String?) ?? '';
     final descFil = (g['description_fil'] as String?) ?? '';
-    if (desc.isNotEmpty || descFil.isNotEmpty) {
-      body.add(Padding(
-        padding: const EdgeInsets.only(bottom: 6),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GuidelineIcon(spec: g['icon'] as String?, size: 56),
-            const SizedBox(width: 14),
-            Expanded(child: _Bilingual(en: desc, fil: descFil)),
+    // the big icon on top, the description centred below it
+    body.add(Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Column(
+        children: [
+          Center(child: GuidelineIcon(spec: g['icon'] as String?, size: 120)),
+          const SizedBox(height: 12),
+          Text.verbatim(g['title'] as String,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: _blue,
+                  fontFamily: 'Geist')),
+          if (desc.isNotEmpty || descFil.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            _Bilingual(en: desc, fil: descFil, center: true),
           ],
-        ),
-      ));
-    } else {
-      body.add(Padding(
-        padding: const EdgeInsets.only(bottom: 6),
-        child: Row(children: [
-          GuidelineIcon(spec: g['icon'] as String?, size: 56),
-        ]),
-      ));
-    }
+        ],
+      ),
+    ));
 
     var i = 0;
     while (i < items.length) {
@@ -165,6 +170,7 @@ class GuidelineDetailPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _blue,
         foregroundColor: Colors.white,
+        centerTitle: true,
         title: Text.verbatim(g['title'] as String,
             style: const TextStyle(
                 fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Geist')),
@@ -237,20 +243,27 @@ class GuidelineDetailPage extends StatelessWidget {
     switch (kind) {
       case 'section':
         return Padding(
-          padding: const EdgeInsets.only(top: 18, bottom: 4),
-          child: Row(children: [
-            Expanded(
-              child: Text.verbatim(en,
-                  style: const TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w800,
-                      color: _blue,
-                      decoration: TextDecoration.underline,
-                      decorationColor: _blue,
-                      fontFamily: 'Geist')),
+          padding: const EdgeInsets.only(top: 22, bottom: 8),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(14, 8, 4, 8),
+            decoration: BoxDecoration(
+              color: _blue.withValues(alpha: 0.08),
+              border: Border.all(color: _blue, width: 1.5),
+              borderRadius: BorderRadius.circular(12),
             ),
-            more,
-          ]),
+            child: Row(children: [
+              Expanded(
+                child: Text.verbatim(_titleCase(en),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        fontSize: 19,
+                        fontWeight: FontWeight.w900,
+                        color: _blue,
+                        fontFamily: 'Geist')),
+              ),
+              more,
+            ]),
+          ),
         );
       case 'heading':
         return Padding(
@@ -258,10 +271,11 @@ class GuidelineDetailPage extends StatelessWidget {
           child: Row(children: [
             Expanded(
               child: Text.verbatim(en,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.text(context),
+                      color: _blue,
                       fontFamily: 'Geist')),
             ),
             more,
@@ -276,7 +290,7 @@ class GuidelineDetailPage extends StatelessWidget {
                 text: TextSpan(
                   style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.text(context),
+                      color: _blue,
                       fontFamily: 'Geist'),
                   children: [
                     const TextSpan(text: '•  '),
@@ -305,7 +319,7 @@ class GuidelineDetailPage extends StatelessWidget {
             GuidelineIcon(
                 spec: r['icon'] as String?,
                 fallback: Icons.circle_outlined,
-                size: 40),
+                size: 48),
             const SizedBox(width: 12),
             Expanded(child: _Bilingual(en: en, fil: fil)),
             more,
@@ -317,7 +331,12 @@ class GuidelineDetailPage extends StatelessWidget {
 
 /// One text in the language chosen in Settings (English or Filipino).
 class _Bilingual extends StatelessWidget {
-  const _Bilingual({required this.en, required this.fil, this.boldEn = true});
+  const _Bilingual(
+      {required this.en,
+      required this.fil,
+      this.boldEn = true,
+      this.center = false});
+  final bool center;
   final String en;
   final String fil;
   final bool boldEn;
@@ -327,11 +346,43 @@ class _Bilingual extends StatelessWidget {
     final text = pickLang(en, fil);
     if (text.isEmpty) return const SizedBox.shrink();
     return Text.verbatim(text,
+        textAlign: center ? TextAlign.center : null,
         style: TextStyle(
             fontSize: 15,
             height: 1.3,
             fontWeight: boldEn ? FontWeight.w700 : FontWeight.w500,
-            color: AppColors.text(context),
+            color: _blue,
             fontFamily: 'Geist'));
   }
+}
+
+
+const _smallWords = {
+  'a', 'an', 'the', 'and', 'or', 'but', 'nor', 'of', 'in', 'on', 'at', 'to',
+  'for', 'by', 'with', 'from', 'as', 'vs',
+  // Filipino
+  'ng', 'sa', 'ang', 'mga', 'na', 'o', 'ay', 'para', 'ni', 'kay',
+};
+
+/// "BEFORE a typhoon and the storm" -> "Before a Typhoon and the Storm"
+String _titleCase(String text) {
+  final words = text.trim().split(RegExp(r'\s+'));
+  for (var i = 0; i < words.length; i++) {
+    final w = words[i];
+    if (w.isEmpty || RegExp(r'\d').hasMatch(w)) continue;
+    final lower = w.toLowerCase();
+    if (i > 0 && _smallWords.contains(lower)) {
+      words[i] = lower;
+      continue;
+    }
+    // capitalise the first letter, and the one after - / ( too
+    final buf = StringBuffer();
+    var up = true;
+    for (final ch in lower.split('')) {
+      buf.write(up && ch.toLowerCase() != ch.toUpperCase() ? ch.toUpperCase() : ch);
+      up = ch == '-' || ch == '/' || ch == '(' ? true : (up && ch.toLowerCase() == ch.toUpperCase());
+    }
+    words[i] = buf.toString();
+  }
+  return words.join(' ');
 }

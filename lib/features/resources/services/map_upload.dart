@@ -145,12 +145,14 @@ class MapUploader {
     if (list.isEmpty) return false;
     final file = list.first;
     final pickedPath = file.path;
+    if (!context.mounted) return false;
     if (pickedPath == null) {
       _toast(context, "Couldn't read that file.");
       return false;
     }
     final local = File(pickedPath);
     final int fileSize = await local.length();
+    if (!context.mounted) return false;
     if (fileSize > _maxBytes) {
       _toast(context, 'That file is over 50 MB.');
       return false;
@@ -228,7 +230,7 @@ class MapUploader {
     } finally {
       nav.pop(); // the spinner
     }
-    if (message != null && context.mounted) _toast(context, message);
+    if (context.mounted) _toast(context, message);
     return ok;
   }
 }

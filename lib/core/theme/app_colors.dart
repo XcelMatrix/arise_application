@@ -37,6 +37,17 @@ class AppTheme {
 
   /// Light mode is the app's original look (Flutter's default theme), so
   /// MaterialApp.theme is left alone. Only dark mode is defined here.
+  /// Light mode: the default theme plus dark-cyan text in pop-up menus
+  /// (the Edit / Delete menus).
+  static ThemeData light() => ThemeData(
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(foregroundColor: _blue),
+        ),
+        popupMenuTheme: const PopupMenuThemeData(
+          textStyle: TextStyle(color: _blue, fontFamily: 'Geist', fontSize: 14),
+        ),
+      );
+
   static ThemeData dark() {
     final scheme = ColorScheme.fromSeed(
       seedColor: _blue,
@@ -51,6 +62,10 @@ class AppTheme {
         backgroundColor: Color(0xFF12181C),
       ),
       dividerColor: const Color(0xFF2D383F),
+      popupMenuTheme: const PopupMenuThemeData(
+        textStyle:
+            TextStyle(color: Color(0xFF8DBFD6), fontFamily: 'Geist', fontSize: 14),
+      ),
     );
   }
 }

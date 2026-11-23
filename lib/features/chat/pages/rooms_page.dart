@@ -221,7 +221,9 @@ class RoomsPage extends StatelessWidget {
                 _NewUsers(newUsers: newUsers),
                 const Expanded(
                   child: Center(
-                    child: Text('Start a chat by tapping on available users'),
+                    child: Text('Start a chat by tapping on available users',
+                        style: TextStyle(
+                            color: Color(0xFF3C6E87), fontFamily: 'Geist')),
                   ),
                 ),
               ],

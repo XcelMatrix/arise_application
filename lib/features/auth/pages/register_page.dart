@@ -198,13 +198,15 @@ class _RegisterPageState extends State<RegisterPage> {
 
             //username
             TextFormField(
+              style: const TextStyle(
+                  color: Color(0xFF3C6E87), fontFamily: 'Geist', fontSize: 16),
               controller: _usernameController,
               enabled: !_isLoading,
               decoration: InputDecoration(
                 hintText: tr(context, "Username"),
                 hintStyle: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color: Color(0x993C6E87),
                   fontFamily: 'Geist'
                 ),
                 filled: true,
@@ -240,13 +242,15 @@ class _RegisterPageState extends State<RegisterPage> {
 
             //email
             TextFormField(
+              style: const TextStyle(
+                  color: Color(0xFF3C6E87), fontFamily: 'Geist', fontSize: 16),
               controller: _emailController,
               enabled: !_isLoading,
               decoration: InputDecoration(
                 hintText: tr(context, "Email Address"),
                 hintStyle: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color: Color(0x993C6E87),
                   fontFamily: 'Geist'
                 ),
                 filled: true,
@@ -278,6 +282,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
             //password
             TextFormField(
+              style: const TextStyle(
+                  color: Color(0xFF3C6E87), fontFamily: 'Geist', fontSize: 16),
               controller: _passwordController,
               enabled: !_isLoading,
               obscureText: !_isPasswordVisible,
@@ -285,7 +291,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 hintText: tr(context, "Password"),
                 hintStyle: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color: Color(0x993C6E87),
                   fontFamily: 'Geist'
                 ),
                 filled: true,
@@ -309,7 +315,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   icon: Icon(
                     // toggle icon based on visibility state
                     _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.grey,
+                    color: Color(0xFF3C6E87),
                   ),
                   onPressed: _isLoading ? null : () {
                     setState(() {
@@ -333,6 +339,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
             //confirm password
             TextFormField(
+              style: const TextStyle(
+                  color: Color(0xFF3C6E87), fontFamily: 'Geist', fontSize: 16),
               controller: _confirmPasswordController,
               enabled: !_isLoading,
               obscureText: !_isPasswordVisible,
@@ -340,7 +348,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 hintText: tr(context, "Confirm Password"),
                 hintStyle: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color: Color(0x993C6E87),
                   fontFamily: 'Geist'
                 ),
                 filled: true,
@@ -364,7 +372,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   icon: Icon(
                     // toggle icon based on visibility state
                     _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.grey,
+                    color: Color(0xFF3C6E87),
                   ),
                   onPressed: _isLoading ? null : () {
                     setState(() {

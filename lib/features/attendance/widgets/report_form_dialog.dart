@@ -145,16 +145,26 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
     );
   }
 
+  static const _text = TextStyle(color: _blue, fontFamily: 'Geist');
+
   InputDecoration _dec(String label) => InputDecoration(
         labelText: tr(context, label),
-        labelStyle: const TextStyle(fontFamily: 'Geist'),
+        labelStyle: _text,
         filled: true,
-        fillColor: AppColors.field(context),
+        fillColor: AppColors.field(context).withValues(alpha: 0.35),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: _blue),
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: _blue),
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: _blue, width: 2),
         ),
       );
 
@@ -178,7 +188,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
                 decoration: _dec('Timestamp'),
                 child: Row(
                   children: [
-                    Expanded(child: Text(formatStamp(_when))),
+                    Expanded(child: Text(formatStamp(_when), style: _text)),
                     const Icon(Icons.edit_calendar, color: _blue, size: 20),
                   ],
                 ),
@@ -191,6 +201,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
               key: ValueKey(_grade),
               initialValue: _grade,
               decoration: _dec('Grade'),
+              style: _text,
               items: [
                 for (final g in gradeOptions)
                   DropdownMenuItem(value: g, child: Text('Grade $g')),
@@ -202,6 +213,7 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
             // section
             TextField(
               controller: _section,
+              style: _text,
               textCapitalization: TextCapitalization.words,
               decoration: _dec('Section (e.g. Polaris)'),
               onChanged: (_) => setState(() {}),
@@ -211,26 +223,58 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
             // evacuation site
             TextField(
               controller: _site,
+              style: _text,
               textCapitalization: TextCapitalization.words,
               decoration: _dec('Evacuation site'),
             ),
             const SizedBox(height: 12),
 
-            // type of emergency
-            DropdownButtonFormField<String>(
-              key: ValueKey(_emergency),
-              initialValue: _emergency,
-              decoration: _dec('Type of emergency'),
-              items: [
-                for (final e in emergencyTypes)
-                  DropdownMenuItem(value: e, child: Text(e)),
-              ],
-              onChanged: (v) => setState(() => _emergency = v ?? _emergency),
+            // type of emergency: its own boxed section with a choice per disaster
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              decoration: BoxDecoration(
+                color: _blue.withValues(alpha: 0.07),
+                border: Border.all(color: _blue, width: 1.5),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Type of emergency',
+                      style: const TextStyle(
+                          color: _blue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          fontFamily: 'Geist')),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      for (final e in emergencyTypes)
+                        ChoiceChip(
+                          label: Text(e),
+                          selected: _emergency == e,
+                          showCheckmark: false,
+                          selectedColor: _blue,
+                          backgroundColor: Colors.transparent,
+                          side: const BorderSide(color: _blue),
+                          labelStyle: TextStyle(
+                              color: _emergency == e ? Colors.white : _blue,
+                              fontFamily: 'Geist'),
+                          onSelected: (_) => setState(() => _emergency = e),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             if (_emergency == 'Other') ...[
               const SizedBox(height: 12),
               TextField(
                 controller: _other,
+                style: _text,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: _dec('Describe the emergency'),
               ),
@@ -246,7 +290,8 @@ class _ReportFormDialogState extends State<ReportFormDialog> {
                 title: Text(
                   'Copy ${source.students.length} student(s) from your '
                   'earlier ${source.label} attendance',
-                  style: const TextStyle(fontSize: 13, fontFamily: 'Geist'),
+                  style: const TextStyle(
+                      fontSize: 13, color: _blue, fontFamily: 'Geist'),
                 ),
               ),
 

@@ -130,8 +130,8 @@ class MyApp extends StatelessWidget {
             title: 'ARISE',
             navigatorKey: navigatorKey,
             scaffoldMessengerKey: scaffoldMessengerKey,
-            // light mode = the original look (Flutter's default theme)
-            theme: null,
+            // light mode = the default look with dark-cyan menu text
+            theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
             themeMode: settings.themeMode,
             builder: (context, child) => _appShell(

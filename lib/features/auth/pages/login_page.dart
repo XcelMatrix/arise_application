@@ -213,13 +213,15 @@ class _LoginPageState extends State<LoginPage> {
 
             // email
             TextFormField(
+              style: const TextStyle(
+                  color: Color(0xFF3C6E87), fontFamily: 'Geist', fontSize: 16),
               controller: _emailController,
               enabled: !_isLoading,
               decoration: InputDecoration(
                 hintText: tr(context, "Email Address"),
                 hintStyle: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color: Color(0x993C6E87),
                   fontFamily: 'Geist'
                 ),
                 filled: true,
@@ -236,6 +238,8 @@ class _LoginPageState extends State<LoginPage> {
 
             // password
             TextFormField(
+              style: const TextStyle(
+                  color: Color(0xFF3C6E87), fontFamily: 'Geist', fontSize: 16),
               controller: _passwordController,
               enabled: !_isLoading,
               obscureText: !_isPasswordVisible,
@@ -243,7 +247,7 @@ class _LoginPageState extends State<LoginPage> {
                 hintText: tr(context, "Password"),
                 hintStyle: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color: Color(0x993C6E87),
                   fontFamily: 'Geist'
                 ),
                 filled: true,
@@ -267,7 +271,7 @@ class _LoginPageState extends State<LoginPage> {
                   icon: Icon(
                     // toggle icon based on visibility state
                     _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.grey,
+                    color: Color(0xFF3C6E87),
                   ),
                   onPressed: _isLoading ? null : () {
                     setState(() {
