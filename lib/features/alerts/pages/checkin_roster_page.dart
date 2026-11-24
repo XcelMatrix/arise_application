@@ -175,6 +175,7 @@ class _CheckInRosterPageState extends State<CheckInRosterPage> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.card(context),
+                      border: Border.all(color: AppColors.border(context), width: 1.2),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Column(
@@ -270,7 +271,7 @@ class _CheckInRosterPageState extends State<CheckInRosterPage> {
       decoration: BoxDecoration(
         color: AppColors.card(context),
         borderRadius: BorderRadius.circular(12),
-        border: s == 'help' ? Border.all(color: _red, width: 1.5) : null,
+        border: s == 'help' ? Border.all(color: _red, width: 1.5) : Border.all(color: AppColors.border(context), width: 1.2),
       ),
       child: Row(children: [
         Icon(icon, color: c),

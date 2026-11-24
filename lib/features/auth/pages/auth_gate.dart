@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/core/widgets/flashing_logo.dart';
 import 'package:arise_application/features/auth/pages/login_page.dart';
+import 'package:arise_application/features/help/pages/tour_page.dart';
 import 'package:arise_application/features/home/pages/home_page.dart';
 import 'package:arise_application/features/account/widgets/class_gate.dart';
 
@@ -24,8 +25,36 @@ class AuthGate extends StatelessWidget {
           return const Scaffold(body: FlashingLogo());
         }
         final session = snapshot.data?.session ?? auth.currentSession;
-        return session == null ? const LoginPage() : const ClassGate(child: HomePage());
+        return session == null ? const _SignedOut() : const ClassGate(child: HomePage());
       },
     );
+  }
+}
+
+/// Signed out: the intro the very first time, then the login page.
+class _SignedOut extends StatefulWidget {
+  const _SignedOut();
+
+  @override
+  State<_SignedOut> createState() => _SignedOutState();
+}
+
+class _SignedOutState extends State<_SignedOut> {
+  bool? _seen;
+
+  @override
+  void initState() {
+    super.initState();
+    TourPage.alreadySeen().then((v) {
+      if (mounted) setState(() => _seen = v);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final seen = _seen;
+    if (seen == null) return const Scaffold(body: FlashingLogo());
+    if (!seen) return TourPage(onDone: () => setState(() => _seen = true));
+    return const LoginPage();
   }
 }

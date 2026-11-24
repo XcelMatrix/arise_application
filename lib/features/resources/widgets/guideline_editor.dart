@@ -42,8 +42,8 @@ Future<bool> _confirm(BuildContext context, String title) async {
 }
 
 /// The icon line of an edit form: the current icon and a button to change it.
-class _IconRow extends StatelessWidget {
-  const _IconRow({
+class IconRow extends StatelessWidget {
+  const IconRow({
     required this.spec,
     required this.image,
     required this.fallback,
@@ -129,7 +129,7 @@ Future<void> editGuidelineEntry(BuildContext context,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _IconRow(
+              IconRow(
                 spec: icon,
                 image: image,
                 fallback: Icons.health_and_safety,
@@ -299,7 +299,7 @@ Future<void> editGuidelineItem(
                 ),
                 if (hasIcon) ...[
                   const SizedBox(height: 10),
-                  _IconRow(
+                  IconRow(
                     spec: icon,
                     image: image,
                     fallback: Icons.circle_outlined,
@@ -379,14 +379,31 @@ Future<void> editGuidelineCategory(BuildContext context,
   final name = TextEditingController(text: (row?['name'] as String?) ?? '');
   final nameFil =
       TextEditingController(text: (row?['name_fil'] as String?) ?? '');
+  final oldIcon = row?['icon'] as String?;
+  var icon = oldIcon;
+  Uint8List? image;
   final ok = await showDialog<bool>(
     context: context,
-    builder: (ctx) => AlertDialog(
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setLocal) => AlertDialog(
       title: Text(row == null ? 'Add category' : 'Edit category', style: kFormTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            IconRow(
+              spec: icon,
+              image: image,
+              fallback: Icons.menu_book,
+              onPick: () async {
+                final c = await showIconPicker(ctx, current: icon);
+                if (c == null) return;
+                setLocal(() {
+                  icon = c.spec;
+                  image = c.image;
+                });
+              },
+            ),
             _field(ctx, name, 'Category name', max: 80),
             _field(ctx, nameFil, 'Category name in Filipino', max: 80),
           ],
@@ -401,17 +418,28 @@ Future<void> editGuidelineCategory(BuildContext context,
             child: const Text('Save')),
       ],
     ),
+    ),
   );
   final n = name.text.trim();
   final nf = nameFil.text.trim();
   disposeLater([name, nameFil]);
   if (ok != true || n.isEmpty) return;
   try {
-    final values = {'name': n, 'name_fil': nf.isEmpty ? null : nf};
+    final values = <String, dynamic>{
+      'name': n,
+      'name_fil': nf.isEmpty ? null : nf
+    };
+    // the icon is only sent when one was set or changed (SQL 32 adds the column)
+    var newIcon = icon;
+    if (image != null) newIcon = await GuidelineIconStore.upload(image!);
+    if (newIcon != oldIcon) values['icon'] = newIcon;
     if (row == null) {
       await cubit.add({...values, 'sort_order': count + 1});
     } else {
       await cubit.edit(row['id'] as String, values);
+    }
+    if (oldIcon != null && oldIcon != newIcon) {
+      await GuidelineIconStore.removeAll([oldIcon]);
     }
   } catch (e) {
     if (context.mounted) _toast(context, e);

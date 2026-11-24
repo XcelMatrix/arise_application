@@ -4,6 +4,12 @@ class GuidelinesCubit extends RowsCubit {
   GuidelinesCubit() : super('guidelines', orderBy: ['sort_order', 'title']);
 }
 
+/// Categories of contacts that people added themselves (name + icon).
+class ContactCategoriesCubit extends RowsCubit {
+  ContactCategoriesCubit()
+      : super('contact_categories', orderBy: ['sort_order', 'name']);
+}
+
 class ContactsCubit extends RowsCubit {
   ContactsCubit()
       : super('emergency_contacts', orderBy: ['sort_order', 'name']);

@@ -291,6 +291,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.soft(context),
+                  border: Border.all(color: AppColors.border(context), width: 1.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(

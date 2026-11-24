@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
 import 'package:arise_application/core/widgets/flashing_logo.dart';
+import 'package:arise_application/core/widgets/category_heading.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/features/account/cubit/account_cubit.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
@@ -168,20 +169,18 @@ class GuidelinesBody extends StatelessWidget {
     final title = cat == null
         ? tr(context, 'Other')
         : pickLang((cat['name'] as String?) ?? '', (cat['name_fil'] as String?) ?? '');
-    return Padding(
-      padding: const EdgeInsets.only(top: 14, bottom: 8),
-      child: Row(children: [
-        Expanded(
-          child: Text.verbatim(title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: _blue,
-                  fontFamily: 'Geist')),
-        ),
-        if (canEdit && cat != null)
-          PopupMenuButton<String>(
+    return CategoryHeading(
+      first: index == 0,
+      icon: CategoryIcon(
+          spec: cat?['icon'] as String?,
+          // "Disasters" shows a warning sign until another icon is picked
+          fallback: '${cat?['name']}'.toLowerCase() == 'disasters'
+              ? Icons.warning
+              : Icons.menu_book,
+          size: 22),
+      title: title,
+      trailing: canEdit && cat != null
+          ? PopupMenuButton<String>(
             padding: EdgeInsets.zero,
             onSelected: (a) async {
               switch (a) {
@@ -211,8 +210,8 @@ class GuidelinesBody extends StatelessWidget {
               PopupMenuItem(value: 'delete', child: Text('Delete category',
                   style: TextStyle(color: _blue))),
             ],
-          ),
-      ]),
+          )
+          : null,
     );
   }
 
@@ -221,6 +220,7 @@ class GuidelinesBody extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: AppColors.card(context),
+        border: Border.all(color: AppColors.border(context), width: 1.2),
         borderRadius: BorderRadius.circular(14),
       ),
       clipBehavior: Clip.antiAlias,
@@ -246,6 +246,7 @@ class GuidelinesBody extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: AppColors.card(context),
+        border: Border.all(color: AppColors.border(context), width: 1.2),
         borderRadius: BorderRadius.circular(14),
       ),
       clipBehavior: Clip.antiAlias,

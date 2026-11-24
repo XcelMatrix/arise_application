@@ -434,6 +434,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             horizontal: 12, vertical: 4),
                         decoration: BoxDecoration(
                           color: AppColors.soft(context),
+                          border: Border.all(color: AppColors.border(context), width: 1.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(

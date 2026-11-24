@@ -95,6 +95,7 @@ class _DrillHistoryPageState extends State<DrillHistoryPage> {
                       margin: const EdgeInsets.only(bottom: 10),
                       decoration: BoxDecoration(
                         color: AppColors.card(context),
+                        border: Border.all(color: AppColors.border(context), width: 1.2),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: ListTile(
@@ -210,6 +211,7 @@ class _DrillReportPage extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.card(context),
+                border: Border.all(color: AppColors.border(context), width: 1.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(

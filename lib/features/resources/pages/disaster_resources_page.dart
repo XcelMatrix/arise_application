@@ -204,6 +204,7 @@ class _DisasterResourcesPageState extends State<DisasterResourcesPage> {
         padding: const EdgeInsets.symmetric(horizontal: 22),
         decoration: BoxDecoration(
           color: AppColors.card(context), // Light card background color
+          border: Border.all(color: AppColors.border(context), width: 1.2),
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [
             BoxShadow(

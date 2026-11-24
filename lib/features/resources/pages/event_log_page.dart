@@ -51,7 +51,7 @@ class EventLogPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: _blue,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Incident History'),
+        title: const Text('History'),
         titleTextStyle: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -217,7 +217,7 @@ class _EventLogBodyState extends State<EventLogBody> {
                       decoration: BoxDecoration(
                         color: AppColors.card(context),
                         borderRadius: BorderRadius.circular(14),
-                        border: e.active ? Border.all(color: _red) : null,
+                        border: e.active ? Border.all(color: _red) : Border.all(color: AppColors.border(context), width: 1.2),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

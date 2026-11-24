@@ -68,7 +68,7 @@ class AppDrawer extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.card(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _blue.withValues(alpha: 0.35)),
+        border: Border.all(color: AppColors.border(context), width: 1.2),
       ),
       child: Column(children: items),
     );
@@ -200,7 +200,7 @@ class AppDrawer extends StatelessWidget {
                               _item(
                                 context,
                                 icon: Icons.warning_amber_rounded,
-                                label: 'Emergency Alert',
+                                label: 'Alert',
                                 onTap: () => _open(
                                     context, EmergencyAlertPage.route()),
                               ),
@@ -224,7 +224,7 @@ class AppDrawer extends StatelessWidget {
                               _item(
                                 context,
                                 icon: Icons.history,
-                                label: 'Incident History',
+                                label: 'History',
                                 onTap: () =>
                                     _open(context, EventLogPage.route()),
                               ),

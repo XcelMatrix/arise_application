@@ -60,6 +60,7 @@ class OfflineGuidesPage extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
                 color: AppColors.card(context),
+                border: Border.all(color: AppColors.border(context), width: 1.2),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: const [
                   BoxShadow(
@@ -162,6 +163,7 @@ class GuideDetailPage extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 14),
               decoration: BoxDecoration(
                 color: AppColors.card(context),
+                border: Border.all(color: AppColors.border(context), width: 1.2),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Column(

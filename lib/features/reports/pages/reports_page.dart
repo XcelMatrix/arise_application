@@ -347,7 +347,6 @@ class _ReportsPageState extends State<ReportsPage> {
   }
 
   Widget _assessmentSection(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -374,7 +373,7 @@ class _ReportsPageState extends State<ReportsPage> {
             margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
               color: AppColors.card(context),
-              border: Border.all(color: _blue.withValues(alpha: dark ? 0.7 : 0.4)),
+              border: Border.all(color: AppColors.border(context), width: 1.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: ListTile(
@@ -472,6 +471,7 @@ class _ReportsPageState extends State<ReportsPage> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.card(context),
+              border: Border.all(color: AppColors.border(context), width: 1.2),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Column(

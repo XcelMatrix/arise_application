@@ -132,7 +132,7 @@ class _Block extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.card(context),
-        border: Border.all(color: const Color(0xFF3C6E87).withValues(alpha: 0.35)),
+        border: Border.all(color: AppColors.border(context), width: 1.2),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(

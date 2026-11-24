@@ -27,6 +27,10 @@ class AppColors {
   static Color text(BuildContext c) =>
       isDark(c) ? const Color(0xFFDCE9F0) : const Color(0xFF2C4C5E);
 
+  /// the border every box has (cards, buttons, panels)
+  static Color border(BuildContext c) =>
+      isDark(c) ? const Color(0x998DBFD6) : const Color(0x733C6E87);
+
   /// near-black text (was Colors.black87)
   static Color body(BuildContext c) =>
       isDark(c) ? const Color(0xDDFFFFFF) : Colors.black87;
@@ -35,18 +39,35 @@ class AppColors {
 class AppTheme {
   static const _blue = Color(0xFF3C6E87);
 
-  /// Light mode is the app's original look (Flutter's default theme), so
-  /// MaterialApp.theme is left alone. Only dark mode is defined here.
-  /// Light mode: the default theme plus dark-cyan text in pop-up menus
-  /// (the Edit / Delete menus).
-  static ThemeData light() => ThemeData(
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(foregroundColor: _blue),
-        ),
-        popupMenuTheme: const PopupMenuThemeData(
-          textStyle: TextStyle(color: _blue, fontFamily: 'Geist', fontSize: 14),
-        ),
-      );
+  /// Light mode is built the same way as dark mode: the same dark-cyan colour
+  /// scheme (buttons, switches, checkboxes, dialogs, progress), white pages and
+  /// drawer, soft dividers and dark-cyan pop-up menu text.
+  static ThemeData light() {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: _blue,
+      brightness: Brightness.light,
+    ).copyWith(primary: _blue, surface: Colors.white);
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: Colors.white,
+      canvasColor: Colors.white,
+      drawerTheme: const DrawerThemeData(backgroundColor: Colors.white),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+      ),
+      dividerColor: const Color(0xFFD9E4EA),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: _blue),
+      ),
+      popupMenuTheme: const PopupMenuThemeData(
+        color: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        textStyle: TextStyle(color: _blue, fontFamily: 'Geist', fontSize: 14),
+      ),
+    );
+  }
 
   static ThemeData dark() {
     final scheme = ColorScheme.fromSeed(

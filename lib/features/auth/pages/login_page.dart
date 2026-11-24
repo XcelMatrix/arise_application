@@ -4,7 +4,6 @@ import 'package:arise_application/core/theme/app_colors.dart';
 import 'package:arise_application/features/auth/services/auth_service.dart';
 import 'package:arise_application/features/auth/pages/role_select_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:arise_application/features/help/pages/tour_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -75,8 +74,8 @@ class _LoginPageState extends State<LoginPage> {
 
       if (!mounted) return;
 
-      // short first-run tour (or straight to Home if switched off)
-      await TourPage.openAfterLogin(context);
+      // back to the root: AuthGate now shows Home
+      Navigator.of(context).popUntil((route) => route.isFirst);
     }
 
     // catch auth exception

@@ -220,6 +220,7 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: AppColors.card(context),
+        border: Border.all(color: AppColors.border(context), width: 1.2),
         borderRadius: BorderRadius.circular(14),
         boxShadow: const [
           BoxShadow(color: Color(0x1A000000), blurRadius: 6, offset: Offset(0, 3)),

@@ -17,6 +17,7 @@ import 'package:arise_application/features/attendance/models/attendance_models.d
 import 'package:arise_application/features/attendance/pages/attendance_report_page.dart';
 import 'package:arise_application/features/home/pages/home_page.dart';
 import 'package:arise_application/features/attendance/widgets/report_form_dialog.dart';
+import 'package:arise_application/features/attendance/widgets/report_actions.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
 import 'package:arise_application/features/resources/data/guideline_icons.dart';
 
@@ -312,6 +313,18 @@ class _AttendancePageState extends State<AttendancePage> {
                               status: _statusText(r),
                               onTap: () => Navigator.push(
                                   context, AttendanceReportPage.route(r.id)),
+                              onAction: (a) {
+                                switch (a) {
+                                  case 'import':
+                                    ReportActions.importList(context, r);
+                                  case 'save':
+                                    ReportActions.saveAsList(context, r);
+                                  case 'edit':
+                                    ReportActions.edit(context, r);
+                                  case 'delete':
+                                    ReportActions.delete(context, r);
+                                }
+                              },
                             );
                           },
                         ),
@@ -330,11 +343,15 @@ class _AttendancePageState extends State<AttendancePage> {
 /// where, and the Present / Absent / Missing / Injured counts.
 class _RecordCard extends StatelessWidget {
   const _RecordCard(
-      {required this.report, required this.status, required this.onTap});
+      {required this.report,
+      required this.status,
+      required this.onTap,
+      required this.onAction});
 
   final AttendanceReport report;
   final String status;
   final VoidCallback onTap;
+  final void Function(String action) onAction;
 
   static const _blue = Color(0xFF3C6E87);
 
@@ -371,7 +388,7 @@ class _RecordCard extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _blue.withValues(alpha: 0.45), width: 1.2),
+            border: Border.all(color: AppColors.border(context), width: 1.2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,6 +443,25 @@ class _RecordCard extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: pillPal.text,
                             fontFamily: 'Geist')),
+                  ),
+                  // same menu as inside an attendance, without "Mark all present"
+                  PopupMenuButton<String>(
+                    iconColor: _blue,
+                    padding: EdgeInsets.zero,
+                    tooltip: tr(context, 'More'),
+                    onSelected: onAction,
+                    itemBuilder: (_) => [
+                      const PopupMenuItem(
+                          value: 'import', child: Text('Add from class list')),
+                      PopupMenuItem(
+                          value: 'save',
+                          enabled: report.students.isNotEmpty,
+                          child: const Text('Save as class list')),
+                      const PopupMenuItem(
+                          value: 'edit', child: Text('Edit details')),
+                      const PopupMenuItem(
+                          value: 'delete', child: Text('Delete attendance')),
+                    ],
                   ),
                 ],
               ),

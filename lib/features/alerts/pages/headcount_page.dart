@@ -113,6 +113,7 @@ class _HeadcountPageState extends State<HeadcountPage> {
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
                         color: AppColors.card(context),
+                        border: Border.all(color: AppColors.border(context), width: 1.2),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Column(
@@ -159,7 +160,7 @@ class _HeadcountPageState extends State<HeadcountPage> {
       decoration: BoxDecoration(
         color: AppColors.card(context),
         borderRadius: BorderRadius.circular(14),
-        border: problem > 0 ? Border.all(color: _red, width: 1.4) : null,
+        border: problem > 0 ? Border.all(color: _red, width: 1.4) : Border.all(color: AppColors.border(context), width: 1.2),
       ),
       child: ListTile(
         onTap: () async {

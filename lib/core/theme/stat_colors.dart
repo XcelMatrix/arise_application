@@ -19,6 +19,17 @@ class StatColors {
         dark ? Color.lerp(base, Colors.white, 0.55)! : base,
       );
     }
+    if (!dark) {
+      // light theme: clearer red / green / yellow
+      switch (base.toARGB32()) {
+        case 0xFFB3261E: // missing
+          return const StatColors(Color(0xFFFBD3D0), Color(0xFFC4150C));
+        case 0xFF2E7D32: // present
+          return const StatColors(Color(0xFFD3F0D6), Color(0xFF1B8F2A));
+        case 0xFFEF6C00: // injured
+          return const StatColors(Color(0xFFFFEBB0), Color(0xFF9C6B00));
+      }
+    }
     return dark
         ? StatColors(base.withValues(alpha: 0.38),
             Color.lerp(base, Colors.white, 0.78)!)

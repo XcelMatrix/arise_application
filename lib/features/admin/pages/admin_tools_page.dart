@@ -305,6 +305,7 @@ class _AccessTabState extends State<_AccessTab> {
             padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
             decoration: BoxDecoration(
               color: AppColors.card(context),
+              border: Border.all(color: AppColors.border(context), width: 1.2),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
@@ -540,7 +541,7 @@ class _DataTabState extends State<_DataTab> {
           decoration: BoxDecoration(
             color: AppColors.card(context),
             borderRadius: BorderRadius.circular(14),
-            border: stale ? Border.all(color: Colors.orange, width: 1.5) : null,
+            border: stale ? Border.all(color: Colors.orange, width: 1.5) : Border.all(color: AppColors.border(context), width: 1.2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -595,6 +596,7 @@ class _DataTabState extends State<_DataTab> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.card(context),
+            border: Border.all(color: AppColors.border(context), width: 1.2),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
@@ -626,6 +628,7 @@ class _DataTabState extends State<_DataTab> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.card(context),
+            border: Border.all(color: AppColors.border(context), width: 1.2),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Column(

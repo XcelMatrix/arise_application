@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:arise_application/translations/translated_text.dart';
+import 'package:arise_application/translations/translation.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
+import 'package:arise_application/core/widgets/form_style.dart';
+import 'package:arise_application/core/widgets/save_progress.dart';
 import 'package:arise_application/features/account/cubit/account_cubit.dart';
 import 'package:arise_application/features/announcements/cubit/announcements_cubit.dart';
 import 'package:arise_application/features/announcements/models/announcement.dart';
@@ -25,30 +29,13 @@ Future<void> showAnnouncementEditor(BuildContext context,
     context: context,
     builder: (ctx) => AlertDialog(
       title: Text(existing == null ? 'New Announcement' : 'Edit Announcement',
-          style: const TextStyle(color: Color(0xFF3C6E87), fontFamily: 'Geist')),
+          style: kFormTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: title,
-              style: const TextStyle(color: Color(0xFF3C6E87)),
-              maxLength: 120,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                  labelText: tr(ctx, 'Title'),
-                  labelStyle: const TextStyle(color: Color(0xFF3C6E87))),
-            ),
-            TextField(
-              controller: body,
-              style: const TextStyle(color: Color(0xFF3C6E87)),
-              maxLines: 5,
-              minLines: 3,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                  labelText: tr(ctx, 'Message'),
-                  labelStyle: const TextStyle(color: Color(0xFF3C6E87))),
-            ),
+            formField(ctx, title, 'Title', max: 120, top: 0),
+            formField(ctx, body, 'Message', lines: 3, max: 2000),
           ],
         ),
       ),
@@ -68,19 +55,23 @@ Future<void> showAnnouncementEditor(BuildContext context,
   );
   final t = title.text.trim();
   final b = body.text.trim();
-  title.dispose();
-  body.dispose();
-  if (ok != true) return;
-  try {
+  // freed only after the dialog has finished closing (else the app can freeze)
+  disposeLater([title, body]);
+  if (ok != true || !context.mounted) return;
+  // a spinner shows while saving, and it gives up after 30 seconds
+  final err = await runWithProgress(context, () async {
     if (existing == null) {
       await cubit.post(t, b);
     } else {
       await cubit.update(existing.id, t, b);
     }
-  } catch (e) {
-    if (!context.mounted) return;
+  });
+  if (err != null) {
+    final msg = err is TimeoutException
+        ? Tr.t('Saving took too long. Check your connection and try again.')
+        : '$err';
     messenger.showSnackBar(
-        SnackBar(content: Text.verbatim('${tr(context, 'Could not save')}: $e')));
+        SnackBar(content: Text.verbatim('${Tr.t('Could not save')}: $msg')));
   }
 }
 

@@ -97,6 +97,8 @@ class MyApp extends StatelessWidget {
         BlocProvider<GuidelineCategoriesCubit>(
             create: (context) => GuidelineCategoriesCubit()..load()),
         BlocProvider<ContactsCubit>(create: (context) => ContactsCubit()..load()),
+        BlocProvider<ContactCategoriesCubit>(
+            create: (context) => ContactCategoriesCubit()..load()),
         BlocProvider<ClassListsCubit>(
             create: (context) => ClassListsCubit()..load()),
         BlocProvider<AlertLogCubit>(create: (context) => AlertLogCubit()..load()),
@@ -213,6 +215,7 @@ Widget _appShell(BuildContext context, SettingsState settings,
             context.read<GuidelineItemsCubit>().load();
             context.read<GuidelineCategoriesCubit>().load();
             context.read<ContactsCubit>().load();
+            context.read<ContactCategoriesCubit>().load();
             context.read<ClassListsCubit>().load();
             context.read<AnnouncementsCubit>().load();
             context.read<AlertCubit>().load();

@@ -224,6 +224,42 @@ class _GuidelineIconState extends State<GuidelineIcon> {
   }
 }
 
+/// The icon of a category heading: plain dark cyan, no box (a picture the
+/// person uploaded is shown as it is).
+class CategoryIcon extends StatelessWidget {
+  const CategoryIcon(
+      {super.key, required this.spec, required this.fallback, this.size = 22});
+  final String? spec;
+  final IconData fallback;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = spec ?? '';
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final color = dark ? const Color(0xFF8DBFD6) : _blue;
+    if (s.startsWith('u:')) {
+      return GuidelineIcon(spec: s, fallback: fallback, size: size + 4);
+    }
+    if (s.startsWith('t:') && s.length > 2) {
+      return SizedBox(
+        width: size,
+        child: Center(
+          child: Text(s.substring(2),
+              maxLines: 1,
+              style: TextStyle(
+                  fontSize: size * 0.9,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                  fontFamily: 'Geist')),
+        ),
+      );
+    }
+    final key = s.startsWith('i:') ? s.substring(2) : '';
+    return Icon(GuidelineIcons.map[key] ?? fallback, color: color, size: size);
+  }
+}
+
 /// Uploads and removes the pictures that replace icons.
 class GuidelineIconStore {
   static final _sb = Supabase.instance.client;

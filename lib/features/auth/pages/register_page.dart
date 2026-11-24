@@ -221,6 +221,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.soft(context),
+                  border: Border.all(color: AppColors.border(context), width: 1.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Text(

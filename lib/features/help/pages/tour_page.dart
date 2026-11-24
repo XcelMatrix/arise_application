@@ -2,39 +2,30 @@ import 'package:flutter/material.dart' hide Text;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
-import 'package:arise_application/features/home/pages/home_page.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:arise_application/features/account/cubit/account_cubit.dart';
 
-/// Short first-run tour shown after pressing Log in.
-/// Skip goes straight to Home. "Don't show this again" turns it off.
+/// Short introduction shown once, the first time the app is opened, before
+/// the login / register page. [onDone] is called by Skip and Get started.
 class TourPage extends StatefulWidget {
-  const TourPage({super.key});
+  const TourPage({super.key, required this.onDone});
 
-  static const _prefKey = 'arise_tour_hidden';
+  final VoidCallback onDone;
 
-  static Route<void> route() =>
-      MaterialPageRoute(builder: (context) => const TourPage());
+  static const _prefKey = 'arise_intro_seen';
 
-  static Future<bool> shouldShow() async {
+  static Future<bool> alreadySeen() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return !(prefs.getBool(_prefKey) ?? false);
+      return prefs.getBool(_prefKey) ?? false;
     } catch (_) {
-      return true;
+      return false;
     }
   }
 
-  /// Called after a successful login: tour first, otherwise Home.
-  static Future<void> openAfterLogin(BuildContext context) async {
-    final show = await shouldShow();
-    if (!context.mounted) return;
-    Navigator.pushReplacement(
-      context,
-      show
-          ? route()
-          : MaterialPageRoute(builder: (context) => const HomePage()),
-    );
+  static Future<void> markSeen() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_prefKey, true);
+    } catch (_) {}
   }
 
   @override
@@ -46,10 +37,7 @@ class _Slide {
   final String text;
   final String? image;
   final IconData icon;
-
-  /// only shown to accounts that can use this feature (null = everyone)
-  final String? feature;
-  const _Slide(this.title, this.text, this.image, this.icon, [this.feature]);
+  const _Slide(this.title, this.text, this.image, this.icon);
 }
 
 class _TourPageState extends State<TourPage> {
@@ -89,32 +77,20 @@ class _TourPageState extends State<TourPage> {
     ),
     _Slide(
       'Attendance',
-      'Take attendance during a drill and send your report.',
+      'For teachers and admins: take attendance during a drill and send your report.',
       'assets/images/attendance_banner.png',
       Icons.assignment_turned_in,
-      Feature.attendance,
     ),
     _Slide(
       'Console',
-      'Follow drills live and see who has reported.',
+      'For teachers and admins: follow drills live and see who has reported.',
       'assets/images/console_banner.png',
       Icons.terminal,
-      Feature.timedConsole,
     ),
   ];
 
-  /// the slides this account can use (student-locked ones are left out)
-  List<_Slide> _visibleSlides(BuildContext context) {
-    final a = context.watch<AccountCubit>().state; // rebuilds once the role is known
-    return [
-      for (final s in _allSlides)
-        if (s.feature == null || a.canAccess(s.feature!)) s
-    ];
-  }
-
   final _controller = PageController();
   int _page = 0;
-  bool _dontShow = false;
 
   @override
   void dispose() {
@@ -123,17 +99,9 @@ class _TourPageState extends State<TourPage> {
   }
 
   Future<void> _finish() async {
-    if (_dontShow) {
-      try {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool(TourPage._prefKey, true);
-      } catch (_) {}
-    }
+    await TourPage.markSeen();
     if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomePage()),
-    );
+    widget.onDone();
   }
 
   Widget _picture(_Slide s) {
@@ -182,7 +150,7 @@ class _TourPageState extends State<TourPage> {
 
   @override
   Widget build(BuildContext context) {
-    final slides = _visibleSlides(context);
+    final slides = _allSlides;
     final last = _page >= slides.length - 1;
     return Scaffold(
       backgroundColor: AppColors.bg(context),
@@ -250,17 +218,7 @@ class _TourPageState extends State<TourPage> {
                   ),
               ],
             ),
-            if (last)
-              CheckboxListTile(
-                value: _dontShow,
-                onChanged: (v) => setState(() => _dontShow = v ?? false),
-                controlAffinity: ListTileControlAffinity.leading,
-                activeColor: _blue,
-                title: const Text("Don't show this again",
-                    style: TextStyle(fontSize: 14, fontFamily: 'Geist')),
-              )
-            else
-              const SizedBox(height: 12),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.fromLTRB(28, 4, 28, 20),
               child: SizedBox(

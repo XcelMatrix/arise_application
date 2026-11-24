@@ -163,7 +163,7 @@ class _EmergencyAlertPageState extends State<EmergencyAlertPage> {
       appBar: AppBar(
         backgroundColor: _red,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Emergency Alert'),
+        title: const Text('Alert'),
         titleTextStyle: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
