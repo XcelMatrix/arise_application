@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/widgets/form_style.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/features/resources/data/guideline_icons.dart';
@@ -108,5 +109,5 @@ Future<IconChoice?> showIconPicker(BuildContext context, {String? current}) {
             onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
       ],
     ),
-  ).whenComplete(text.dispose);
+  ).whenComplete(() => disposeLater([text]));
 }

@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
 import 'package:arise_application/features/home/pages/home_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:arise_application/features/account/cubit/account_cubit.dart';
 
 /// Short first-run tour shown after pressing Log in.
 /// Skip goes straight to Home. "Don't show this again" turns it off.
@@ -44,13 +46,17 @@ class _Slide {
   final String text;
   final String? image;
   final IconData icon;
-  const _Slide(this.title, this.text, this.image, this.icon);
+
+  /// only shown to accounts that can use this feature (null = everyone)
+  final String? feature;
+  const _Slide(this.title, this.text, this.image, this.icon, [this.feature]);
 }
 
 class _TourPageState extends State<TourPage> {
   static const _blue = Color(0xFF3C6E87);
 
-  static const _slides = [
+  // a short introduction, not a how-to: the full details are in Help
+  static const _allSlides = [
     _Slide(
       'Welcome to ARISE',
       'Your school\'s drill and evacuation companion. Here is a quick look around.',
@@ -58,36 +64,53 @@ class _TourPageState extends State<TourPage> {
       Icons.shield_outlined,
     ),
     _Slide(
-      'Evacuation Plan',
-      'View the evacuation map in AR. Drag to move, pinch to zoom, twist to rotate. If AR is not available, a map image is shown instead.',
+      'Disaster Resources',
+      'Everything you need to prepare for and respond to an emergency, in one place.',
+      null,
+      Icons.health_and_safety,
+    ),
+    _Slide(
+      'Guidelines',
+      'Clear steps for what to do before, during and after a disaster.',
+      null,
+      Icons.menu_book,
+    ),
+    _Slide(
+      'Contacts',
+      'Important emergency numbers, one tap away.',
+      null,
+      Icons.contact_phone,
+    ),
+    _Slide(
+      'Maps',
+      'See the evacuation plan of each building, in AR or as an image.',
       'assets/images/evacuation_banner.png',
       Icons.view_in_ar,
     ),
     _Slide(
       'Attendance',
-      'Teachers take attendance during a drill and mark each student Present, Absent, Missing or Injured, then send the report.',
+      'Take attendance during a drill and send your report.',
       'assets/images/attendance_banner.png',
       Icons.assignment_turned_in,
+      Feature.attendance,
     ),
     _Slide(
       'Console',
-      'Reports appear live. Start a drill and watch the clock until every section has reported.',
+      'Follow drills live and see who has reported.',
       'assets/images/console_banner.png',
       Icons.terminal,
-    ),
-    _Slide(
-      'Stay informed',
-      'The bell shows your latest notifications. Announcements from teachers and admins appear at the top of Home.',
-      null,
-      Icons.notifications_active,
-    ),
-    _Slide(
-      'Your menu',
-      'Tap your picture for Inbox, Calendar, Settings, About and Help. You can open this guide again anytime from Help.',
-      null,
-      Icons.account_circle,
+      Feature.timedConsole,
     ),
   ];
+
+  /// the slides this account can use (student-locked ones are left out)
+  List<_Slide> _visibleSlides(BuildContext context) {
+    final a = context.watch<AccountCubit>().state; // rebuilds once the role is known
+    return [
+      for (final s in _allSlides)
+        if (s.feature == null || a.canAccess(s.feature!)) s
+    ];
+  }
 
   final _controller = PageController();
   int _page = 0;
@@ -159,7 +182,8 @@ class _TourPageState extends State<TourPage> {
 
   @override
   Widget build(BuildContext context) {
-    final last = _page == _slides.length - 1;
+    final slides = _visibleSlides(context);
+    final last = _page >= slides.length - 1;
     return Scaffold(
       backgroundColor: AppColors.bg(context),
       body: SafeArea(
@@ -179,10 +203,10 @@ class _TourPageState extends State<TourPage> {
             Expanded(
               child: PageView.builder(
                 controller: _controller,
-                itemCount: _slides.length,
+                itemCount: slides.length,
                 onPageChanged: (i) => setState(() => _page = i),
                 itemBuilder: (context, i) {
-                  final s = _slides[i];
+                  final s = slides[i];
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 28),
                     child: Column(
@@ -213,7 +237,7 @@ class _TourPageState extends State<TourPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                for (var i = 0; i < _slides.length; i++)
+                for (var i = 0; i < slides.length; i++)
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     margin: const EdgeInsets.symmetric(horizontal: 4),

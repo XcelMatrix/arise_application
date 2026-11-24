@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/theme/stat_colors.dart';
 import 'package:arise_application/core/widgets/back_or_logo.dart';
 import 'package:arise_application/core/widgets/flashing_logo.dart';
 import 'package:arise_application/translations/translated_text.dart';
@@ -359,6 +360,7 @@ class _RecordCard extends StatelessWidget {
     final r = report;
     final sent = r.submitted;
     final pill = sent ? const Color(0xFF2E7D32) : _blue;
+    final pillPal = StatColors.of(context, pill);
     return Material(
       color: AppColors.card(context),
       borderRadius: BorderRadius.circular(16),
@@ -414,15 +416,15 @@ class _RecordCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: pill.withValues(alpha: 0.14),
+                      color: pillPal.box,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: pill),
+                      border: Border.all(color: pillPal.text),
                     ),
                     child: Text(status,
                         style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: pill,
+                            color: pillPal.text,
                             fontFamily: 'Geist')),
                   ),
                 ],
@@ -464,11 +466,11 @@ class _RecordCard extends StatelessWidget {
 
   Widget _count(BuildContext context, AttendanceStatus s) {
     final n = report.students.where((x) => x.status == s).length;
-    final dark = Theme.of(context).brightness == Brightness.dark;
+    final pal = StatColors.of(context, s.color);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: s.color.withValues(alpha: dark ? 0.30 : 0.12),
+        color: pal.box,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(children: [
@@ -476,13 +478,13 @@ class _RecordCard extends StatelessWidget {
             style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: s.color,
+                color: pal.text,
                 fontFamily: 'Geist')),
         Text(s.label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-                fontSize: 10, color: s.color, fontFamily: 'Geist')),
+                fontSize: 10, color: pal.text, fontFamily: 'Geist')),
       ]),
     );
   }

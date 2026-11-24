@@ -145,16 +145,6 @@ class GuidelinesBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 FloatingActionButton.extended(
-                  heroTag: 'add_guideline_category',
-                  backgroundColor: _blue,
-                  foregroundColor: Colors.white,
-                  onPressed: () =>
-                      editGuidelineCategory(context, count: cats.length),
-                  icon: const Icon(Icons.create_new_folder),
-                  label: const Text('Add category'),
-                ),
-                const SizedBox(height: 10),
-                FloatingActionButton.extended(
                   heroTag: 'add_guideline',
                   backgroundColor: _blue,
                   foregroundColor: Colors.white,

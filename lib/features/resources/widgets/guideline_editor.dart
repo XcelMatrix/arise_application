@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
+import 'package:arise_application/core/widgets/form_style.dart';
 import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/features/resources/data/guideline_icons.dart';
 import 'package:arise_application/features/resources/widgets/guideline_icon_picker.dart';
@@ -66,6 +67,10 @@ class _IconRow extends StatelessWidget {
       const SizedBox(width: 12),
       OutlinedButton.icon(
         onPressed: onPick,
+        style: OutlinedButton.styleFrom(
+            foregroundColor: kFormBlue,
+            side: const BorderSide(color: kFormBlue),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
         icon: const Icon(Icons.edit, size: 18),
         label: const Text('Change icon'),
       ),
@@ -75,17 +80,7 @@ class _IconRow extends StatelessWidget {
 
 Widget _field(BuildContext ctx, TextEditingController c, String label,
         {int lines = 1, int max = 4000}) =>
-    Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: TextField(
-        controller: c,
-        minLines: lines,
-        maxLines: lines + 4,
-        maxLength: max,
-        textCapitalization: TextCapitalization.sentences,
-        decoration: InputDecoration(labelText: tr(ctx, label), counterText: ''),
-      ),
-    );
+    formField(ctx, c, label, lines: lines, max: max);
 
 /// Add or edit a disaster (title, icon, description, subtitle).
 Future<void> editGuidelineEntry(BuildContext context,
@@ -98,6 +93,23 @@ Future<void> editGuidelineEntry(BuildContext context,
         .compareTo((b['sort_order'] as num?) ?? 0));
   String? catId = (row?['category_id'] as String?) ?? categoryId;
   if (!cats.any((c) => c['id'] == catId)) catId = null;
+  // the category is typed (a new one is created) or picked from the arrow
+  final catName = TextEditingController(
+      text: catId == null
+          ? ''
+          : '${cats.firstWhere((c) => c['id'] == catId)['name']}');
+  final catFil = TextEditingController();
+  String? existingCat(String typed) {
+    final t = typed.trim().toLowerCase();
+    if (t.isEmpty) return null;
+    for (final c in cats) {
+      if ('${c['name']}'.toLowerCase() == t ||
+          '${c['name_fil'] ?? ''}'.toLowerCase() == t) {
+        return c['id'] as String;
+      }
+    }
+    return null;
+  }
   String s(String k) => (row?[k] as String?) ?? '';
   final title = TextEditingController(text: s('title'));
   final sub = TextEditingController(text: s('subtitle'));
@@ -112,7 +124,7 @@ Future<void> editGuidelineEntry(BuildContext context,
     context: context,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setLocal) => AlertDialog(
-        title: Text(row == null ? 'Add guideline' : 'Edit guideline'),
+        title: Text(row == null ? 'Add guideline' : 'Edit guideline', style: kFormTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -130,26 +142,32 @@ Future<void> editGuidelineEntry(BuildContext context,
                   });
                 },
               ),
-              if (cats.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: DropdownButtonFormField<String?>(
-                    key: ValueKey(catId),
-                    initialValue: catId,
-                    isExpanded: true,
-                    decoration:
-                        InputDecoration(labelText: tr(ctx, 'Category')),
-                    items: [
-                      DropdownMenuItem<String?>(
-                          value: null, child: Text('No category')),
-                      for (final c in cats)
-                        DropdownMenuItem<String?>(
-                            value: c['id'] as String,
-                            child: Text.verbatim(c['name'] as String)),
-                    ],
-                    onChanged: (v) => setLocal(() => catId = v),
-                  ),
-                ),
+              formField(
+                ctx,
+                catName,
+                'Category',
+                hint: 'Type a new category or pick one',
+                max: 80,
+                caps: TextCapitalization.words,
+                onChanged: (_) => setLocal(() {}),
+                suffix: cats.isEmpty
+                    ? null
+                    : PopupMenuButton<String>(
+                        icon: const Icon(Icons.arrow_drop_down, color: kFormBlue),
+                        tooltip: tr(ctx, 'Pick a category'),
+                        onSelected: (v) => setLocal(() => catName.text = v),
+                        itemBuilder: (_) => [
+                          for (final c in cats)
+                            PopupMenuItem(
+                                value: '${c['name']}',
+                                child: Text.verbatim('${c['name']}')),
+                        ],
+                      ),
+              ),
+              // a category that does not exist yet can also get a Filipino name
+              if (catName.text.trim().isNotEmpty &&
+                  existingCat(catName.text) == null)
+                _field(ctx, catFil, 'Category name in Filipino', max: 80),
               _field(ctx, title, 'Title', max: 120),
               _field(ctx, sub, 'Short line under the title', max: 200),
               _field(ctx, subFil, 'Short line in Filipino', max: 200),
@@ -176,11 +194,21 @@ Future<void> editGuidelineEntry(BuildContext context,
     'description': desc.text.trim(),
     'description_fil': descFil.text.trim(),
   };
-  for (final c in [title, sub, subFil, desc, descFil]) {
-    c.dispose();
-  }
+  final typedCat = catName.text.trim();
+  final typedCatFil = catFil.text.trim();
+  disposeLater([title, sub, subFil, desc, descFil, catName, catFil]);
   if (ok != true || v['title']!.isEmpty) return;
   try {
+    // a typed category that is new gets created now
+    catId = existingCat(typedCat);
+    if (typedCat.isNotEmpty && catId == null && context.mounted) {
+      catId = await context.read<GuidelineCategoriesCubit>().insertRow({
+        'name': typedCat,
+        'name_fil': typedCatFil.isEmpty ? null : typedCatFil,
+        'sort_order': cats.length + 1,
+      });
+      await context.read<GuidelineCategoriesCubit>().load();
+    }
     var newIcon = icon;
     if (image != null) newIcon = await GuidelineIconStore.upload(image!);
     final values = <String, dynamic>{
@@ -251,7 +279,7 @@ Future<void> editGuidelineItem(
         final hasIcon = kind == 'item' || kind == 'tile';
         final hasFil = kind != 'tile';
         return AlertDialog(
-          title: Text(row == null ? 'Add step' : 'Edit step'),
+          title: Text(row == null ? 'Add step' : 'Edit step', style: kFormTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -304,8 +332,7 @@ Future<void> editGuidelineItem(
   );
   final enText = en.text.trim();
   final filText = fil.text.trim();
-  en.dispose();
-  fil.dispose();
+  disposeLater([en, fil]);
   if (ok != true || (enText.isEmpty && filText.isEmpty)) return;
   try {
     final usesIcon = kind == 'item' || kind == 'tile';
@@ -355,7 +382,7 @@ Future<void> editGuidelineCategory(BuildContext context,
   final ok = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: Text(row == null ? 'Add category' : 'Edit category'),
+      title: Text(row == null ? 'Add category' : 'Edit category', style: kFormTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -377,8 +404,7 @@ Future<void> editGuidelineCategory(BuildContext context,
   );
   final n = name.text.trim();
   final nf = nameFil.text.trim();
-  name.dispose();
-  nameFil.dispose();
+  disposeLater([name, nameFil]);
   if (ok != true || n.isEmpty) return;
   try {
     final values = {'name': n, 'name_fil': nf.isEmpty ? null : nf};

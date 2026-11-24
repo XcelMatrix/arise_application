@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:arise_application/core/widgets/save_progress.dart';
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/widgets/form_style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -100,7 +101,7 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setLocal) => AlertDialog(
-          title: Text(row == null ? 'Add building' : 'Edit building'),
+          title: Text(row == null ? 'Add building' : 'Edit building', style: kFormTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -144,23 +145,12 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
                       child: const Text('Remove picture'),
                     ),
                 ]),
-                TextField(
-                  controller: nameC,
-                  maxLength: 80,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                      labelText: tr(ctx, 'Building name'),
-                      hintText: tr(ctx, 'e.g. Science building')),
-                ),
-                TextField(
-                  controller: descC,
-                  minLines: 3,
-                  maxLines: 8,
-                  maxLength: 600,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                      labelText: tr(ctx, 'Description (optional)')),
-                ),
+                formField(ctx, nameC, 'Building name',
+                    hint: 'e.g. Science building',
+                    max: 80,
+                    caps: TextCapitalization.words),
+                formField(ctx, descC, 'Description (optional)',
+                    lines: 3, max: 600),
               ],
             ),
           ),
@@ -178,10 +168,7 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
     final name = nameC.text.trim();
     final desc = descC.text.trim();
     // let the dialog finish closing before the controller goes away
-    Future.delayed(const Duration(milliseconds: 600), () {
-      nameC.dispose();
-      descC.dispose();
-    });
+    disposeLater([nameC, descC]);
     if (ok != true || name.isEmpty || !mounted) return;
 
     String? uploaded;

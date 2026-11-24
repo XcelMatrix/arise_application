@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
+import 'package:arise_application/core/widgets/app_drawer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
@@ -56,7 +58,9 @@ class EventLogPage extends StatelessWidget {
             color: Colors.white,
             fontFamily: 'Geist'),
         centerTitle: true,
+        actions: const [ProfileMenuButton()],
       ),
+      endDrawer: const AppDrawer(),
       body: const EventLogBody(),
     );
   }

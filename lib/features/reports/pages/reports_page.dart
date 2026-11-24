@@ -1,6 +1,7 @@
 import 'package:arise_application/core/widgets/app_drawer.dart';
 import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/theme/stat_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/core/services/local_cache.dart';
@@ -177,15 +178,14 @@ class _ReportsPageState extends State<ReportsPage> {
   }
 
   Widget _stat(BuildContext context, String label, String value, Color c) {
-    // in dark mode: a lighter colour for the text and a lighter box
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final fg = dark ? Color.lerp(c, Colors.white, 0.55)! : c;
+    final pal = StatColors.of(context, c);
+    final fg = pal.text;
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         margin: const EdgeInsets.symmetric(horizontal: 3),
         decoration: BoxDecoration(
-          color: dark ? c.withValues(alpha: 0.30) : c.withValues(alpha: 0.12),
+          color: pal.box,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(children: [
@@ -224,7 +224,7 @@ class _ReportsPageState extends State<ReportsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Drill assessment',
+                        Text('Drill Assessment',
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -259,6 +259,7 @@ class _ReportsPageState extends State<ReportsPage> {
                               selectedForegroundColor: Colors.white,
                               selectedBackgroundColor: _blue,
                               side: const BorderSide(color: _blue),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
                             segments: const [
                               ButtonSegment(value: 2, label: Text('Yes')),
@@ -353,7 +354,7 @@ class _ReportsPageState extends State<ReportsPage> {
         Row(children: const [
           Icon(Icons.fact_check, color: _blue),
           SizedBox(width: 8),
-          Text('Drill assessment',
+          Text('Drill Assessment',
               style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -448,6 +449,7 @@ class _ReportsPageState extends State<ReportsPage> {
               selectedForegroundColor: Colors.white,
               selectedBackgroundColor: _blue,
               side: const BorderSide(color: _blue),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             segments: [
               ButtonSegment(
@@ -561,6 +563,7 @@ class _ReportsPageState extends State<ReportsPage> {
                   style: OutlinedButton.styleFrom(
                       foregroundColor: _blue,
                       side: const BorderSide(color: _blue),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.symmetric(vertical: 14)),
                   onPressed: _busy ? null : () => _export(false),
                   icon: const Icon(Icons.table_chart),

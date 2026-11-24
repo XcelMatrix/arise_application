@@ -29,23 +29,49 @@ class _LoginPageState extends State<LoginPage> {
   // loading state
   bool _isLoading = false;
 
+  // after 5 wrong tries in a row the button waits before allowing another try
+  int _failures = 0;
+  DateTime? _lockedUntil;
+
   // password visibility state
   bool _isPasswordVisible = false;
 
   // login button pressed
   void login() async {
+    final typed0 = _emailController.text.trim();
+    if (typed0.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(tr(context, 'Enter your username or email and your password.'))));
+      return;
+    }
+    final lock = _lockedUntil;
+    if (lock != null && lock.isAfter(DateTime.now())) {
+      final secs = lock.difference(DateTime.now()).inSeconds + 1;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('${tr(context, 'Too many wrong tries. Wait')} $secs ${tr(context, 'seconds and try again.')}')));
+      return;
+    }
     // set loading state
     setState(() {
       _isLoading = true;
     });
 
     // prepare data
-    final email = _emailController.text;
+    final typed = _emailController.text.trim();
     final password = _passwordController.text;
+    var email = typed;
 
     // attempt login..
     try {
+      // a username is turned into its email first
+      final found = await authService.loginEmail(typed);
+      if (found == null) {
+        throw const AuthException('Invalid login credentials');
+      }
+      email = found;
       await authService.signInWithEmailPassword(email, password);
+      _failures = 0;
+      _lockedUntil = null;
 
       if (!mounted) return;
 
@@ -59,8 +85,22 @@ class _LoginPageState extends State<LoginPage> {
           error.message.toLowerCase().contains('not confirmed'))) {
         await _offerResend(email);
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Auth Error: ${error.message} ")));
+        final m = error.message.toLowerCase();
+        String text;
+        if (m.contains('too many') || m.contains('rate limit')) {
+          text = tr(context, 'Too many attempts. Please wait a minute and try again.');
+        } else if (m.contains('invalid login') || m.contains('invalid credentials')) {
+          // same answer whether the username exists or not
+          text = tr(context, 'Incorrect username/email or password.');
+          _failures++;
+          if (_failures >= 5) {
+            _lockedUntil = DateTime.now().add(
+                Duration(seconds: 15 * (_failures - 4).clamp(1, 8)));
+          }
+        } else {
+          text = tr(context, 'Could not log in. Please try again.');
+        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
       }
     }
 
@@ -68,7 +108,11 @@ class _LoginPageState extends State<LoginPage> {
     catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $error ")));
+          SnackBar(content: Text(_isNetwork(error)
+              ? tr(context, 'No internet connection. Please try again.')
+              : error.toString().contains('Too many attempts')
+                  ? tr(context, 'Too many attempts. Please wait a minute and try again.')
+                  : tr(context, 'Could not log in. Please try again.'))));
       }
     }
 
@@ -81,6 +125,11 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     }
+  }
+
+  bool _isNetwork(Object e) {
+    final t = e.toString().toLowerCase();
+    return t.contains('socket') || t.contains('network') || t.contains('host lookup');
   }
 
   // "Email not confirmed": offer to send the verification email again
@@ -217,8 +266,11 @@ class _LoginPageState extends State<LoginPage> {
                   color: Color(0xFF3C6E87), fontFamily: 'Geist', fontSize: 16),
               controller: _emailController,
               enabled: !_isLoading,
+              autocorrect: false,
+              enableSuggestions: false,
+              keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                hintText: tr(context, "Email Address"),
+                hintText: tr(context, "Email or Username"),
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: Color(0x993C6E87),

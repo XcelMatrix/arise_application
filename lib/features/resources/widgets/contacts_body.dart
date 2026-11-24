@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/widgets/form_style.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,6 +24,7 @@ const _categories = <String, (IconData, Color, String)>{
   'hospital': (Icons.local_hospital, Color(0xFFC62828), 'Hospital'),
   'fire': (Icons.local_fire_department, Color(0xFFE65100), 'Fire Station'),
   'police': (Icons.local_police, Color(0xFF283593), 'Police Station'),
+  'government': (Icons.account_balance, Color(0xFF5D4037), 'Government'),
   'other': (Icons.contact_phone, Color(0xFF546E7A), 'Other'),
 };
 
@@ -98,7 +100,7 @@ class ContactsBody extends StatelessWidget {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setLocal) => AlertDialog(
-          title: Text(row == null ? 'Add contact' : 'Edit contact'),
+          title: Text(row == null ? 'Add contact' : 'Edit contact', style: kFormTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -148,10 +150,13 @@ class ContactsBody extends StatelessWidget {
                     ]),
                   ),
                 ]),
-                const SizedBox(height: 6),
+                const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: category,
-                  decoration: InputDecoration(labelText: tr(ctx, 'Type')),
+                  isExpanded: true,
+                  style: kFormText,
+                  iconEnabledColor: kFormBlue,
+                  decoration: formDec(ctx, 'Type'),
                   items: [
                     for (final e in _categories.entries)
                       if (e.key != 'other' || category == 'other')
@@ -166,27 +171,12 @@ class ContactsBody extends StatelessWidget {
                   ],
                   onChanged: (v) => setLocal(() => category = v ?? 'fire'),
                 ),
-                TextField(
-                  controller: name,
-                  maxLength: 120,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(labelText: tr(ctx, 'Name')),
-                ),
-                TextField(
-                  controller: phone,
-                  maxLength: 40,
-                  keyboardType: TextInputType.phone,
-                  decoration:
-                      InputDecoration(labelText: tr(ctx, 'Phone number')),
-                ),
-                TextField(
-                  controller: note,
-                  maxLength: 300,
-                  minLines: 1,
-                  maxLines: 4,
-                  decoration:
-                      InputDecoration(labelText: tr(ctx, 'Description (optional)')),
-                ),
+                formField(ctx, name, 'Name',
+                    max: 120, caps: TextCapitalization.words),
+                formField(ctx, phone, 'Phone number',
+                    max: 40, keyboard: TextInputType.phone),
+                formField(ctx, note, 'Description (optional)',
+                    max: 300, lines: 1),
               ],
             ),
           ),
@@ -208,11 +198,7 @@ class ContactsBody extends StatelessWidget {
       'category': category,
     };
     // let the dialog finish closing before the controllers go away
-    Future.delayed(const Duration(milliseconds: 600), () {
-      name.dispose();
-      phone.dispose();
-      note.dispose();
-    });
+    disposeLater([name, phone, note]);
     if (ok != true) return;
     if ((values['name'] as String).isEmpty) return;
     if (!context.mounted) return;
@@ -346,7 +332,14 @@ class ContactsBody extends StatelessWidget {
                       child: Text('No contacts yet.',
                           style: const TextStyle(color: Colors.grey)),
                     )),
-                  for (final r in rows) _tile(context, cubit, r, canEdit),
+                  // a heading for each type of contact
+                  for (var i = 0; i < rows.length; i++) ...[
+                    if (i == 0 ||
+                        _catKey(rows[i]['category']) !=
+                            _catKey(rows[i - 1]['category']))
+                      _header(context, _catKey(rows[i]['category']), i == 0),
+                    _tile(context, cubit, rows[i], canEdit),
+                  ],
                 ],
               ),
         if (canEdit)
@@ -362,6 +355,30 @@ class ContactsBody extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _header(BuildContext context, String key, bool first) {
+    final cat = _categories[key]!;
+    return Padding(
+      padding: EdgeInsets.only(top: first ? 0 : 18, bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(cat.$1, size: 20, color: _blue),
+            const SizedBox(width: 8),
+            Text.verbatim(tr(context, cat.$3),
+                style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: _blue,
+                    fontFamily: 'Geist')),
+          ]),
+          const SizedBox(height: 4),
+          const Divider(color: _blue, thickness: 2, height: 2),
+        ],
+      ),
     );
   }
 

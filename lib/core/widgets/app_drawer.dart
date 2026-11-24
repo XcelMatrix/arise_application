@@ -12,6 +12,7 @@ import 'package:arise_application/features/account/pages/profile_page.dart';
 import 'package:arise_application/features/settings/pages/settings_page.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
 import 'package:arise_application/features/reports/pages/reports_page.dart';
+import 'package:arise_application/features/resources/pages/event_log_page.dart';
 import 'package:arise_application/features/chat/pages/rooms_page.dart';
 import 'package:arise_application/features/alerts/pages/emergency_alert_page.dart';
 import 'package:arise_application/features/admin/pages/admin_tools_page.dart';
@@ -218,6 +219,14 @@ class AppDrawer extends StatelessWidget {
                                 label: 'Reports',
                                 onTap: () =>
                                     _open(context, ReportsPage.route()),
+                              ),
+                            if (acc.canAccess(Feature.timedConsole))
+                              _item(
+                                context,
+                                icon: Icons.history,
+                                label: 'Incident History',
+                                onTap: () =>
+                                    _open(context, EventLogPage.route()),
                               ),
                             if (acc.rank >= 3)
                               _item(

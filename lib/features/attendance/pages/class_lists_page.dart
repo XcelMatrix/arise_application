@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/widgets/form_style.dart';
 import 'package:arise_application/core/widgets/flashing_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
@@ -88,9 +89,7 @@ class ClassListsPage extends StatelessWidget {
           if (l.trim().isNotEmpty) l.trim(),
       ],
     };
-    name.dispose();
-    section.dispose();
-    students.dispose();
+    disposeLater([name, section, students]);
     if (ok != true || (values['name'] as String).isEmpty) return;
     try {
       row == null

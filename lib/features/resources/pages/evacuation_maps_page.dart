@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/widgets/form_style.dart';
 import 'package:arise_application/core/widgets/flashing_logo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -67,25 +68,14 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(building ? 'Edit building' : 'Edit floor'),
+        title: Text(building ? 'Edit building' : 'Edit floor', style: kFormTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                controller: c,
-                maxLength: building ? 80 : 100,
-                decoration: InputDecoration(labelText: tr(ctx, 'Name')),
-              ),
-              TextField(
-                controller: d,
-                minLines: 3,
-                maxLines: 8,
-                maxLength: 600,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                    labelText: tr(ctx, 'Description (optional)')),
-              ),
+              formField(ctx, c, 'Name',
+                  max: building ? 80 : 100, caps: TextCapitalization.words, top: 0),
+              formField(ctx, d, 'Description (optional)', lines: 3, max: 600),
             ],
           ),
         ),
@@ -101,10 +91,7 @@ class _EvacuationMapsPageState extends State<EvacuationMapsPage> {
     );
     final name = c.text.trim();
     final desc = d.text.trim();
-    Future.delayed(const Duration(milliseconds: 600), () {
-      c.dispose();
-      d.dispose();
-    });
+    disposeLater([c, d]);
     if (ok != true || name.isEmpty || !mounted) return;
     final values = {'name': name, 'description': desc.isEmpty ? null : desc};
     try {

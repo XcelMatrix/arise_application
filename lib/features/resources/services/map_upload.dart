@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/widgets/form_style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:arise_application/core/data/content_cubits.dart';
@@ -118,10 +119,7 @@ class MapUploader {
           ],
         ),
       ),
-    ).whenComplete(() {
-      nameC.dispose();
-      newC.dispose();
-    });
+    ).whenComplete(() => disposeLater([nameC, newC]));
   }
 
   /// [kind] is 'model' or 'image'. Pass [buildingId] to add to that building.

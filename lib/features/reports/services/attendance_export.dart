@@ -198,7 +198,7 @@ class AttendanceExport {
               ],
           ]),
           if (drills.any((d) => assessments.containsKey(d.id))) ...[
-            ExportFiles.h2(Tr.t('Drill assessment')),
+            ExportFiles.h2(Tr.t('Drill Assessment')),
             ExportFiles.table([
               Tr.t('Drill started'), Tr.t('Assessment score (%)'),
               Tr.t('Assessment rating'), Tr.t('Assessment notes'),

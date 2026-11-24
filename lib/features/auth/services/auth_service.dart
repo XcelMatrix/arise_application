@@ -33,6 +33,28 @@ class AuthService {
 
   final SupabaseClient _supabaseClient = Supabase.instance.client;
   
+  /// The email to sign in with for what was typed on the login page:
+  /// an email stays as it is, a username is looked up. null = no such username.
+  Future<String?> loginEmail(String identifier) async {
+    final ident = identifier.trim();
+    if (ident.contains('@')) return ident;
+    final res = await _supabaseClient
+        .rpc('login_email', params: {'p_identifier': ident});
+    return res is String && res.isNotEmpty ? res : null;
+  }
+
+  /// False when another account already uses [username] (ignoring capitals).
+  /// If the check cannot run, the sign-up is allowed to try anyway.
+  Future<bool> usernameAvailable(String username) async {
+    try {
+      final res = await _supabaseClient
+          .rpc('username_available', params: {'p_username': username});
+      return res != false;
+    } catch (_) {
+      return true;
+    }
+  }
+
   // Sign in with email and password
   Future<AuthResponse> signInWithEmailPassword (String email, String password) async {
     return await _supabaseClient.auth.signInWithPassword(

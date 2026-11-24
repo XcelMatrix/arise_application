@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:flutter/material.dart' as m show Text;
 import 'package:arise_application/core/widgets/app_drawer.dart';
 import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -193,12 +194,27 @@ class SettingsPage extends StatelessWidget {
                         DropdownMenuItem(
                           value: l.code,
                           child: Row(children: [
-                            Text.verbatim(l.flag,
-                                style: const TextStyle(fontSize: 22)),
-                            const SizedBox(width: 12),
+                            // same line height for the flag and the name, so
+                            // they sit on one line
+                            SizedBox(
+                              width: 30,
+                              child: m.Text(l.flag,
+                                  textAlign: TextAlign.center,
+                                  strutStyle: const StrutStyle(
+                                      fontSize: 20,
+                                      height: 1.3,
+                                      forceStrutHeight: true),
+                                  style: const TextStyle(fontSize: 20)),
+                            ),
+                            const SizedBox(width: 10),
                             Expanded(
-                              child: Text.verbatim(l.label,
-                                  overflow: TextOverflow.ellipsis),
+                              child: m.Text(l.label,
+                                  overflow: TextOverflow.ellipsis,
+                                  strutStyle: const StrutStyle(
+                                      fontSize: 20,
+                                      height: 1.3,
+                                      forceStrutHeight: true),
+                                  style: const TextStyle(fontSize: 16)),
                             ),
                           ]),
                         ),

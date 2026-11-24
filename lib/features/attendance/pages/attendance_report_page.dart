@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:arise_application/core/widgets/form_style.dart';
 import 'package:arise_application/features/account/widgets/profile_menu_button.dart';
 import 'package:arise_application/core/widgets/app_drawer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -129,7 +130,7 @@ class _AttendanceReportPageState extends State<AttendanceReportPage> {
         ],
       ),
     );
-    c.dispose();
+    disposeLater([c]);
     if (name == null || name.isEmpty || !mounted) return;
     final lists = context.read<ClassListsCubit>();
     await _guard(() => lists.add({

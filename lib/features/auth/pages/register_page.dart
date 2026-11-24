@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
 import 'package:arise_application/translations/translated_text.dart';
 import 'package:arise_application/translations/translation.dart';
 import 'package:arise_application/core/theme/app_colors.dart';
 import 'package:arise_application/features/auth/services/auth_service.dart';
+import 'package:arise_application/features/auth/utils/auth_validators.dart';
 import 'package:arise_application/features/auth/pages/login_page.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -30,6 +33,8 @@ class _RegisterPageState extends State<RegisterPage> {
   // password visibility state
   bool _isPasswordVisible = false;
 
+  final _formKey = GlobalKey<FormState>();
+
   // text controllers
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -39,19 +44,11 @@ class _RegisterPageState extends State<RegisterPage> {
   //sign up button pressed
   void signUp() async {
     // prepare data
-    final username = _usernameController.text;
-    final email = _emailController.text;
+    // run every field's check first
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final username = AuthValidators.cleanUsername(_usernameController.text);
+    final email = _emailController.text.trim();
     final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
-
-    // check that passwords match
-    if (password != confirmPassword) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Passwords do not match")));
-      }
-      return;
-    }
 
     // set loading state
     setState(() {
@@ -60,6 +57,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // attempt sign up..
     try {
+      // usernames are unique (capitals do not matter)
+      if (!await authService.usernameAvailable(username)) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(tr(context,
+                  'That username is already taken. Please pick another one.'))));
+          setState(() => _isLoading = false);
+        }
+        return;
+      }
       final res = await authService.signUpWithEmailPassword(
         email,
         password,
@@ -105,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
     catch (error) { 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $error ")));
+          SnackBar(content: Text(_friendlyError(error))));
       }
     }
 
@@ -118,6 +125,27 @@ class _RegisterPageState extends State<RegisterPage> {
         });
       }
     }
+  }
+
+  /// Turns a sign-up failure into a short, readable message.
+  String _friendlyError(Object error) {
+    final text = (error is AuthException ? error.message : '$error').toLowerCase();
+    if (text.contains('too many') || text.contains('rate limit')) {
+      return tr(context, 'Too many attempts. Please wait a minute and try again.');
+    }
+    if (text.contains('already registered') || text.contains('already exists')) {
+      return tr(context, 'An account with that email already exists. Try logging in.');
+    }
+    if (text.contains('username')) {
+      return tr(context, 'That username is not available. Please pick another one.');
+    }
+    if (text.contains('password')) {
+      return tr(context, 'That password was not accepted. Choose a stronger one.');
+    }
+    if (text.contains('socket') || text.contains('network') || text.contains('host lookup')) {
+      return tr(context, 'No internet connection. Please try again.');
+    }
+    return tr(context, 'Could not create the account. Please try again.');
   }
 
   // dispose controllers
@@ -134,8 +162,20 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg(context),
+      appBar: AppBar(
+        backgroundColor: AppColors.bg(context),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF3C6E87)),
+        leading: BackButton(
+          onPressed: _isLoading ? null : () => Navigator.maybePop(context),
+        ),
+      ),
       body: Center(
-        child: ListView(
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
           children : [
             const SizedBox(height: 36),
@@ -204,6 +244,7 @@ class _RegisterPageState extends State<RegisterPage> {
               enabled: !_isLoading,
               decoration: InputDecoration(
                 hintText: tr(context, "Username"),
+                counterText: '',
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: Color(0x993C6E87),
@@ -226,16 +267,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
 
-              validator: (val) {
-                if (val == null || val.isEmpty) {
-                  return Tr.t('Required');
-                }
-                final isValid = RegExp(r'^[A-Za-z0-9_]{3,24}$').hasMatch(val);
-                if (!isValid) {
-                  return Tr.t('3-24 long with alphanumeric or underscore');
-                }
-                return null;
-              },
+              validator: AuthValidators.username,
+              inputFormatters: [
+                TextInputFormatter.withFunction((old, v) => v.copyWith(
+                    text: v.text.toLowerCase())),
+                FilteringTextInputFormatter.deny(RegExp(r'\s')),
+              ],
+              maxLength: 24,
+              autocorrect: false,
+              enableSuggestions: false,
+              textInputAction: TextInputAction.next,
             ),
 
             const SizedBox(height: 8),
@@ -270,12 +311,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               
-              validator: (val) {
-                if (val == null || val.isEmpty) {
-                  return Tr.t('Required');
-                }
-                return null;
-              },
+              validator: AuthValidators.email,
+              keyboardType: TextInputType.emailAddress,
+              autocorrect: false,
+              textInputAction: TextInputAction.next,
             ),
 
             const SizedBox(height: 8),
@@ -289,6 +328,7 @@ class _RegisterPageState extends State<RegisterPage> {
               obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
                 hintText: tr(context, "Password"),
+                counterText: '',
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: Color(0x993C6E87),
@@ -325,14 +365,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
 
-              validator: (val) {
-                if (val == null || val.isEmpty) {
-                  return Tr.t('Required');
-                }
-                final problem = AuthService.passwordProblem(val);
-                if (problem != null) return Tr.t(problem);
-                return null;
-              },
+              validator: (val) => AuthValidators.password(val,
+                  username: _usernameController.text,
+                  email: _emailController.text),
+              maxLength: 72,
+              textInputAction: TextInputAction.next,
             ),
 
             const SizedBox(height: 8),
@@ -381,6 +418,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                 ),
               ),
+              validator: (val) => val == _passwordController.text
+                  ? null
+                  : Tr.t('Passwords do not match'),
             ),
 
             const SizedBox(height: 16),
@@ -435,6 +475,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
           ],
+        ),
         )
       ),
     );
